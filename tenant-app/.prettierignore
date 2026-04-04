@@ -1,0 +1,8 @@
+# Add files to ignore here.
+.expo/
+node_modules/
+dist/
+build/
+package-lock.json
+ios/
+android/

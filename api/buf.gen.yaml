@@ -1,0 +1,13 @@
+version: v2
+clean: true
+plugins:
+  # With module path "proto" and protos under proto/v1/*.proto, source_relative
+  # writes to <out>/v1/*.pb.go — i.e. api/v1/ at repo root when out is "api".
+  - remote: buf.build/protocolbuffers/go
+    out: api
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc/go
+    out: api
+    opt:
+      - paths=source_relative

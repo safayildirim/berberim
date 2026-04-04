@@ -1,0 +1,47 @@
+name: Deploy Tenant App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tenant-app/**"
+      - ".github/workflows/deploy-tenant-app.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        working-directory: tenant-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          cache: npm
+          cache-dependency-path: tenant-app/package-lock.json
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EAS_TOKEN }}
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Create .env file
+        run: |
+          echo "EXPO_PUBLIC_API_BASE_URL=${{ vars.API_BASE_URL }}" >> .env.production
+
+      - name: Create update
+        run: |
+          eas update --branch prod --platform ios --message 'github-sha ${{ github.sha }}'
+          eas update --branch prod --platform android --message 'github-sha ${{ github.sha }}'

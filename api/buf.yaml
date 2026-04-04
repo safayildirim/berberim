@@ -1,0 +1,9 @@
+# Buf module root: all imports and paths are relative to this directory.
+# Place versioned APIs under proto/v1/, proto/v2/, etc. so generated Go
+# lands in api/v1/, api/v2/ (see buf.gen.yaml out + paths=source_relative).
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD

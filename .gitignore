@@ -1,0 +1,76 @@
+# ── Terraform ────────────────────────────────────────────────────────────────
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+# .terraform.lock.hcl is intentionally committed (locks provider versions)
+
+# ── Go ────────────────────────────────────────────────────────────────────────
+*.exe
+*.test
+*.out
+coverage.out
+coverage.html
+go.work.sum
+
+# ── API ───────────────────────────────────────────────────────────────────────
+api/server
+api/berberim
+api/keys/
+api/bin
+
+# ── API Gateway ───────────────────────────────────────────────────────────────
+api-gateway/bin/
+api-gateway/dist/
+api-gateway/build/
+
+# ── Node / Expo ───────────────────────────────────────────────────────────────
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+*.tsbuildinfo
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# ── Native (React Native) ────────────────────────────────────────────────────
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.metro-health-check*
+customer-app/ios
+customer-app/android
+tenant-app/ios
+tenant-app/android
+
+# ── Env and secrets ───────────────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+!*.pem.example
+
+# ── IDE / editor ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs and temp ─────────────────────────────────────────────────────────────
+*.log
+tmp/
+temp/
+*.tmp
+
+.idea/
+CLAUDE.md

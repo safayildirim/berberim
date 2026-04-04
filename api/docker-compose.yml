@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: berberim
+    ports:
+      - "5432:5432"
+    volumes:
+      - berberim_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d berberim"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate:v4.19.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://postgres:postgres@postgres:5432/berberim?sslmode=disable",
+        "up",
+      ]
+    restart: "no"
+
+  berberim-api:
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      ENV: dev
+      PORT: "8081"
+      GRPC_PORT: "9091"
+      DB_URL: "postgres://postgres:postgres@postgres:5432/berberim?sslmode=disable"
+      JWT_ISSUER: "https://berberim.com"
+      # Mount a key at runtime or set JWT_PRIVATE_KEY_PATH to a path inside the container
+      JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    volumes:
+      # Mount directory with private.pem for JWT signing (create keys/ and add private.pem)
+      - ./keys:/app/keys:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8081/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  reminder-worker:
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["./berberim-api", "reminder-worker"]
+    environment:
+      ENV: dev
+      PORT: "8081"
+      GRPC_PORT: "9091"
+      DB_URL: "postgres://postgres:postgres@postgres:5432/berberim?sslmode=disable"
+      JWT_ISSUER: "https://berberim.com"
+      JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+    volumes:
+      - ./keys:/app/keys:ro
+
+volumes:
+  berberim_pgdata:

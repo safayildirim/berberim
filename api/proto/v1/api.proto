@@ -1,0 +1,1548 @@
+syntax = "proto3";
+
+package berberim.v1;
+
+option go_package = "github.com/berberim/api/api/v1;berberimv1";
+
+service BerberimAPI {
+  // ── Auth: Customer (phone + OTP) ──────────────────────────────────────────
+  rpc SendCustomerOTP(SendCustomerOTPRequest) returns (SendCustomerOTPResponse);
+  rpc VerifyCustomerOTP(VerifyCustomerOTPRequest) returns (VerifyCustomerOTPResponse);
+
+  rpc VerifyCustomerSocialLogin(VerifyCustomerSocialLoginRequest) returns (VerifyCustomerSocialLoginResponse);
+
+  // ── Auth: Tenant User (admin / staff — email + password) ─────────────────
+  rpc LoginTenantUser(LoginTenantUserRequest) returns (LoginTenantUserResponse);
+
+  // ── Auth: Platform User (super_admin — email + password) ─────────────────
+  rpc LoginPlatformUser(LoginPlatformUserRequest) returns (LoginPlatformUserResponse);
+
+  // ── Auth: Token & session management ─────────────────────────────────────
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc LogoutAll(LogoutAllRequest) returns (LogoutAllResponse);
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
+  rpc RegisterPushDevice(RegisterPushDeviceRequest) returns (RegisterPushDeviceResponse);
+  rpc DeletePushDevice(DeletePushDeviceRequest) returns (DeletePushDeviceResponse);
+
+  // ── Tenant Users (admin / staff) ──────────────────────────────────────────
+  rpc CreateTenantUser(CreateTenantUserRequest) returns (CreateTenantUserResponse);
+  rpc ListTenantUsers(ListTenantUsersRequest) returns (ListTenantUsersResponse);
+  rpc DisableTenantUser(DisableTenantUserRequest) returns (DisableTenantUserResponse);
+  rpc EnableTenantUser(EnableTenantUserRequest) returns (EnableTenantUserResponse);
+
+  // ── Tenant Settings (admin only) ──────────────────────────────────────────
+  rpc GetTenantSettings(GetTenantSettingsRequest) returns (GetTenantSettingsResponse);
+  rpc UpdateTenantSettings(UpdateTenantSettingsRequest) returns (UpdateTenantSettingsResponse);
+  rpc GetNotificationSettings(GetNotificationSettingsRequest) returns (GetNotificationSettingsResponse);
+  rpc UpdateNotificationSettings(UpdateNotificationSettingsRequest) returns (UpdateNotificationSettingsResponse);
+
+  // ── Services catalog ──────────────────────────────────────────────────────
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse);
+  rpc CreateService(CreateServiceRequest) returns (CreateServiceResponse);
+  rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse);
+
+  // ── Availability ──────────────────────────────────────────────────────────
+  rpc SearchAvailability(SearchAvailabilityRequest) returns (SearchAvailabilityResponse);
+  rpc GetSlotRecommendations(GetSlotRecommendationsRequest) returns (GetSlotRecommendationsResponse);
+
+  rpc GetBookingLimitStatus(GetBookingLimitStatusRequest) returns (GetBookingLimitStatusResponse);
+
+  // ── Appointments (shared across customer / staff / admin surfaces) ────────
+  rpc CreateAppointment(CreateAppointmentRequest) returns (CreateAppointmentResponse);
+  rpc GetAppointment(GetAppointmentRequest) returns (GetAppointmentResponse);
+  rpc ListAppointments(ListAppointmentsRequest) returns (ListAppointmentsResponse);
+  rpc CancelAppointment(CancelAppointmentRequest) returns (CancelAppointmentResponse);
+  rpc RescheduleAppointment(RescheduleAppointmentRequest) returns (RescheduleAppointmentResponse);
+
+  // ── Appointment state transitions (staff / admin only) ────────────────────
+  rpc CompleteAppointment(CompleteAppointmentRequest) returns (CompleteAppointmentResponse);
+  rpc MarkNoShow(MarkNoShowRequest) returns (MarkNoShowResponse);
+  rpc MarkPaymentReceived(MarkPaymentReceivedRequest) returns (MarkPaymentReceivedResponse);
+
+  // ── Loyalty ───────────────────────────────────────────────────────────────
+  rpc GetLoyaltyBalance(GetLoyaltyBalanceRequest) returns (GetLoyaltyBalanceResponse);
+
+  // ── Public: bootstrap ─────────────────────────────────────────────────────
+  rpc GetPublicBootstrap(GetPublicBootstrapRequest) returns (GetPublicBootstrapResponse);
+
+  // ── Public: catalog ───────────────────────────────────────────────────────
+  rpc GetPublicService(GetPublicServiceRequest) returns (GetPublicServiceResponse);
+  rpc ListPublicStaff(ListPublicStaffRequest) returns (ListPublicStaffResponse);
+  rpc GetPublicStaff(GetPublicStaffRequest) returns (GetPublicStaffResponse);
+  rpc ListPublicStaffServices(ListPublicStaffServicesRequest) returns (ListPublicStaffServicesResponse);
+  rpc GetAvailabilityDays(GetAvailabilityDaysRequest) returns (GetAvailabilityDaysResponse);
+
+  // ── Customer profile ──────────────────────────────────────────────────────
+  rpc GetCustomerProfile(GetCustomerProfileRequest) returns (GetCustomerProfileResponse);
+  rpc UpdateCustomerProfile(UpdateCustomerProfileRequest) returns (UpdateCustomerProfileResponse);
+  rpc GetLoyaltyTransactions(GetLoyaltyTransactionsRequest) returns (GetLoyaltyTransactionsResponse);
+
+  // ── Staff Reviews ────────────────────────────────────────────────────────
+  rpc CreateStaffReview(CreateStaffReviewRequest) returns (CreateStaffReviewResponse);
+  rpc UpdateStaffReview(UpdateStaffReviewRequest) returns (UpdateStaffReviewResponse);
+  rpc DeleteStaffReview(DeleteStaffReviewRequest) returns (DeleteStaffReviewResponse);
+  rpc ListStaffReviews(ListStaffReviewsRequest) returns (ListStaffReviewsResponse);
+  rpc GetMyReviewForAppointment(GetMyReviewForAppointmentRequest) returns (GetMyReviewForAppointmentResponse);
+
+  // ── Staff profile & calendar ──────────────────────────────────────────────
+  rpc GetStaffProfile(GetStaffProfileRequest) returns (GetStaffProfileResponse);
+  rpc GetStaffCalendar(GetStaffCalendarRequest) returns (GetStaffCalendarResponse);
+
+  // ── Admin: branding ───────────────────────────────────────────────────────
+  rpc GetTenantBranding(GetTenantBrandingRequest) returns (GetTenantBrandingResponse);
+  rpc UpdateTenantBranding(UpdateTenantBrandingRequest) returns (UpdateTenantBrandingResponse);
+
+  // ── Admin: services ───────────────────────────────────────────────────────
+  rpc GetService(GetServiceRequest) returns (GetServiceResponse);
+  rpc DeleteService(DeleteServiceRequest) returns (DeleteServiceResponse);
+
+  // ── Admin: staff management ───────────────────────────────────────────────
+  rpc GetStaffMember(GetStaffMemberRequest) returns (GetStaffMemberResponse);
+  rpc UpdateStaffMember(UpdateStaffMemberRequest) returns (UpdateStaffMemberResponse);
+  rpc DeleteStaffMember(DeleteStaffMemberRequest) returns (DeleteStaffMemberResponse);
+  rpc SetStaffStatus(SetStaffStatusRequest) returns (SetStaffStatusResponse);
+  rpc GetStaffServices(GetStaffServicesRequest) returns (GetStaffServicesResponse);
+  rpc SetStaffServices(SetStaffServicesRequest) returns (SetStaffServicesResponse);
+  rpc ListScheduleRules(ListScheduleRulesRequest) returns (ListScheduleRulesResponse);
+  rpc CreateScheduleRule(CreateScheduleRuleRequest) returns (CreateScheduleRuleResponse);
+  rpc UpdateScheduleRule(UpdateScheduleRuleRequest) returns (UpdateScheduleRuleResponse);
+  rpc DeleteScheduleRule(DeleteScheduleRuleRequest) returns (DeleteScheduleRuleResponse);
+  rpc ListTimeOffs(ListTimeOffsRequest) returns (ListTimeOffsResponse);
+  rpc CreateTimeOff(CreateTimeOffRequest) returns (CreateTimeOffResponse);
+  rpc UpdateTimeOff(UpdateTimeOffRequest) returns (UpdateTimeOffResponse);
+  rpc DeleteTimeOff(DeleteTimeOffRequest) returns (DeleteTimeOffResponse);
+
+  // ── Admin: customer management ────────────────────────────────────────────
+  rpc ListCustomers(ListCustomersRequest) returns (ListCustomersResponse);
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc GetAdminCustomer(GetAdminCustomerRequest) returns (GetAdminCustomerResponse);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (UpdateCustomerResponse);
+  rpc SetCustomerStatus(SetCustomerStatusRequest) returns (SetCustomerStatusResponse);
+
+  // ── Admin: loyalty settings ───────────────────────────────────────────────
+  rpc GetLoyaltySettings(GetLoyaltySettingsRequest) returns (GetLoyaltySettingsResponse);
+  rpc UpdateLoyaltySettings(UpdateLoyaltySettingsRequest) returns (UpdateLoyaltySettingsResponse);
+
+  // ── Admin: rewards ────────────────────────────────────────────────────────
+  rpc ListRewards(ListRewardsRequest) returns (ListRewardsResponse);
+  rpc CreateReward(CreateRewardRequest) returns (CreateRewardResponse);
+  rpc GetReward(GetRewardRequest) returns (GetRewardResponse);
+  rpc UpdateReward(UpdateRewardRequest) returns (UpdateRewardResponse);
+  rpc DeleteReward(DeleteRewardRequest) returns (DeleteRewardResponse);
+  rpc SetRewardStatus(SetRewardStatusRequest) returns (SetRewardStatusResponse);
+
+  // ── Admin: analytics ──────────────────────────────────────────────────────
+  rpc GetAnalyticsOverview(GetAnalyticsOverviewRequest) returns (GetAnalyticsOverviewResponse);
+  rpc GetCohortAnalysis(GetCohortAnalysisRequest) returns (GetCohortAnalysisResponse);
+  rpc GetRetentionAnalysis(GetRetentionAnalysisRequest) returns (GetRetentionAnalysisResponse);
+  rpc GetCustomerLTV(GetCustomerLTVRequest) returns (GetCustomerLTVResponse);
+  rpc GetNoShowAnalysis(GetNoShowAnalysisRequest) returns (GetNoShowAnalysisResponse);
+
+  // ── Platform: tenant lifecycle ────────────────────────────────────────────
+  rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse);
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+  rpc GetTenant(GetTenantRequest) returns (GetTenantResponse);
+  rpc SetTenantStatus(SetTenantStatusRequest) returns (SetTenantStatusResponse);
+  rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse);
+  rpc FreezeTenant(FreezeTenantRequest) returns (FreezeTenantResponse);
+  rpc ReactivateTenant(ReactivateTenantRequest) returns (ReactivateTenantResponse);
+  rpc CancelTenantSubscription(CancelTenantSubscriptionRequest) returns (CancelTenantSubscriptionResponse);
+  rpc ExtendTenantSubscription(ExtendTenantSubscriptionRequest) returns (ExtendTenantSubscriptionResponse);
+
+  // ── Platform: platform users ──────────────────────────────────────────────
+  rpc ListPlatformUsers(ListPlatformUsersRequest) returns (ListPlatformUsersResponse);
+  rpc CreatePlatformUser(CreatePlatformUserRequest) returns (CreatePlatformUserResponse);
+  rpc GetPlatformUser(GetPlatformUserRequest) returns (GetPlatformUserResponse);
+  rpc UpdatePlatformUser(UpdatePlatformUserRequest) returns (UpdatePlatformUserResponse);
+  rpc DeletePlatformUser(DeletePlatformUserRequest) returns (DeletePlatformUserResponse);
+}
+
+// ── Auth: Customer ────────────────────────────────────────────────────────────
+
+message SendCustomerOTPRequest {
+  string tenant_id = 1;
+  string phone_number = 2;
+}
+
+message SendCustomerOTPResponse {
+  // How many seconds until the OTP expires.
+  int32 expires_in_seconds = 1;
+}
+
+message VerifyCustomerOTPRequest {
+  string tenant_id = 1;
+  string phone_number = 2;
+  string code = 3;
+}
+
+message VerifyCustomerOTPResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string customer_id = 3;
+  // True when the customer record was created by this OTP verification
+  // (first-time login). Client app can redirect to profile setup.
+  bool is_new_customer = 4;
+}
+
+message VerifyCustomerSocialLoginRequest {
+  string tenant_id = 1;
+  // "google" | "apple"
+  string provider = 2;
+  // ID token returned by the provider SDK on the device.
+  string id_token = 3;
+}
+
+message VerifyCustomerSocialLoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string customer_id = 3;
+  // True when the customer record was created by this login (first time).
+  bool is_new_customer = 4;
+}
+
+// ── Auth: Tenant User ─────────────────────────────────────────────────────────
+
+message LoginTenantUserRequest {
+  string tenant_id = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message LoginTenantUserResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string user_id = 3;
+  // "admin" | "staff"
+  string role = 4;
+}
+
+// ── Auth: Platform User ───────────────────────────────────────────────────────
+
+message LoginPlatformUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginPlatformUserResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string user_id = 3;
+}
+
+// ── Auth: Token management ────────────────────────────────────────────────────
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {}
+
+// Revokes all active sessions for the caller.
+message LogoutAllRequest {
+  // Temporary until auth middleware is wired — caller passes their own identity.
+  string user_id = 1;
+  string user_type = 2;
+}
+
+message LogoutAllResponse {
+  int32 revoked_count = 1;
+}
+
+message Session {
+  string id = 1;
+  string ip_address = 2;
+  string user_agent = 3;
+  string last_used_at = 4;
+  string expires_at = 5;
+  string created_at = 6;
+  // True if this is the session used to make this request.
+  bool is_current = 7;
+  string device_platform = 8;
+  string device_model = 9;
+  string app_version = 10;
+  string os_version = 11;
+}
+
+message ListSessionsRequest {
+  string user_id = 1;
+  string user_type = 2;
+  // Used to mark the current session as is_current = true.
+  string current_session_id = 3;
+}
+
+message ListSessionsResponse {
+  repeated Session sessions = 1;
+}
+
+// Revoke a specific session (e.g. "sign out of this device").
+message RevokeSessionRequest {
+  string session_id = 1;
+}
+
+message RevokeSessionResponse {}
+
+message RegisterPushDeviceRequest {
+  // "ios" | "android" | "web"
+  string platform = 1;
+  // "expo" | "fcm"
+  string provider = 2;
+  string device_token = 3;
+  string app_version = 4;
+  string locale = 5;
+  string timezone = 6;
+  // Stable app installation ID.
+  string installation_id = 7;
+}
+
+message RegisterPushDeviceResponse {
+  string device_id = 1;
+}
+
+message DeletePushDeviceRequest {
+  string device_id = 1;
+}
+
+message DeletePushDeviceResponse {}
+
+// ── Tenants ───────────────────────────────────────────────────────────────────
+
+message Tenant {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string status = 4;
+  string timezone = 5;
+  string phone_number = 6;
+  string address = 7;
+  Coordinates coordinates = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message Coordinates {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message TenantBranding {
+  string tenant_id = 1;
+  string logo_url = 2;
+  string primary_color = 3;
+  string secondary_color = 4;
+  string tertiary_color = 5;
+  string updated_at = 6;
+}
+
+message CreateTenantRequest {
+  string name = 1;
+  string slug = 2;
+  string timezone = 3;
+  // Initial admin email + password to bootstrap the first admin user.
+  string admin_email = 4;
+  string admin_password = 5;
+}
+
+message CreateTenantResponse {
+  string tenant_id = 1;
+  string admin_user_id = 2;
+}
+
+message ListTenantsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListTenantsResponse {
+  repeated Tenant tenants = 1;
+  int32 total = 2;
+  int32 total_pages = 3;
+}
+
+message GetTenantRequest {
+  string id = 1;
+}
+
+message GetTenantResponse {
+  Tenant tenant = 1;
+}
+
+message SetTenantStatusRequest {
+  string tenant_id = 1;
+  // "active" | "frozen" | "disabled"
+  string status = 2;
+}
+
+message SetTenantStatusResponse {}
+
+// ── Tenant Users ──────────────────────────────────────────────────────────────
+
+message TenantUser {
+  string id = 1;
+  string tenant_id = 2;
+  string email = 3;
+  string first_name = 4;
+  string last_name = 5;
+  // "admin" | "staff"
+  string role = 6;
+  string status = 7;
+  string created_at = 8;
+  string updated_at = 9;
+  optional string avatar_url = 10;
+  optional string specialty = 11;
+  optional string bio = 12;
+  double avg_rating = 13;
+  int32 review_count = 14;
+}
+
+message CreateTenantUserRequest {
+  string email = 2;
+  string password = 3;
+  string first_name = 4;
+  string last_name = 5;
+  // "admin" | "staff"
+  string role = 6;
+}
+
+message CreateTenantUserResponse {
+  string user_id = 1;
+}
+
+message ListTenantUsersRequest {
+  // Optional filters
+  string role = 2;
+  string status = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message ListTenantUsersResponse {
+  repeated TenantUser users = 1;
+  int32 total = 2;
+  int32 total_pages = 3;
+}
+
+message DisableTenantUserRequest {
+  string user_id = 2;
+}
+
+message DisableTenantUserResponse {}
+
+message EnableTenantUserRequest {
+  string user_id = 2;
+}
+
+message EnableTenantUserResponse {}
+
+// ── Tenant Settings ───────────────────────────────────────────────────────────
+
+message TenantSettingsData {
+  int32 notification_reminder_hours = 1;
+  int32 cancellation_limit_hours = 2;
+  bool loyalty_enabled = 3;
+  bool walk_in_enabled = 4;
+  bool same_day_booking_enabled = 5;
+  int32 max_weekly_customer_bookings = 6;
+}
+
+message GetTenantSettingsRequest {}
+
+message GetTenantSettingsResponse {
+  TenantSettingsData settings = 1;
+}
+
+message UpdateTenantSettingsRequest {
+  TenantSettingsData settings = 1;
+}
+
+message UpdateTenantSettingsResponse {
+  TenantSettingsData settings = 1;
+}
+
+message NotificationSettingsData {
+  bool appointment_reminder_enabled = 1;
+  int32 reminder_offset_minutes = 2;
+  bool send_to_customer = 3;
+  bool send_to_staff = 4;
+  bool is_active = 5;
+}
+
+message GetNotificationSettingsRequest {}
+
+message GetNotificationSettingsResponse {
+  NotificationSettingsData settings = 1;
+}
+
+message UpdateNotificationSettingsRequest {
+  NotificationSettingsData settings = 1;
+}
+
+message UpdateNotificationSettingsResponse {
+  NotificationSettingsData settings = 1;
+}
+
+// ── Services Catalog ──────────────────────────────────────────────────────────
+
+message Service {
+  string id = 1;
+  string tenant_id = 2;
+  string name = 3;
+  string description = 4;
+  int32 duration_minutes = 5;
+  string base_price = 6;
+  int32 points_reward = 7;
+  string category_name = 8;
+  bool is_active = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message ListServicesRequest {
+  // tenant_id taken from gRPC metadata for authenticated requests;
+  // must be supplied here for unauthenticated availability lookups.
+  string tenant_id = 1;
+}
+
+message ListServicesResponse {
+  repeated Service services = 1;
+}
+
+message CreateServiceRequest {
+  string name = 1;
+  string description = 2;
+  int32 duration_minutes = 3;
+  string base_price = 4;
+  int32 points_reward = 5;
+  string category_name = 6;
+}
+
+message CreateServiceResponse {
+  Service service = 1;
+}
+
+message UpdateServiceRequest {
+  string service_id = 1;
+  string name = 2;
+  string description = 3;
+  int32 duration_minutes = 4;
+  string base_price = 5;
+  int32 points_reward = 6;
+  string category_name = 7;
+  bool is_active = 8;
+}
+
+message UpdateServiceResponse {
+  Service service = 1;
+}
+
+// ── Availability ──────────────────────────────────────────────────────────────
+
+message SearchAvailabilityRequest {
+  // Tenant resolved from metadata for authenticated requests; required here
+  // for unauthenticated lookups (customer hasn't logged in yet).
+  string tenant_id = 1;
+  repeated string service_ids = 2;
+  // YYYY-MM-DD in tenant timezone.
+  string date = 3;
+  // Optional: filter results to a specific staff member.
+  // If omitted, all qualified staff are returned.
+  string staff_user_id = 4;
+}
+
+message StaffOption {
+  string staff_user_id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  optional string avatar_url = 4;
+  optional string specialty = 5;
+  optional string bio = 6;
+  double avg_rating = 7;
+  int32 review_count = 8;
+}
+
+message AvailableSlot {
+  // RFC3339 timestamps in UTC.
+  string starts_at = 1;
+  string ends_at = 2;
+  // Staff members available for this time slot who can perform all selected services.
+  repeated StaffOption available_staff = 3;
+}
+
+// A slot that is fully booked — no staff is available for this time.
+// Returned so the UI can render it as unavailable/seated.
+message FilledSlot {
+  string starts_at = 1;
+  string ends_at = 2;
+}
+
+message SearchAvailabilityResponse {
+  repeated AvailableSlot slots = 1;
+  // Slots within working hours that are fully booked across all qualified staff.
+  repeated FilledSlot filled_slots = 2;
+}
+
+// ── Slot Recommendations ─────────────────────────────────────────────────────
+
+message GetSlotRecommendationsRequest {
+  string tenant_id = 1;
+  repeated string service_ids = 2;
+  // Optional: enables personalized recommendations based on booking history.
+  string customer_id = 3;
+  // Optional: filter to a specific staff member.
+  string staff_user_id = 4;
+}
+
+message RecommendedSlot {
+  // RFC3339 timestamps in UTC.
+  string starts_at = 1;
+  string ends_at = 2;
+  repeated StaffOption available_staff = 3;
+  // "earliest" | "preferred_time" | "preferred_staff" | "popular"
+  string label = 4;
+}
+
+message GetSlotRecommendationsResponse {
+  repeated RecommendedSlot recommendations = 1;
+}
+
+message GetBookingLimitStatusRequest {}
+
+message GetBookingLimitStatusResponse {
+  int32 bookings_this_week = 1;
+  int32 max_weekly_bookings = 2;
+  bool can_book = 3;
+}
+
+// ── Appointments ──────────────────────────────────────────────────────────────
+
+message AppointmentService {
+  string service_id = 1;
+  string service_name = 2;
+  int32 duration_minutes = 3;
+  // Stored as string to avoid float precision issues ("120.00").
+  string price = 4;
+  int32 points_reward = 5;
+}
+
+message Appointment {
+  string id = 1;
+  string tenant_id = 2;
+  string customer_id = 3;
+  string staff_user_id = 4;
+  string starts_at = 5;
+  string ends_at = 6;
+  // "confirmed" | "payment_received" | "completed" | "cancelled" | "no_show" | "rescheduled"
+  string status = 7;
+  string cancellation_reason = 8;
+  string notes_customer = 9;
+  string notes_internal = 10;
+  string rescheduled_from_appointment_id = 11;
+  // "customer_app" | "admin_panel" | "walk_in"
+  string created_via = 12;
+  string created_at = 13;
+  string updated_at = 14;
+  repeated AppointmentService services = 15;
+  // Included when fetching a single appointment or a list with hydration.
+  StaffOption staff = 16;
+  // Sum of price_snapshot across all services. Stored as string ("220.00").
+  string total_price = 17;
+  // Included when fetching a single appointment or a list with hydration.
+  Customer customer = 18;
+  // Included when the appointment has a review.
+  StaffReview review = 19;
+}
+
+message CreateAppointmentRequest {
+  repeated string service_ids = 1;
+  string staff_user_id = 2;
+  // RFC3339 UTC timestamp.
+  string starts_at = 3;
+  string notes_customer = 4;
+  // "customer_app" | "admin_panel" | "walk_in"
+  string created_via = 5;
+  // Required when called from staff/admin surface (walk-in or booking for customer).
+  // For customer surface, customer_id is taken from JWT metadata.
+  string customer_id = 6;
+}
+
+message CreateAppointmentResponse {
+  Appointment appointment = 1;
+}
+
+message GetAppointmentRequest {
+  string appointment_id = 1;
+}
+
+message GetAppointmentResponse {
+  Appointment appointment = 1;
+}
+
+message ListAppointmentsRequest {
+  // Optional filters — applied on top of tenant scoping from metadata.
+  string customer_id = 1;
+  string staff_user_id = 2;
+  // YYYY-MM-DD
+  string date_from = 3;
+  string date_to = 4;
+  // Filter by status (empty = all).
+  string status = 5;
+  int32 page = 6;
+  int32 page_size = 7;
+}
+
+message ListAppointmentsResponse {
+  repeated Appointment appointments = 1;
+  int32 total = 2;
+  int32 total_pages = 3;
+}
+
+message CancelAppointmentRequest {
+  string appointment_id = 1;
+  string reason = 2;
+}
+
+message CancelAppointmentResponse {}
+
+message RescheduleAppointmentRequest {
+  string appointment_id = 1;
+  // RFC3339 UTC timestamp.
+  string new_starts_at = 2;
+  // Optional — keep existing staff if empty.
+  string new_staff_user_id = 3;
+}
+
+message RescheduleAppointmentResponse {
+  Appointment new_appointment = 1;
+}
+
+message CompleteAppointmentRequest {
+  string appointment_id = 1;
+}
+
+message CompleteAppointmentResponse {}
+
+message MarkNoShowRequest {
+  string appointment_id = 1;
+}
+
+message MarkNoShowResponse {}
+
+message MarkPaymentReceivedRequest {
+  string appointment_id = 1;
+}
+
+message MarkPaymentReceivedResponse {}
+
+// ── Loyalty ───────────────────────────────────────────────────────────────────
+
+message GetLoyaltyBalanceRequest {
+  // customer_id taken from JWT metadata for customer surface;
+  // may be supplied explicitly by staff/admin.
+  string customer_id = 1;
+}
+
+message GetLoyaltyBalanceResponse {
+  int32 current_points = 1;
+  int32 lifetime_earned_points = 2;
+  int32 lifetime_spent_points = 3;
+}
+
+// ── Public: bootstrap ─────────────────────────────────────────────────────────
+
+message GetPublicBootstrapRequest {
+  string id = 1;
+}
+
+message GetPublicBootstrapResponse {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string phone_number = 4;
+  string address = 5;
+  Coordinates coordinates = 6;
+  string timezone = 7;
+  TenantSettingsData settings = 8;
+  TenantBranding branding = 9;
+}
+
+// ── Public: catalog ───────────────────────────────────────────────────────────
+
+message GetPublicServiceRequest {
+  string tenant_id = 1;
+  string service_id = 2;
+}
+
+message GetPublicServiceResponse {
+  Service service = 1;
+}
+
+message PublicStaffMember {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  double avg_rating = 4;
+  int32 review_count = 5;
+}
+
+message ListPublicStaffRequest {
+  string tenant_id = 1;
+}
+
+message ListPublicStaffResponse {
+  repeated PublicStaffMember staff = 1;
+}
+
+message GetPublicStaffRequest {
+  string tenant_id = 1;
+  string staff_id = 2;
+}
+
+message GetPublicStaffResponse {
+  PublicStaffMember staff = 1;
+}
+
+message ListPublicStaffServicesRequest {
+  string tenant_id = 1;
+  string staff_id = 2;
+}
+
+message ListPublicStaffServicesResponse {
+  repeated Service services = 1;
+}
+
+message GetAvailabilityDaysRequest {
+  string tenant_id = 1;
+  repeated string service_ids = 2;
+  string staff_id = 3;
+  string from = 4;
+  string to = 5;
+}
+
+message GetAvailabilityDaysResponse {
+  repeated string available_dates = 1;
+}
+
+// ── Customer profile ──────────────────────────────────────────────────────────
+
+message GetCustomerProfileRequest {}
+
+message GetCustomerProfileResponse {
+  Customer profile = 1;
+}
+
+message UpdateCustomerProfileRequest {
+  string first_name = 1;
+  string last_name = 2;
+  string avatar_url = 3;
+}
+
+message UpdateCustomerProfileResponse {
+  Customer profile = 1;
+}
+
+message LoyaltyTransaction {
+  string id = 1;
+  string type = 2;
+  int32 points = 3;
+  int32 balance_after = 4;
+  string reason = 5;
+  string appointment_id = 6;
+  string created_at = 7;
+}
+
+message GetLoyaltyTransactionsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message GetLoyaltyTransactionsResponse {
+  repeated LoyaltyTransaction transactions = 1;
+  int32 total = 2;
+}
+
+// ── Staff profile & calendar ──────────────────────────────────────────────────
+
+message StaffProfile {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string role = 5;
+  string status = 6;
+}
+
+message GetStaffProfileRequest {}
+
+message GetStaffProfileResponse {
+  StaffProfile profile = 1;
+}
+
+message CalendarEntry {
+  Appointment appointment = 1;
+}
+
+message GetStaffCalendarRequest {
+  string date = 1;
+  string view = 2;
+}
+
+message GetStaffCalendarResponse {
+  repeated CalendarEntry entries = 1;
+}
+
+// ── Admin: services ───────────────────────────────────────────────────────────
+
+message GetServiceRequest {
+  string service_id = 1;
+}
+
+message GetServiceResponse {
+  Service service = 1;
+}
+
+message DeleteServiceRequest {
+  string service_id = 1;
+}
+
+message DeleteServiceResponse {}
+
+// ── Admin: staff management ───────────────────────────────────────────────────
+
+message GetStaffMemberRequest {
+  string staff_id = 1;
+}
+
+message GetStaffMemberResponse {
+  TenantUser staff = 1;
+}
+
+message UpdateStaffMemberRequest {
+  string staff_id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string password = 5;
+}
+
+message UpdateStaffMemberResponse {
+  TenantUser staff = 1;
+}
+
+message DeleteStaffMemberRequest {
+  string staff_id = 1;
+}
+
+message DeleteStaffMemberResponse {}
+
+message SetStaffStatusRequest {
+  string staff_id = 1;
+  string status = 2;
+}
+
+message SetStaffStatusResponse {}
+
+message StaffServiceAssignment {
+  string service_id = 1;
+  string service_name = 2;
+  string custom_price = 3;
+  bool is_active = 4;
+}
+
+message GetStaffServicesRequest {
+  string staff_id = 1;
+}
+
+message GetStaffServicesResponse {
+  repeated StaffServiceAssignment services = 1;
+}
+
+message SetStaffServicesRequest {
+  string staff_id = 1;
+  repeated string service_ids = 2;
+}
+
+message SetStaffServicesResponse {}
+
+message ScheduleRule {
+  string id = 1;
+  int32 day_of_week = 2;
+  string start_time = 3;
+  string end_time = 4;
+  int32 slot_interval_minutes = 5;
+  bool is_working_day = 6;
+}
+
+message ListScheduleRulesRequest {
+  string staff_id = 1;
+}
+
+message ListScheduleRulesResponse {
+  repeated ScheduleRule rules = 1;
+}
+
+message CreateScheduleRuleRequest {
+  string staff_id = 1;
+  int32 day_of_week = 2;
+  string start_time = 3;
+  string end_time = 4;
+  int32 slot_interval_minutes = 5;
+  bool is_working_day = 6;
+}
+
+message CreateScheduleRuleResponse {
+  ScheduleRule rule = 1;
+}
+
+message UpdateScheduleRuleRequest {
+  string staff_id = 1;
+  string rule_id = 2;
+  string start_time = 3;
+  string end_time = 4;
+  int32 slot_interval_minutes = 5;
+  bool is_working_day = 6;
+}
+
+message UpdateScheduleRuleResponse {
+  ScheduleRule rule = 1;
+}
+
+message DeleteScheduleRuleRequest {
+  string staff_id = 1;
+  string rule_id = 2;
+}
+
+message DeleteScheduleRuleResponse {}
+
+message TimeOff {
+  string id = 1;
+  string start_at = 2;
+  string end_at = 3;
+  string reason = 4;
+  string type = 5;
+}
+
+message ListTimeOffsRequest {
+  string staff_id = 1;
+}
+
+message ListTimeOffsResponse {
+  repeated TimeOff time_offs = 1;
+}
+
+message CreateTimeOffRequest {
+  string staff_id = 1;
+  string start_at = 2;
+  string end_at = 3;
+  string reason = 4;
+  string type = 5;
+}
+
+message CreateTimeOffResponse {
+  TimeOff time_off = 1;
+}
+
+message UpdateTimeOffRequest {
+  string staff_id = 1;
+  string time_off_id = 2;
+  string start_at = 3;
+  string end_at = 4;
+  string reason = 5;
+}
+
+message UpdateTimeOffResponse {
+  TimeOff time_off = 1;
+}
+
+message DeleteTimeOffRequest {
+  string staff_id = 1;
+  string time_off_id = 2;
+}
+
+message DeleteTimeOffResponse {}
+
+// ── Admin: customer management ────────────────────────────────────────────────
+
+message Customer {
+  string id = 1;
+  string phone_number = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string status = 5;
+  int32 total_completed_appointments = 6;
+  string last_appointment_at = 7;
+  string created_at = 8;
+  int32 loyalty_points = 9;
+  string avatar_url = 10;
+}
+
+message ListCustomersRequest {
+  string status = 1;
+  string search = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListCustomersResponse {
+  repeated Customer customers = 1;
+  int32 total = 2;
+}
+
+message CreateCustomerRequest {
+  string phone_number = 1;
+  string first_name = 2;
+  string last_name = 3;
+}
+
+message CreateCustomerResponse {
+  Customer customer = 1;
+}
+
+message GetAdminCustomerRequest {
+  string customer_id = 1;
+}
+
+message GetAdminCustomerResponse {
+  Customer customer = 1;
+}
+
+message UpdateCustomerRequest {
+  string customer_id = 1;
+  string first_name = 2;
+  string last_name = 3;
+}
+
+message UpdateCustomerResponse {
+  Customer customer = 1;
+}
+
+message SetCustomerStatusRequest {
+  string customer_id = 1;
+  string status = 2;
+}
+
+message SetCustomerStatusResponse {}
+
+// ── Admin: loyalty settings ───────────────────────────────────────────────────
+
+message LoyaltySettings {
+  bool loyalty_enabled = 1;
+  int32 points_expiration_days = 2;
+}
+
+message GetLoyaltySettingsRequest {}
+
+message GetLoyaltySettingsResponse {
+  LoyaltySettings settings = 1;
+}
+
+message UpdateLoyaltySettingsRequest {
+  LoyaltySettings settings = 1;
+}
+
+message UpdateLoyaltySettingsResponse {
+  LoyaltySettings settings = 1;
+}
+
+// ── Admin: rewards ────────────────────────────────────────────────────────────
+
+message Reward {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  int32 points_cost = 4;
+  bool is_active = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message ListRewardsRequest {
+  bool active_only = 1;
+}
+
+message ListRewardsResponse {
+  repeated Reward rewards = 1;
+}
+
+message CreateRewardRequest {
+  string title = 1;
+  string description = 2;
+  int32 points_cost = 3;
+}
+
+message CreateRewardResponse {
+  Reward reward = 1;
+}
+
+message GetRewardRequest {
+  string reward_id = 1;
+}
+
+message GetRewardResponse {
+  Reward reward = 1;
+}
+
+message UpdateRewardRequest {
+  string reward_id = 1;
+  string title = 2;
+  string description = 3;
+  int32 points_cost = 4;
+}
+
+message UpdateRewardResponse {
+  Reward reward = 1;
+}
+
+message DeleteRewardRequest {
+  string reward_id = 1;
+}
+
+message DeleteRewardResponse {}
+
+message SetRewardStatusRequest {
+  string reward_id = 1;
+  bool is_active = 2;
+}
+
+message SetRewardStatusResponse {}
+
+// ── Admin: analytics ──────────────────────────────────────────────────────────
+
+message PopularService {
+  string name = 1;
+  int32 count = 2;
+  double progress = 3; // 0.0–1.0 relative to top service
+}
+
+message AnalyticsOverview {
+  // Appointment metrics
+  int32 total_appointments = 1;
+  int32 completed_appointments = 2;
+  int32 cancelled_appointments = 3;
+  double no_show_rate = 4;         // percentage 0–100
+  string total_revenue = 5;        // e.g. "4960.00"
+  string appointments_change = 6;  // e.g. "+12%"
+  string no_show_rate_change = 15; // e.g. "-2%"
+
+  // Customer insights
+  int32 active_customers = 7;
+  double returning_rate = 8;       // percentage 0–100
+  double visit_frequency = 9;      // avg visits per customer
+
+  // Operational performance
+  double staff_utilization = 10;   // percentage 0–100
+  repeated PopularService popular_services = 11;
+
+  // Loyalty engagement
+  int32 rewards_redeemed = 12;
+  string redeemed_change = 13;     // e.g. "+18%"
+  int32 loyalty_progress = 14;     // percentage 0–100
+}
+
+message GetAnalyticsOverviewRequest {
+  string range = 1; // "daily" | "weekly" | "monthly"
+}
+
+message GetAnalyticsOverviewResponse {
+  AnalyticsOverview overview = 1;
+}
+
+// ── Admin: advanced analytics ────────────────────────────────────────────────
+
+message GetCohortAnalysisRequest {
+  int32 months_back = 1; // how many cohort months to include (default 6, max 12)
+}
+
+message CohortPeriod {
+  int32 months_after = 1;      // 0 = cohort month itself, 1 = next month, etc.
+  int32 active_customers = 2;
+  double retention_rate = 3;   // percentage 0-100
+  string revenue = 4;
+}
+
+message CohortMonth {
+  string cohort = 1;           // e.g. "2026-01"
+  int32 cohort_size = 2;
+  repeated CohortPeriod periods = 3;
+}
+
+message GetCohortAnalysisResponse {
+  repeated CohortMonth cohorts = 1;
+}
+
+message GetRetentionAnalysisRequest {
+  string range = 1; // "30d" | "60d" | "90d" | "180d" | "365d" (default "90d")
+}
+
+message RetentionBucket {
+  string label = 1;           // e.g. "0-30 days"
+  int32 customer_count = 2;
+  double percentage = 3;
+}
+
+message RetentionByCohort {
+  string cohort = 1;
+  double return_rate_30d = 2;
+  double return_rate_60d = 3;
+  double return_rate_90d = 4;
+}
+
+message GetRetentionAnalysisResponse {
+  int32 total_customers = 1;
+  int32 returned_customers = 2;
+  double overall_return_rate = 3;
+  double avg_days_between_visits = 4;
+  repeated RetentionBucket buckets = 5;
+  repeated RetentionByCohort by_cohort = 6;
+}
+
+message GetCustomerLTVRequest {
+  string segment_by = 1; // "cohort" | "acquisition_channel" | "service_category" (default "cohort")
+}
+
+message LTVSummary {
+  string avg_ltv = 1;
+  string median_ltv = 2;
+  double avg_visits = 3;
+  string avg_revenue_per_visit = 4;
+  double avg_lifespan_days = 5;
+}
+
+message LTVSegment {
+  string segment = 1;
+  int32 customer_count = 2;
+  string avg_ltv = 3;
+  double avg_visits = 4;
+  string avg_revenue_per_visit = 5;
+}
+
+message GetCustomerLTVResponse {
+  LTVSummary summary = 1;
+  repeated LTVSegment segments = 2;
+}
+
+message GetNoShowAnalysisRequest {
+  string range = 1; // "monthly" | "quarterly" | "yearly" (default "monthly")
+}
+
+message NoShowByStaff {
+  string staff_user_id = 1;
+  string staff_name = 2;
+  int32 total_appointments = 3;
+  int32 no_show_count = 4;
+  double no_show_rate = 5;
+}
+
+message NoShowByTimeSlot {
+  string time_slot = 1;          // "morning" | "afternoon" | "evening"
+  int32 total_appointments = 2;
+  int32 no_show_count = 3;
+  double no_show_rate = 4;
+}
+
+message NoShowByDayOfWeek {
+  int32 day_of_week = 1;         // 0=Sunday ... 6=Saturday
+  string day_name = 2;
+  int32 total_appointments = 3;
+  int32 no_show_count = 4;
+  double no_show_rate = 5;
+}
+
+message NoShowTrend {
+  string period = 1;             // e.g. "2026-01" or "2026-Q1"
+  int32 total_appointments = 2;
+  int32 no_show_count = 3;
+  double no_show_rate = 4;
+}
+
+message GetNoShowAnalysisResponse {
+  int32 total_no_shows = 1;
+  double overall_no_show_rate = 2;
+  repeated NoShowByStaff by_staff = 3;
+  repeated NoShowByTimeSlot by_time_slot = 4;
+  repeated NoShowByDayOfWeek by_day_of_week = 5;
+  repeated NoShowTrend trends = 6;
+}
+
+// ── Platform: tenant lifecycle ────────────────────────────────────────────────
+
+message UpdateTenantRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string timezone = 3;
+  string phone_number = 4;
+  string address = 5;
+  Coordinates coordinates = 6;
+}
+
+message GetTenantBrandingRequest {}
+
+message GetTenantBrandingResponse {
+  TenantBranding branding = 1;
+}
+
+message UpdateTenantBrandingRequest {
+  string logo_url = 1;
+  string primary_color = 2;
+  string secondary_color = 3;
+  string tertiary_color = 4;
+}
+
+message UpdateTenantBrandingResponse {
+  TenantBranding branding = 1;
+}
+
+message UpdateTenantResponse {
+  Tenant tenant = 1;
+}
+
+message FreezeTenantRequest {
+  string tenant_id = 1;
+}
+
+message FreezeTenantResponse {}
+
+message ReactivateTenantRequest {
+  string tenant_id = 1;
+}
+
+message ReactivateTenantResponse {}
+
+message CancelTenantSubscriptionRequest {
+  string tenant_id = 1;
+}
+
+message CancelTenantSubscriptionResponse {}
+
+message ExtendTenantSubscriptionRequest {
+  string tenant_id = 1;
+  string new_ends_at = 2;
+}
+
+message ExtendTenantSubscriptionResponse {}
+
+// ── Platform: platform users ──────────────────────────────────────────────────
+
+message PlatformUser {
+  string id = 1;
+  string email = 2;
+  string role = 3;
+  string status = 4;
+  string created_at = 5;
+}
+
+message ListPlatformUsersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListPlatformUsersResponse {
+  repeated PlatformUser users = 1;
+  int32 total = 2;
+}
+
+message CreatePlatformUserRequest {
+  string email = 1;
+  string password = 2;
+  string role = 3;
+}
+
+message CreatePlatformUserResponse {
+  string user_id = 1;
+}
+
+message GetPlatformUserRequest {
+  string user_id = 1;
+}
+
+message GetPlatformUserResponse {
+  PlatformUser user = 1;
+}
+
+message UpdatePlatformUserRequest {
+  string user_id = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UpdatePlatformUserResponse {
+  PlatformUser user = 1;
+}
+
+message DeletePlatformUserRequest {
+  string user_id = 1;
+}
+
+message DeletePlatformUserResponse {}
+
+// ── Staff Reviews ────────────────────────────────────────────────────────────
+
+message StaffReview {
+  string id = 1;
+  string appointment_id = 2;
+  string customer_id = 3;
+  string staff_user_id = 4;
+  int32 rating = 5;
+  string comment = 6;
+  bool is_anonymous = 7;
+  string created_at = 8;
+  string updated_at = 9;
+  string customer_name = 10; // empty string when anonymous
+}
+
+message CreateStaffReviewRequest {
+  string appointment_id = 1;
+  int32 rating = 2;
+  string comment = 3;
+  bool is_anonymous = 4;
+}
+
+message CreateStaffReviewResponse {
+  StaffReview review = 1;
+}
+
+message UpdateStaffReviewRequest {
+  string review_id = 1;
+  optional int32 rating = 2;
+  optional string comment = 3;
+  optional bool is_anonymous = 4;
+}
+
+message UpdateStaffReviewResponse {
+  StaffReview review = 1;
+}
+
+message DeleteStaffReviewRequest {
+  string review_id = 1;
+}
+
+message DeleteStaffReviewResponse {}
+
+message ListStaffReviewsRequest {
+  string staff_user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListStaffReviewsResponse {
+  repeated StaffReview reviews = 1;
+  int32 total = 2;
+  int32 total_pages = 3;
+}
+
+message GetMyReviewForAppointmentRequest {
+  string appointment_id = 1;
+}
+
+message GetMyReviewForAppointmentResponse {
+  StaffReview review = 1;
+}
