@@ -1,5 +1,6 @@
 import * as SplashScreen from 'expo-splash-screen';
 import React, { createContext, useContext, useEffect } from 'react';
+import { View } from 'react-native';
 import { useBootstrap } from '../hooks/queries/useBootstrap';
 import { syncPushDeviceRegistration } from '../lib/device/push-registration';
 import { authService } from '../services/auth.service';
@@ -23,10 +24,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user, isBootstrapped } = useSessionStore();
 
   useEffect(() => {
-    if (!isLoading || isError) {
+    if ((!isLoading && isBootstrapped) || isError) {
       SplashScreen.hideAsync();
     }
-  }, [isLoading, isError]);
+  }, [isLoading, isBootstrapped, isError]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -46,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   if (isLoading && !isBootstrapped) {
-    return null; // Keep splash screen visible
+    return <View style={{ flex: 1, backgroundColor: '#ffffff' }} />;
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

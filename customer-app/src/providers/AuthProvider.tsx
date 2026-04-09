@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect } from 'react';
+import { View } from 'react-native';
 import { useSessionStore } from '@/src/lib/auth/session-store';
 import { syncPushDeviceRegistration } from '@/src/lib/device/push-registration';
 import { useBootstrap } from '@/src/hooks/queries/useBootstrap';
@@ -48,8 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   if (isLoading && !isBootstrapped) {
-    // Optionally return a minimal loader shell if splash screen isn't enough
-    return null;
+    return <View style={{ flex: 1, backgroundColor: '#ffffff' }} />;
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
