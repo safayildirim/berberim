@@ -24,10 +24,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const { isAuthenticated, user, tenant, isBootstrapped } = useSessionStore();
 
   useEffect(() => {
-    if (!isLoading || isError) {
+    if ((!isLoading && isBootstrapped) || isError) {
       SplashScreen.hideAsync();
     }
-  }, [isLoading, isError]);
+  }, [isLoading, isBootstrapped, isError]);
 
   useEffect(() => {
     if (!isAuthenticated || !user?.profile?.id) {
