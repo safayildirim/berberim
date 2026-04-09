@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { authLogger } from '../logger';
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'staff_token',
@@ -11,7 +12,7 @@ export const tokenStorage = {
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
     } catch (e) {
-      console.error('Error getting access token', e);
+      authLogger.error('Failed to get access token', e);
       return null;
     }
   },
@@ -20,7 +21,7 @@ export const tokenStorage = {
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, token);
     } catch (e) {
-      console.error('Error setting access token', e);
+      authLogger.error('Failed to set access token', e);
     }
   },
 
@@ -28,7 +29,7 @@ export const tokenStorage = {
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
     } catch (e) {
-      console.error('Error getting refresh token', e);
+      authLogger.error('Failed to get refresh token', e);
       return null;
     }
   },
@@ -37,7 +38,7 @@ export const tokenStorage = {
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, token);
     } catch (e) {
-      console.error('Error setting refresh token', e);
+      authLogger.error('Failed to set refresh token', e);
     }
   },
 
@@ -45,7 +46,7 @@ export const tokenStorage = {
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.TENANT_ID);
     } catch (e) {
-      console.error('Error getting tenant id', e);
+      authLogger.error('Failed to get tenant id', e);
       return null;
     }
   },
@@ -54,7 +55,7 @@ export const tokenStorage = {
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.TENANT_ID, tenantId);
     } catch (e) {
-      console.error('Error setting tenant id', e);
+      authLogger.error('Failed to set tenant id', e);
     }
   },
 
@@ -64,7 +65,7 @@ export const tokenStorage = {
       await SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
       await SecureStore.deleteItemAsync(STORAGE_KEYS.TENANT_ID);
     } catch (e) {
-      console.error('Error clearing storage', e);
+      authLogger.error('Failed to clear storage', e);
     }
   },
 };

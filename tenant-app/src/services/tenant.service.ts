@@ -133,7 +133,6 @@ export const tenantService = {
   createAppointment: async (
     data: CreateAppointmentRequest,
   ): Promise<Appointment> => {
-    console.log('Creating appointment:', data);
     return api.post('/tenant/appointments', data);
   },
 

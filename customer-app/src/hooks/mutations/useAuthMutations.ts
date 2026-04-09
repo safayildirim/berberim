@@ -8,6 +8,7 @@ import {
   OtpRequest,
   OtpVerifyRequest,
 } from '@/src/services/auth.service';
+import { authLogger } from '@/src/lib/logger';
 
 export const useRequestOtp = () => {
   return useMutation({
@@ -39,7 +40,7 @@ export const useVerifyOtp = () => {
       queryClient.invalidateQueries();
     },
     onError: (error) => {
-      console.error('Error verifying OTP', error);
+      authLogger.error('OTP verification failed', error);
     },
   });
 };

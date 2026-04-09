@@ -1,4 +1,5 @@
 import { AxiosError } from 'axios';
+import { apiLogger } from '@/src/lib/logger';
 
 export interface ApiErrorResponse {
   code?: string;
@@ -39,9 +40,10 @@ export const handleError = (error: unknown): never => {
     const data = error.response?.data as ApiErrorResponse | undefined;
     const status = error.response?.status;
 
-    console.error(
-      `Error: ${error.response?.status} ${error.response?.statusText}`,
-    );
+    apiLogger.error('API error response', error, {
+      status,
+      code: data?.code,
+    });
 
     // Mapping some common statuses to friendly messages if backend doesn't provide them
     let message = data?.message || error.message;

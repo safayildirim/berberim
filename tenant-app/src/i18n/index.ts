@@ -3,6 +3,7 @@ import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { resources, type AppLanguage } from './resources';
+import { i18nLogger } from '@/src/lib/logger';
 
 const LANGUAGE_KEY = 'berberim-tenant-language';
 
@@ -21,7 +22,7 @@ const detector = {
       const locale = getLocales()[0]?.languageCode;
       callback(locale === 'tr' ? 'tr' : 'en');
     } catch (error) {
-      console.error('Language detection error:', error);
+      i18nLogger.error('Language detection failed', error);
       callback('tr');
     }
   },
@@ -31,7 +32,7 @@ const detector = {
         await AsyncStorage.setItem(LANGUAGE_KEY, lng);
       }
     } catch (error) {
-      console.error('Language caching error:', error);
+      i18nLogger.error('Language caching failed', error);
     }
   },
 };

@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { authLogger } from '@/src/lib/logger';
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'auth_access_token',
@@ -10,7 +11,8 @@ export const tokenStorage = {
   async getAccessToken() {
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
-    } catch {
+    } catch (e) {
+      authLogger.error('Failed to get access token', e);
       return null;
     }
   },
@@ -18,15 +20,16 @@ export const tokenStorage = {
   async setAccessToken(token: string) {
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, token);
-    } catch {
-      console.error('Error setting access token');
+    } catch (e) {
+      authLogger.error('Failed to set access token', e);
     }
   },
 
   async getRefreshToken() {
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
-    } catch {
+    } catch (e) {
+      authLogger.error('Failed to get refresh token', e);
       return null;
     }
   },
@@ -34,15 +37,16 @@ export const tokenStorage = {
   async setRefreshToken(token: string) {
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, token);
-    } catch {
-      console.error('Error setting refresh token');
+    } catch (e) {
+      authLogger.error('Failed to set refresh token', e);
     }
   },
 
   async getTenantId() {
     try {
       return await SecureStore.getItemAsync(STORAGE_KEYS.TENANT_ID);
-    } catch {
+    } catch (e) {
+      authLogger.error('Failed to get tenant id', e);
       return null;
     }
   },
@@ -50,8 +54,8 @@ export const tokenStorage = {
   async setTenantId(tenantId: string) {
     try {
       await SecureStore.setItemAsync(STORAGE_KEYS.TENANT_ID, tenantId);
-    } catch {
-      console.error('Error setting tenant id');
+    } catch (e) {
+      authLogger.error('Failed to set tenant id', e);
     }
   },
 
@@ -61,8 +65,8 @@ export const tokenStorage = {
       for (const key of keys) {
         await SecureStore.deleteItemAsync(key);
       }
-    } catch {
-      console.error('Error clearing storage');
+    } catch (e) {
+      authLogger.error('Failed to clear storage', e);
     }
   },
 };

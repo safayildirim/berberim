@@ -8,6 +8,7 @@ import {
   setDevicePushToken,
   setRegisteredPushDeviceId,
 } from '@/src/lib/device/device-metadata';
+import { pushLogger } from '@/src/lib/logger';
 
 interface RegisterResponse {
   device_id: string;
@@ -64,7 +65,7 @@ async function acquireExpoPushToken(): Promise<string | null> {
 
   const projectId = resolveExpoProjectId();
   if (!projectId) {
-    console.warn('Push registration skipped: missing Expo project ID');
+    pushLogger.warn('Push registration skipped: missing Expo project ID');
     return null;
   }
 
@@ -91,7 +92,7 @@ export async function syncPushDeviceRegistration(
         try {
           await handlers.deletePushDevice(existingDeviceId);
         } catch (error) {
-          console.warn('Push device cleanup failed', error);
+          pushLogger.warn('Push device cleanup failed', { error });
         }
       }
       await setRegisteredPushDeviceId(null);
@@ -106,7 +107,7 @@ export async function syncPushDeviceRegistration(
     const response = await handlers.registerPushDevice(payload);
     await setRegisteredPushDeviceId(response.device_id);
   } catch (error) {
-    console.warn('Push registration failed', error);
+    pushLogger.warn('Push registration failed', { error });
   }
 }
 
@@ -118,7 +119,7 @@ export async function unregisterPushDevice(
     try {
       await handlers.deletePushDevice(deviceId);
     } catch (error) {
-      console.warn('Push device deletion failed', error);
+      pushLogger.warn('Push device deletion failed', { error });
     }
   }
 

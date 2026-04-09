@@ -1,6 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useCreateService } from '../mutations/useServiceMutations';
+import { createLogger } from '@/src/lib/logger';
+
+const serviceLogger = createLogger('services');
 
 export interface ServiceFormData {
   name: string;
@@ -43,7 +46,7 @@ export function useServiceForm(initialData?: Partial<ServiceFormData>) {
       });
       router.back();
     } catch (error) {
-      console.error('Failed to create service:', error);
+      serviceLogger.error('Failed to create service', error);
     }
   };
 
