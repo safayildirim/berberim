@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"os"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // StaticKeyProvider loads a single RSA private key from a file at startup.
@@ -45,7 +43,7 @@ func NewStaticKeyProvider(keyPath, algorithm string) (*StaticKeyProvider, error)
 	}
 	return &StaticKeyProvider{
 		info: &SigningKeyInfo{
-			KID:        uuid.New().String(),
+			KID:        RSAKeyID(&priv.PublicKey),
 			Algorithm:  algorithm,
 			PrivateKey: priv,
 			PublicKey:  &priv.PublicKey,
