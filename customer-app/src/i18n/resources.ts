@@ -48,10 +48,16 @@ export const resources = {
         termsNote:
           'Devam ederek Hizmet Şartlarımızı ve Gizlilik Politikamızı kabul etmiş olursunuz.',
         phoneNumberTitle: 'Telefon numaranızı\ngirin',
-        phoneNumberSubtitle:
-          'Hesabınızı doğrulamak için 4 haneli bir kod göndereceğiz.',
+        phoneNumberSubtitle: 'Devam etmek için telefon numaranızı girin',
+        phoneNumber: 'Telefon Numarası',
         countryCode: '+90',
-        ratesNote: 'Standart mesaj ve veri ücretleri uygulanabilir.',
+        ratesNote:
+          'Devam ederek SMS doğrulaması almayı kabul etmiş olursunuz. Mesaj ve veri ücretleri uygulanabilir.',
+        welcome: 'Hoş Geldiniz',
+        modernAtelier: 'Modern Atölye',
+        craftsmanship: 'Ustalık',
+        experience: 'Deneyim',
+        resendCodeIn: 'Kod {{timer}} içinde tekrar gönderilebilir',
       },
       home: {
         title: 'Ana Sayfa',
@@ -320,10 +326,16 @@ export const resources = {
         resendOTP: 'Resend OTP',
         termsNote: 'By continuing you agree to our Terms and Privacy Policy.',
         phoneNumberTitle: 'Enter your\nphone number',
-        phoneNumberSubtitle:
-          "We'll send you a 4-digit code to verify your account.",
+        phoneNumberSubtitle: 'Enter your phone number to continue',
+        phoneNumber: 'Phone Number',
         countryCode: '+90',
-        ratesNote: 'Standard message and data rates may apply.',
+        ratesNote:
+          'By continuing, you agree to receive an SMS for verification. Message and data rates may apply.',
+        welcome: 'Welcome to',
+        modernAtelier: 'The Modern Atelier',
+        craftsmanship: 'Craftsmanship',
+        experience: 'Experience',
+        resendCodeIn: 'Resend code in {{timer}}',
       },
       home: {
         title: 'Home',

@@ -1,89 +1,72 @@
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
 import { Button, Typography } from '@/src/components/ui';
-import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
-import { useRequestOtp } from '@/src/hooks/mutations/useAuthMutations';
+import { COLORS, SIZES } from '@/src/constants/theme';
+import { AuthHero } from '@/src/components/auth/AuthHero';
+import { PhoneInput } from '@/src/components/auth/PhoneInput';
+import { BrandShowcase } from '@/src/components/auth/BrandShowcase';
+import { AuthFooter } from '@/src/components/auth/AuthFooter';
+import { usePhoneLogin } from '@/src/hooks/usePhoneLogin';
+import { useTenantStore } from '@/src/store/useTenantStore';
 
 export default function PhoneLoginScreen() {
-  const router = useRouter();
   const { t } = useTranslation();
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const { mutate: requestOtp, isPending } = useRequestOtp();
-
-  const handleSendOTP = () => {
-    if (phoneNumber.length < 10) return;
-
-    const fullPhoneNumber = `90${phoneNumber}`;
-
-    requestOtp(
-      { phone_number: fullPhoneNumber },
-      {
-        onSuccess: (response: any) => {
-          router.push({
-            pathname: '/(auth)/otp-verification',
-            params: {
-              phone: fullPhoneNumber,
-            },
-          });
-        },
-        onError: (error: any) => {
-          console.error('OTP request failed', error);
-        },
-      },
-    );
-  };
+  const { getBranding } = useTenantStore();
+  const branding = getBranding();
+  const { phoneNumber, setPhoneNumber, handleSendOTP, isPending, isValid } =
+    usePhoneLogin();
 
   return (
-    <Screen headerTitle={t('auth.loginTitle')} scrollable>
+    <Screen
+      headerTitle={branding?.name}
+      showProfile={false}
+      showHeaderBack
+      scrollable
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboard}
       >
         <View style={styles.content}>
-          <Typography variant="h2" style={styles.title}>
-            {t('auth.phoneNumberTitle')}
-          </Typography>
-          <Typography variant="body" color={COLORS.secondary}>
-            {t('auth.phoneNumberSubtitle')}
-          </Typography>
-
-          <View style={[styles.inputContainer, { borderColor: COLORS.border }]}>
-            <View style={styles.countryCode}>
-              <Typography variant="body" color={COLORS.secondary}>
-                {t('auth.countryCode')}
-              </Typography>
-            </View>
-            <View style={styles.divider} />
-            <TextInput
-              style={[styles.input, TYPOGRAPHY.h3]}
-              placeholder={t('auth.phonePlaceholder')}
-              keyboardType="phone-pad"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              autoFocus
-            />
-          </View>
-
-          <Button
-            title={t('auth.sendCode')}
-            loading={isPending}
-            onPress={handleSendOTP}
-            disabled={phoneNumber.length < 10}
-            style={styles.button}
+          <AuthHero
+            welcomeText={t('auth.welcome')}
+            title={branding?.name}
+            subtitle={t('auth.phoneNumberSubtitle')}
           />
 
-          <Typography variant="caption" color={COLORS.secondary} align="center">
-            {t('auth.ratesNote')}
-          </Typography>
+          <View style={styles.formSection}>
+            <PhoneInput
+              label={t('auth.phoneNumber')}
+              phoneNumber={phoneNumber}
+              onPhoneNumberChange={setPhoneNumber}
+            />
+
+            <View style={styles.actions}>
+              <Button
+                title={t('auth.sendCode')}
+                loading={isPending}
+                onPress={handleSendOTP}
+                disabled={!isValid}
+                style={styles.button}
+                titleStyle={styles.buttonText}
+              />
+
+              <Typography
+                variant="caption"
+                color={COLORS.onSurfaceVariant}
+                align="center"
+                style={styles.ratesNote}
+              >
+                {t('auth.ratesNote')}
+              </Typography>
+            </View>
+          </View>
+
+          <BrandShowcase />
+
+          <AuthFooter />
         </View>
       </KeyboardAvoidingView>
     </Screen>
@@ -96,36 +79,35 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingTop: SIZES.lg,
-  },
-  title: {
-    marginBottom: SIZES.sm,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: SIZES.xl,
+    paddingTop: SIZES.xl,
     paddingHorizontal: SIZES.md,
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    height: 64,
   },
-  countryCode: {
-    paddingHorizontal: SIZES.sm,
+  formSection: {
+    marginBottom: SIZES.xl,
   },
-  divider: {
-    width: 1,
-    height: '40%',
-    backgroundColor: COLORS.border,
-    marginHorizontal: SIZES.sm,
-  },
-  input: {
-    flex: 1,
-    padding: 0,
-    color: COLORS.text,
+  actions: {
+    marginTop: SIZES.lg,
   },
   button: {
+    backgroundColor: COLORS.primary,
+    height: 64,
+    borderRadius: 16,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  buttonText: {
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  ratesNote: {
     marginTop: SIZES.md,
-    marginBottom: SIZES.lg,
+    lineHeight: 18,
+    fontSize: 11,
+    paddingHorizontal: SIZES.md,
   },
 });
