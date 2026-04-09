@@ -16,7 +16,6 @@ export const useBootstrap = () => {
     queryFn: async () => {
       // 1. Get Tenant Config
       const tenant = await tenantService.getBootstrapConfig(DEFAULT_TENANT_ID);
-      console.log('tenant', tenant);
       setTenantConfig(tenant);
 
       // 2. Persist tenant ID for API headers

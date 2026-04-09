@@ -1,9 +1,48 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { tokenStorage } from '../auth/token-storage';
 import { getDeviceHeaders } from '../device/device-metadata';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+if (!API_BASE_URL) {
+  throw new Error('EXPO_PUBLIC_API_BASE_URL is not set');
+}
+
+// ─── Logger ──────────────────────────────────────────────────────────────────
+
+type TrackedConfig = InternalAxiosRequestConfig & {
+  _requestId?: string;
+  _startTime?: number;
+};
+
+const REDACTED_HEADERS = new Set(['authorization', 'cookie', 'x-api-key']);
+
+function sanitizeHeaders(
+  headers: Record<string, unknown>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(headers).map(([k, v]) => [
+      k,
+      REDACTED_HEADERS.has(k.toLowerCase()) ? '[REDACTED]' : String(v ?? ''),
+    ]),
+  );
+}
+
+const REQUEST_ID_CHARSET =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+function generateRequestId(): string {
+  let id = '';
+  for (let i = 0; i < 32; i++) {
+    id += REQUEST_ID_CHARSET[Math.floor(Math.random() * 52)];
+  }
+  return id;
+}
+
+function elapsed(startTime?: number): string {
+  return startTime != null ? `${Date.now() - startTime}ms` : '?ms';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,8 +52,8 @@ export const api = axios.create({
   },
 });
 
-// Auth interceptor
-api.interceptors.request.use(async (config) => {
+// Request Interceptor: Attach Auth tokens, Tenant ID, and logging metadata
+api.interceptors.request.use(async (config: TrackedConfig) => {
   const token = await tokenStorage.getAccessToken();
   const tenantId = await tokenStorage.getTenantId();
   const deviceHeaders = await getDeviceHeaders();
@@ -31,14 +70,56 @@ api.interceptors.request.use(async (config) => {
     config.headers[key] = value;
   }
 
+  // Attach correlation ID and start time for response logging
+  const requestId = generateRequestId();
+  config._requestId = requestId;
+  config._startTime = Date.now();
+  config.headers['X-Request-ID'] = requestId;
+
+  if (__DEV__) {
+    const method = (config.method ?? 'GET').toUpperCase();
+    console.debug(`[API →] ${method} ${config.url}`, {
+      requestId,
+      params: config.params,
+      headers: sanitizeHeaders(config.headers as Record<string, unknown>),
+      body: config.data,
+    });
+  }
+
   return config;
 });
 
-// Response Interceptor: Handle errors and potentially token refresh
+// Response Interceptor: Log response, handle errors and token refresh
 api.interceptors.response.use(
-  (response) => response.data, // Simplify response data
-  async (error) => {
-    const originalRequest = error.config;
+  (response) => {
+    if (__DEV__) {
+      const cfg = response.config as TrackedConfig;
+      console.debug(
+        `[API ←] ${response.status} ${cfg.url} (${elapsed(cfg._startTime)})`,
+        {
+          requestId: cfg._requestId,
+          status: response.status,
+          body: response.data,
+        },
+      );
+    }
+    return response.data;
+  },
+  async (error: AxiosError) => {
+    const originalRequest = error.config as TrackedConfig & {
+      _retry?: boolean;
+    };
+
+    const cfg = error.config as TrackedConfig;
+    console.error(
+      `[API ✗] ${error.response?.status ?? 'ERR'} ${cfg?.url ?? ''} (${elapsed(cfg?._startTime)})`,
+      {
+        requestId: cfg?._requestId,
+        status: error.response?.status,
+        body: error.response?.data,
+        message: error.message,
+      },
+    );
 
     // Handle Token Refresh (401 Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
