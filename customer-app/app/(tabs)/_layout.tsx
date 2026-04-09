@@ -3,10 +3,11 @@ import { Calendar, Home, Trophy, User } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { useTheme } from '@/src/store/useThemeStore';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const { colors, isDark } = useTheme();
 
   const renderTabIcon = (
     Icon: any,
@@ -16,7 +17,13 @@ export default function TabLayout() {
   ) => (
     <View
       pointerEvents="none"
-      style={[styles.itemContainer, focused && styles.activeItemContainer]}
+      style={[
+        styles.itemContainer,
+        focused && [
+          styles.activeItemContainer,
+          { backgroundColor: isDark ? colors.surfaceVariant : '#565e74' },
+        ],
+      ]}
     >
       <Icon color={color} size={22} strokeWidth={focused ? 2.5 : 2} />
       <Text style={[styles.label, { color }]}>{label}</Text>
@@ -26,10 +33,18 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.white,
-        tabBarInactiveTintColor: COLORS.secondary,
+        tabBarActiveTintColor: colors.white,
+        tabBarInactiveTintColor: isDark
+          ? colors.onSurfaceVariant
+          : colors.secondary,
         tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: colors.card,
+            borderTopColor: colors.border,
+          },
+        ],
         headerShown: false,
       }}
     >
@@ -68,9 +83,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     height: Platform.OS === 'ios' ? 98 : 80,
-    backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
     paddingHorizontal: 8,
   },
   itemContainer: {
@@ -83,7 +96,7 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   activeItemContainer: {
-    backgroundColor: '#565e74',
+    // Background color is handled dynamically in renderTabIcon
   },
   label: {
     fontSize: 9,

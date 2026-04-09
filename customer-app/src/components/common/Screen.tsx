@@ -9,7 +9,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/store/useThemeStore';
+import { getColors, SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { Header } from './Header';
 
@@ -49,16 +50,17 @@ export const Screen: React.FC<ScreenProps> = ({
   contentContainerStyle,
 }) => {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
+  const themeColors = getColors(isDark);
 
   const renderContent = () => {
     if (loading) {
       return (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={themeColors.primary} />
           <Typography
             variant="label"
-            color={COLORS.secondary}
-            style={{ marginTop: SIZES.md }}
+            style={{ marginTop: SIZES.md, color: themeColors.secondary }}
           >
             {t('common.loading')}
           </Typography>
@@ -69,13 +71,16 @@ export const Screen: React.FC<ScreenProps> = ({
     if (error) {
       return (
         <View style={styles.centerContainer}>
-          <Typography variant="h3" color={COLORS.error}>
+          <Typography variant="h3" color={themeColors.error}>
             {t('common.error')}
           </Typography>
           <Typography
             variant="body"
-            color={COLORS.secondary}
-            style={{ marginTop: SIZES.sm, textAlign: 'center' }}
+            style={{
+              marginTop: SIZES.sm,
+              textAlign: 'center',
+              color: themeColors.secondary,
+            }}
           >
             {error.message || t('common.unexpectedError')}
           </Typography>
@@ -86,11 +91,16 @@ export const Screen: React.FC<ScreenProps> = ({
     if (empty) {
       return (
         <View style={styles.centerContainer}>
-          <Typography variant="h3">{emptyTitle}</Typography>
+          <Typography variant="h3" color={themeColors.text}>
+            {emptyTitle}
+          </Typography>
           <Typography
             variant="body"
-            color={COLORS.secondary}
-            style={{ marginTop: SIZES.sm, textAlign: 'center' }}
+            style={{
+              marginTop: SIZES.sm,
+              textAlign: 'center',
+              color: themeColors.secondary,
+            }}
           >
             {emptyDescription}
           </Typography>
@@ -114,12 +124,18 @@ export const Screen: React.FC<ScreenProps> = ({
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: COLORS.background }]}
+      style={[styles.container, { backgroundColor: themeColors.background }]}
     >
       <StatusBar
-        barStyle={transparentStatusBar ? 'light-content' : 'dark-content'}
+        barStyle={
+          transparentStatusBar
+            ? 'light-content'
+            : isDark
+              ? 'light-content'
+              : 'dark-content'
+        }
         backgroundColor={
-          transparentStatusBar ? 'transparent' : COLORS.background
+          transparentStatusBar ? 'transparent' : themeColors.background
         }
         translucent={transparentStatusBar}
       />

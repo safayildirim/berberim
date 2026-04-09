@@ -1,29 +1,33 @@
-import { format, parseISO } from 'date-fns';
-import { enUS, tr } from 'date-fns/locale';
-import { useRouter } from 'expo-router';
-import { Calendar, Clock, Info, Star } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TextInput,
   View,
+  Alert,
+  TouchableOpacity,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { AlertCircle, UserCircle, Loader2 } from 'lucide-react-native';
+import { Typography } from '@/src/components/ui';
+import { useTheme } from '@/src/store/useThemeStore';
+import { useBookingStore } from '@/src/store/useBookingStore';
+import { useCreateAppointment } from '@/src/hooks/mutations/useAppointmentMutations';
+import { useTenantStore } from '@/src/store/useTenantStore';
+import { BookingStickyFooter } from '@/src/components/booking/BookingStickyFooter';
+import { format, parseISO } from 'date-fns';
+import { enUS, tr } from 'date-fns/locale';
+import { useRouter } from 'expo-router';
 import { Screen } from '@/src/components/common/Screen';
 import { StaffAvatar } from '@/src/components/common/StaffAvatar';
-import { Button, Typography } from '@/src/components/ui';
-import { COLORS, SIZES } from '@/src/constants/theme';
-import { useCreateAppointment } from '@/src/hooks/mutations/useAppointmentMutations';
-import { useBookingStore } from '@/src/store/useBookingStore';
-import { useTenantStore } from '@/src/store/useTenantStore';
 
-export default function ReviewScreen() {
-  const router = useRouter();
+export default function BookingReviewScreen() {
   const { t, i18n } = useTranslation();
+  const { colors, isDark } = useTheme();
+  const router = useRouter();
+  const { config } = useTenantStore();
   const {
     selectedServices,
     selectedStaff,
@@ -35,17 +39,12 @@ export default function ReviewScreen() {
     reset: resetBooking,
   } = useBookingStore();
 
-  const { config, getBranding } = useTenantStore();
-  const { primaryColor } = getBranding();
-  const tenantId = config?.id;
-
   const [localNotes, setLocalNotes] = useState(notes);
+  const { mutate: createAppointment, isPending } = useCreateAppointment();
   const dateLocale = i18n.language.startsWith('tr') ? tr : enUS;
 
-  const { mutate: createAppointment, isPending } = useCreateAppointment();
-
   const handleConfirm = () => {
-    if (!selectedSlot || !tenantId) return;
+    if (!selectedSlot || !config?.id) return;
 
     createAppointment(
       {
@@ -53,7 +52,7 @@ export default function ReviewScreen() {
         service_ids: selectedServices.map((s) => s.id),
         staff_user_id: selectedStaff?.id || '',
         notes_customer: localNotes,
-        tenant_id: tenantId,
+        tenant_id: config.id,
       },
       {
         onSuccess: (data) => {
@@ -63,398 +62,282 @@ export default function ReviewScreen() {
           });
         },
         onError: (error: any) => {
-          const message =
-            error.status === 429
-              ? t('booking.weeklyLimitReached')
-              : error.message;
-          Alert.alert(t('booking.bookingFailed'), message);
+          Alert.alert(t('booking.bookingFailed'), error.message);
         },
       },
     );
   };
 
-  if (!selectedSlot) {
-    return (
-      <Screen style={styles.container} transparentStatusBar>
-        <View style={styles.emptyState}>
-          <Typography>{t('booking.selectTimeFirst')}</Typography>
-        </View>
-      </Screen>
-    );
-  }
+  if (!selectedSlot) return null;
 
   const startTime = parseISO(selectedSlot.starts_at);
 
   return (
-    <Screen style={styles.container} transparentStatusBar>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={100}
+    <View style={styles.root}>
+      <Screen
+        style={{ backgroundColor: colors.background }}
+        transparentStatusBar
       >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={100}
         >
-          {/* Editorial Hero Section */}
-          <View style={styles.heroSection}>
-            <Typography variant="label" style={styles.stepIndicator}>
-              {isRebookMode
-                ? `${t('booking.step')} 2 ${t('booking.of')} 2`
-                : `${t('booking.step')} 4 ${t('booking.of')} 4`}
-            </Typography>
-            <Typography variant="h1" style={styles.heroTitle}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <Typography
+              variant="h2"
+              style={[styles.title, { color: colors.text }]}
+            >
               {t('booking.reviewTitle')}
             </Typography>
-            <Typography variant="body" color={COLORS.onSurfaceVariant}>
-              {t('booking.reviewSummary')}
-            </Typography>
-          </View>
 
-          <View>
-            {/* Main Details Card */}
-            <View style={styles.mainCard}>
-              <View style={styles.barberHeader}>
-                <View style={styles.barberInfo}>
-                  <StaffAvatar
-                    staff={selectedStaff}
-                    size={48}
-                    style={styles.barberAvatar}
-                  />
-                  <View>
-                    <Typography variant="caption" style={styles.label}>
-                      {t('booking.barber').toUpperCase()}
-                    </Typography>
-                    <Typography variant="h3" style={styles.barberName}>
-                      {selectedStaff
-                        ? `${selectedStaff.first_name} ${selectedStaff.last_name}`
-                        : t('booking.anyAvailable')}
-                    </Typography>
+            {/* Main Info Card */}
+            <View
+              style={[
+                styles.mainCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.outlineVariant,
+                },
+              ]}
+            >
+              <View style={styles.staffRow}>
+                {selectedStaff ? (
+                  <StaffAvatar staff={selectedStaff} size={48} />
+                ) : (
+                  <View
+                    style={[
+                      styles.anyStaffBadge,
+                      {
+                        backgroundColor: isDark ? '#18181b' : '#f4f4f5',
+                        borderColor: colors.outlineVariant,
+                      },
+                    ]}
+                  >
+                    <UserCircle size={24} color="#71717a" />
                   </View>
-                </View>
-                <View style={styles.ratingBadge}>
-                  <View style={styles.ratingValue}>
-                    <Star size={14} color={primaryColor} fill={primaryColor} />
-                    <Typography variant="h3" style={{ fontSize: 14 }}>
-                      {selectedStaff?.avg_rating?.toFixed(1) ?? '—'}
-                    </Typography>
-                  </View>
+                )}
+                <View>
+                  <Typography variant="caption" style={styles.cardLabel}>
+                    {t('booking.barber')}
+                  </Typography>
+                  <Typography
+                    variant="h3"
+                    style={[styles.cardValue, { color: colors.text }]}
+                  >
+                    {selectedStaff
+                      ? `${selectedStaff.first_name} ${selectedStaff.last_name}`
+                      : t('booking.anyAvailable')}
+                  </Typography>
                 </View>
               </View>
 
-              {/* Date & Time Grid */}
-              <View style={styles.dateTimeGrid}>
+              <View
+                style={[
+                  styles.divider,
+                  { backgroundColor: colors.outlineVariant },
+                ]}
+              />
+
+              <View style={styles.gridRow}>
                 <View style={styles.gridItem}>
-                  <Calendar size={20} color={primaryColor} />
-                  <Typography variant="caption" style={styles.gridLabel}>
-                    {t('booking.dateLabel').toUpperCase()}
+                  <Typography variant="caption" style={styles.cardLabel}>
+                    {t('booking.dateLabel')}
                   </Typography>
-                  <Typography variant="h3" style={styles.gridValue}>
+                  <Typography
+                    variant="h3"
+                    style={[styles.cardValue, { color: colors.text }]}
+                  >
                     {format(startTime, 'MMM d, yyyy', { locale: dateLocale })}
                   </Typography>
                 </View>
-                <View style={styles.gridItem}>
-                  <Clock size={20} color={primaryColor} />
-                  <Typography variant="caption" style={styles.gridLabel}>
-                    {t('booking.timeLabel').toUpperCase()}
-                  </Typography>
-                  <Typography variant="h3" style={styles.gridValue}>
-                    {format(startTime, 'HH:mm')} {format(startTime, 'a')}
-                  </Typography>
-                </View>
-              </View>
-
-              {/* Services List */}
-              <View style={styles.servicesSection}>
-                <Typography variant="caption" style={styles.sectionHeaderLabel}>
-                  {t('booking.servicesLabel').toUpperCase()}
-                </Typography>
-                <View style={{ gap: 12 }}>
-                  {selectedServices.map((service) => (
-                    <View key={service.id} style={styles.serviceItem}>
-                      <View>
-                        <Typography
-                          variant="body"
-                          style={{ fontWeight: '700' }}
-                        >
-                          {service.name}
-                        </Typography>
-                        <Typography variant="caption" color={COLORS.secondary}>
-                          {service.duration_minutes} {t('booking.minutes')}
-                        </Typography>
-                      </View>
-                      <Typography
-                        variant="h3"
-                        style={{ color: primaryColor, fontSize: 16 }}
-                      >
-                        ${service.base_price}
-                      </Typography>
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              {/* Notes Input */}
-              <View style={styles.notesSection}>
-                <Typography variant="caption" style={styles.sectionHeaderLabel}>
-                  {t('booking.additionalNotes').toUpperCase()}
-                </Typography>
-                <TextInput
-                  style={styles.noteInput}
-                  placeholder={t('booking.notePlaceholderInput')}
-                  multiline
-                  value={localNotes}
-                  onChangeText={setLocalNotes}
-                  placeholderTextColor={COLORS.secondary}
+                <View
+                  style={[
+                    styles.verticalDivider,
+                    { backgroundColor: colors.outlineVariant },
+                  ]}
                 />
+                <View style={[styles.gridItem, { paddingLeft: 16 }]}>
+                  <Typography variant="caption" style={styles.cardLabel}>
+                    {t('booking.timeLabel')}
+                  </Typography>
+                  <Typography
+                    variant="h3"
+                    style={[styles.cardValue, { color: colors.text }]}
+                  >
+                    {format(startTime, 'HH:mm')}
+                  </Typography>
+                </View>
               </View>
             </View>
 
-            {/* Cancellation Notice */}
-            <View style={styles.cancellationNotice}>
-              <View style={styles.infoIconContainer}>
-                <Info size={18} color={primaryColor} />
+            {/* Services List */}
+            <View style={styles.section}>
+              <Typography
+                variant="h3"
+                style={[styles.sectionTitle, { color: colors.text }]}
+              >
+                {t('booking.steps.services')}
+              </Typography>
+              <View
+                style={[
+                  styles.servicesBox,
+                  {
+                    backgroundColor: isDark
+                      ? 'rgba(255,255,255,0.03)'
+                      : '#fafafa',
+                    borderColor: colors.outlineVariant,
+                  },
+                ]}
+              >
+                {selectedServices.map((srv, i) => (
+                  <View key={i} style={styles.serviceRow}>
+                    <View>
+                      <Typography
+                        variant="label"
+                        style={[styles.serviceName, { color: colors.text }]}
+                      >
+                        {srv.name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        style={{ color: colors.onSurfaceVariant }}
+                      >
+                        {srv.duration_minutes} {t('booking.minutes')}
+                      </Typography>
+                    </View>
+                    <Typography
+                      variant="label"
+                      style={[styles.servicePrice, { color: colors.text }]}
+                    >
+                      {srv.base_price} TL
+                    </Typography>
+                  </View>
+                ))}
               </View>
-              <Typography variant="body" style={styles.cancellationText}>
+            </View>
+
+            {/* Notes */}
+            <View style={styles.section}>
+              <Typography
+                variant="h3"
+                style={[styles.sectionTitle, { color: colors.text }]}
+              >
+                {t('booking.additionalNotes')}
+              </Typography>
+              <TextInput
+                multiline
+                numberOfLines={4}
+                value={localNotes}
+                onChangeText={setLocalNotes}
+                placeholder={t('booking.notePlaceholderInput')}
+                placeholderTextColor="#71717a"
+                style={[
+                  styles.notesInput,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.outlineVariant,
+                    color: colors.text,
+                  },
+                ]}
+              />
+            </View>
+
+            {/* Policy */}
+            <View style={styles.policyRow}>
+              <AlertCircle size={16} color="#71717a" style={{ marginTop: 2 }} />
+              <Typography variant="caption" style={styles.policyText}>
                 {t('booking.cancellationPolicy')}
               </Typography>
             </View>
-          </View>
 
-          {isRebookMode ? (
-            <Button
-              variant="ghost"
-              title={t('booking.startNewBooking')}
-              onPress={() => {
-                resetBooking();
-                router.replace('/booking/services');
-              }}
-              style={styles.modifyButton}
-              titleStyle={{ color: COLORS.onSurfaceVariant, fontWeight: '700' }}
-            />
-          ) : (
-            <Button
-              variant="ghost"
-              title={t('booking.modifySelection')}
+            {/* Modify Action */}
+            <TouchableOpacity
               onPress={() => router.push('/booking/services')}
               style={styles.modifyButton}
-              titleStyle={{ color: COLORS.onSurfaceVariant, fontWeight: '700' }}
-            />
-          )}
-        </ScrollView>
+            >
+              <Typography variant="label" style={styles.modifyText}>
+                {isRebookMode
+                  ? t('booking.startNewBooking')
+                  : t('booking.modifySelection')}
+              </Typography>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Screen>
 
-        <View style={styles.footer}>
-          <View style={styles.priceBreakdown}>
-            <View>
-              <Typography variant="caption" color={COLORS.onSurfaceVariant}>
-                {t('booking.bookingDuration')}
-              </Typography>
-              <Typography variant="h3" style={{ fontSize: 16 }}>
-                {totalDuration} {t('booking.minutes')}
-              </Typography>
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Typography variant="caption" color={COLORS.onSurfaceVariant}>
-                {t('booking.totalPriceLabel')}
-              </Typography>
-              <Typography variant="h1" style={styles.stickyPrice}>
-                ${totalPrice}
-              </Typography>
-            </View>
-          </View>
-          <Button
-            title={t('booking.confirmBookingAction')}
-            loading={isPending}
-            onPress={handleConfirm}
-            style={styles.confirmButton}
-            size="lg"
-          />
-        </View>
-      </KeyboardAvoidingView>
-    </Screen>
+      <BookingStickyFooter
+        label={`${t('booking.total')} (${totalDuration} ${t('booking.minutes')})`}
+        value={`${totalPrice} TL`}
+        buttonText={
+          isPending ? t('common.loading') : t('booking.confirmBookingAction')
+        }
+        onPress={handleConfirm}
+        disabled={isPending}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: COLORS.background,
-  },
-  scroll: {
-    paddingHorizontal: SIZES.padding,
-    paddingBottom: 220,
-  },
-  heroSection: {
-    marginTop: SIZES.md,
-    marginBottom: SIZES.md,
-  },
-  stepIndicator: {
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    fontWeight: '700',
-    color: COLORS.primary,
-    marginBottom: 8,
-  },
-  heroTitle: {
-    fontSize: 40,
-    fontWeight: '900',
-    letterSpacing: -2,
-    lineHeight: 44,
-    color: COLORS.text,
-    marginBottom: 8,
-  },
+  root: { flex: 1 },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 160 },
+  title: { fontSize: 24, fontWeight: '900', marginBottom: 24 },
   mainCard: {
-    backgroundColor: COLORS.surfaceContainerLow,
-    borderRadius: 40,
-    padding: SIZES.padding,
-  },
-  barberHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  barberInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  barberAvatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-  },
-  label: {
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    fontWeight: '700',
-    color: COLORS.primary,
-    fontSize: 10,
-    marginBottom: 4,
-  },
-  barberName: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  ratingBadge: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-  },
-  ratingValue: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  dateTimeGrid: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 32,
-  },
-  gridItem: {
-    flex: 1,
-    backgroundColor: COLORS.surfaceContainerLowest,
-    padding: 20,
-    borderRadius: 24,
-  },
-  gridLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.secondary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  gridValue: {
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  servicesSection: {
-    marginBottom: 32,
-  },
-  sectionHeaderLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.onSurfaceVariant,
-    letterSpacing: 2,
-    marginBottom: 16,
-    textTransform: 'uppercase',
-  },
-  serviceItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLowest,
-    padding: 16,
-    borderRadius: 20,
-  },
-  notesSection: {
-    marginBottom: 32,
-  },
-  noteInput: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: 20,
-    padding: 16,
-    minHeight: 80,
-    fontSize: 14,
-    color: COLORS.text,
-    textAlignVertical: 'top',
-  },
-  cancellationNotice: {
-    backgroundColor: COLORS.secondaryContainer,
-    borderRadius: 32,
     padding: 24,
-    flexDirection: 'row',
+    borderRadius: 32,
+    borderWidth: 1,
+    marginBottom: 32,
+  },
+  staffRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  anyStaffBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
     alignItems: 'center',
-    gap: 16,
+    justifyContent: 'center',
   },
-  infoIconContainer: {
-    backgroundColor: 'rgba(255,255,255,0.4)',
-    padding: 10,
-    borderRadius: 20,
+  cardLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#71717a',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+    letterSpacing: 1,
   },
-  cancellationText: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.onSecondaryContainer,
-    lineHeight: 20,
-  },
-  modifyButton: {
-    marginTop: 20,
-  },
-  footer: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: SIZES.padding,
-    paddingVertical: SIZES.lg,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-  },
-  priceBreakdown: {
+  cardValue: { fontSize: 16, fontWeight: '800' },
+  divider: { height: 1, width: '100%', marginVertical: 20 },
+  gridRow: { flexDirection: 'row', alignItems: 'center' },
+  gridItem: { flex: 1 },
+  verticalDivider: { width: 1, height: 40 },
+  section: { marginBottom: 32 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
+  servicesBox: { padding: 20, borderRadius: 24, borderWidth: 1, gap: 16 },
+  serviceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: SIZES.sm,
   },
-  stickyPrice: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: COLORS.primary,
-    letterSpacing: -1,
+  serviceName: { fontSize: 15, fontWeight: '700' },
+  servicePrice: { fontSize: 15, fontWeight: '800' },
+  notesInput: {
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    height: 120,
+    textAlignVertical: 'top',
+    fontSize: 14,
   },
-  confirmButton: {
-    width: '100%',
-    borderRadius: 32,
-    height: 72,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  policyRow: { flexDirection: 'row', gap: 12, paddingRight: 20 },
+  policyText: { color: '#71717a', lineHeight: 18 },
+  modifyButton: { marginTop: 32, alignSelf: 'center' },
+  modifyText: {
+    color: '#f59e0b',
+    fontWeight: '800',
+    textDecorationLine: 'underline',
   },
 });

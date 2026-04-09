@@ -1,179 +1,200 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
-import { COLORS, SIZES } from '@/src/constants/theme';
-import { useTenantStore } from '@/src/store/useTenantStore';
-import { LoyaltyWallet } from '@/src/types';
+import { useTranslation } from 'react-i18next';
+import { Award } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Typography } from '@/src/components/ui';
+import { LoyaltyWallet } from '@/src/types';
 
 interface LoyaltyBalanceCardProps {
   wallet: LoyaltyWallet;
+  tier?: string;
+  nextRewardPoints?: number;
+  nextRewardName?: string;
 }
 
-export const LoyaltyBalanceCard: React.FC<LoyaltyBalanceCardProps> = ({
+export const LoyaltyBalanceCard = ({
   wallet,
-}) => {
+  tier,
+  nextRewardPoints = 2500,
+  nextRewardName,
+}: LoyaltyBalanceCardProps) => {
   const { t } = useTranslation();
-  const { getBranding } = useTenantStore();
-  const { primaryColor } = getBranding();
-  const balance = wallet.current_points ?? 0;
-  const rewardStep = 500;
-  const nextRewardPoints = Math.max(
-    rewardStep,
-    Math.ceil((balance + 1) / rewardStep) * rewardStep,
-  );
-  const progress = Math.min(1, balance / nextRewardPoints);
-  const remainingPoints = Math.max(0, nextRewardPoints - balance);
+  const progress = Math.min(wallet.current_points / nextRewardPoints, 1);
+  const remaining = Math.max(nextRewardPoints - wallet.current_points, 0);
+
+  const displayTier = tier || t('loyalty.tier');
+  const displayReward = nextRewardName || t('loyalty.nextReward');
 
   return (
-    <View style={[styles.card, { backgroundColor: primaryColor }]}>
-      {/* Background Pattern - Grain/Abstract if available */}
-      <View style={styles.content}>
-        <View style={styles.topSection}>
-          <Typography
-            variant="label"
-            style={styles.balanceLabel}
-            color="rgba(255, 255, 255, 0.8)"
-          >
-            {t('loyalty.currentBalance').toUpperCase()}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#18181b', '#09090b']}
+        style={styles.card}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        {/* Glow Effect */}
+        <View style={styles.glow} />
+
+        <View style={styles.content}>
+          <View style={styles.iconContainer}>
+            <LinearGradient
+              colors={['#fbbf24', '#d97706']}
+              style={styles.awardCircle}
+            >
+              <Award size={32} color="#000" />
+            </LinearGradient>
+          </View>
+
+          <Typography variant="caption" style={styles.tierText}>
+            {displayTier.toUpperCase()}
           </Typography>
+
           <View style={styles.pointsContainer}>
-            <Typography
-              variant="h1"
-              style={styles.pointsText}
-              color={COLORS.white}
-            >
-              {balance}
+            <Typography variant="h1" style={styles.pointsText}>
+              {wallet.current_points.toLocaleString()}
             </Typography>
-            <Typography
-              variant="h3"
-              style={styles.pointsUnit}
-              color="rgba(255, 255, 255, 0.9)"
-            >
+            <Typography variant="body" style={styles.ptsLabel}>
               {t('loyalty.pointsLabel_plural')}
             </Typography>
           </View>
-        </View>
 
-        <View style={styles.bottomSection}>
-          <View style={styles.tierInfo}>
-            <Typography
-              variant="label"
-              style={styles.tierName}
-              color="rgba(255, 255, 255, 0.8)"
-            >
-              {t('loyalty.nextTier').toUpperCase()}: GOLD
-            </Typography>
-            <Typography
-              variant="label"
-              style={styles.percentText}
-              color={COLORS.white}
-            >
-              {Math.round(progress * 100)}%
-            </Typography>
-          </View>
+          <View style={styles.progressSection}>
+            <View style={styles.progressLabels}>
+              <Typography variant="caption" style={styles.label}>
+                {t('loyalty.currentBalance')}
+              </Typography>
+              <Typography variant="caption" style={styles.nextRewardLabel}>
+                {t('loyalty.progressNote_short', {
+                  reward: displayReward,
+                  remaining: remaining,
+                })}
+              </Typography>
+            </View>
 
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View
-                style={[styles.progressFill, { width: `${progress * 100}%` }]}
+            <View style={styles.progressBarBg}>
+              <LinearGradient
+                colors={['#d97706', '#fbbf24']}
+                style={[
+                  styles.progressBarFill,
+                  { width: `${progress * 100}%` },
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
               />
             </View>
           </View>
-
-          <Typography
-            variant="body"
-            style={styles.nextRewardNote}
-            color="rgba(255, 255, 255, 0.7)"
-          >
-            {t('loyalty.progressNote_short', {
-              remaining: remainingPoints,
-              reward: 'Beard Sculpt',
-            })}
-          </Typography>
         </View>
-      </View>
+      </LinearGradient>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 40,
+  container: {
+    marginBottom: 24,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.2)',
     overflow: 'hidden',
-    marginHorizontal: SIZES.lg,
-    padding: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
+    shadowColor: '#d97706',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
     elevation: 8,
   },
+  card: {
+    padding: 24,
+    minHeight: 240,
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  glow: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 160,
+    height: 160,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    borderRadius: 80,
+  },
   content: {
-    gap: 32,
+    alignItems: 'center',
+    zIndex: 1,
   },
-  topSection: {
-    gap: 8,
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 4,
+    borderColor: '#18181b',
+    backgroundColor: '#18181b',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: '#f59e0b',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  balanceLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    letterSpacing: 2.8,
+  awardCircle: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tierText: {
+    color: '#a1a1aa',
+    fontWeight: '700',
+    letterSpacing: 2,
+    marginBottom: 8,
   },
   pointsContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 8,
+    gap: 4,
+    marginBottom: 24,
   },
   pointsText: {
-    fontSize: 72,
+    fontSize: 44,
     fontWeight: '800',
-    letterSpacing: -2,
-    lineHeight: 80,
+    color: '#fff',
   },
-  pointsUnit: {
-    fontSize: 24,
-    fontWeight: '600',
+  ptsLabel: {
+    color: '#71717a',
+    fontSize: 16,
   },
-  bottomSection: {
+  progressSection: {
     width: '100%',
+    gap: 8,
   },
-  tierInfo: {
+  progressLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: 12,
+    paddingHorizontal: 4,
   },
-  tierName: {
-    fontSize: 12,
-    fontWeight: '500',
-    letterSpacing: 1.2,
+  label: {
+    color: '#a1a1aa',
+    fontWeight: '600',
   },
-  percentText: {
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1.2,
+  nextRewardLabel: {
+    color: '#f59e0b',
+    fontWeight: '700',
   },
-  progressContainer: {
-    height: 8,
+  progressBarBg: {
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
+    height: 12,
+    backgroundColor: '#27272a',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#3f3f46',
     overflow: 'hidden',
   },
-  progressBar: {
+  progressBarFill: {
     height: '100%',
-    width: '100%',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: COLORS.white,
-    borderRadius: 4,
-  },
-  nextRewardNote: {
-    marginTop: 16,
-    fontSize: 14,
-    fontStyle: 'italic',
-    lineHeight: 20,
+    borderRadius: 6,
   },
 });

@@ -2,7 +2,7 @@ import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export const COLORS = {
+export const LIGHT_COLORS = {
   // Default fallback colors
   primary: '#000000',
   primaryDim: '#4a5268',
@@ -43,6 +43,52 @@ export const COLORS = {
   onSurface: '#1c1b1b',
   outline: '#747878',
 };
+
+export const DARK_COLORS = {
+  primary: '#ffffff',
+  primaryDim: '#94a3b8',
+  secondary: '#94a3b8',
+  tertiary: '#f8fafc',
+  background: '#09090b',
+  card: '#18181b',
+  text: '#f8fafc',
+  muted: '#27272a',
+  border: '#27272a',
+  error: '#ef4444',
+  success: '#22c55e',
+  warning: '#f59e0b',
+  white: '#ffffff',
+  black: '#000000',
+  transparent: 'transparent',
+  overlay: 'rgba(0, 0, 0, 0.7)',
+
+  // Specific surfaces from design
+  surfaceDim: '#18181b',
+  surfaceContainer: '#18181b',
+  surfaceContainerLow: '#09090b',
+  surfaceContainerLowest: '#000000',
+  surfaceContainerHigh: '#27272a',
+  surfaceContainerHighest: '#3f3f46',
+  surfaceVariant: '#27272a',
+  onSurfaceVariant: '#94a3b8',
+  onPrimary: '#000000',
+  secondaryContainer: '#27272a',
+  onSecondaryContainer: '#a1a1aa',
+  tertiaryContainer: '#f8fafc',
+  onTertiaryContainer: '#94a3b8',
+  errorContainer: '#450a0a',
+  onErrorContainer: '#f87171',
+  primaryContainer: '#f8fafc',
+  onPrimaryContainer: '#94a3b8',
+  outlineVariant: 'rgba(255, 255, 255, 0.1)',
+  onSurface: '#f8fafc',
+  outline: '#52525b',
+};
+
+export const COLORS = LIGHT_COLORS; // Default for backward compatibility
+
+export const getColors = (isDark: boolean) =>
+  isDark ? DARK_COLORS : LIGHT_COLORS;
 
 export const IMAGES = {
   defaultLogo:

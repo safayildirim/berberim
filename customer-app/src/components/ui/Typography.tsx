@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleProp, Text, TextStyle } from 'react-native';
-import { COLORS, TYPOGRAPHY } from '@/src/constants/theme';
+import { useTheme } from '@/src/store/useThemeStore';
+import { getColors, TYPOGRAPHY } from '@/src/constants/theme';
 
 /**
  * Typography Component
@@ -17,16 +18,24 @@ export interface TypographyProps {
 
 export const Typography: React.FC<TypographyProps> = ({
   variant = 'body',
-  color = COLORS.text,
+  color,
   align = 'left',
   children,
   numberOfLines,
   style,
 }) => {
+  const { isDark } = useTheme();
+  const themeColors = getColors(isDark);
+  const textColor = color || themeColors.text;
+
   return (
     <Text
       numberOfLines={numberOfLines}
-      style={[TYPOGRAPHY[variant], { color, textAlign: align }, style as any]}
+      style={[
+        TYPOGRAPHY[variant],
+        { color: textColor, textAlign: align },
+        style as any,
+      ]}
     >
       {children}
     </Text>

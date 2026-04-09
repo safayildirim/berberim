@@ -117,7 +117,8 @@ export const AppointmentListItem: React.FC<AppointmentListItemProps> = ({
         </View>
         <View>
           <Typography variant="caption" style={styles.barberLabel}>
-            {appointment?.staff?.specialty?.toUpperCase() || 'BARBER'}
+            {appointment?.staff?.specialty?.toUpperCase() ||
+              t('booking.barber').toUpperCase()}
           </Typography>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Typography variant="label" style={styles.barberName}>

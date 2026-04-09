@@ -2,8 +2,9 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
+import { useTheme } from '@/src/store/useThemeStore';
 
 interface HeaderProps {
   title?: string;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   showProfile = true,
 }) => {
   const router = useRouter();
+  const { colors } = useTheme();
 
   const handleBack = () => {
     if (onBack) {
@@ -35,13 +37,19 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.leftContainer}>
         {leftElement ? (
           leftElement
         ) : showBack ? (
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color={COLORS.text} pointerEvents="none" />
+          <TouchableOpacity
+            style={[
+              styles.backButton,
+              { backgroundColor: colors.surfaceContainer },
+            ]}
+            onPress={handleBack}
+          >
+            <ArrowLeft size={24} color={colors.text} pointerEvents="none" />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -59,7 +67,10 @@ export const Header: React.FC<HeaderProps> = ({
           rightElement
         ) : showProfile ? (
           <TouchableOpacity
-            style={styles.profileButton}
+            style={[
+              styles.profileButton,
+              { borderColor: colors.surfaceContainer },
+            ]}
             onPress={() => router.push('/(tabs)/profile')}
           >
             <Image
@@ -82,7 +93,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SIZES.padding,
     paddingBottom: SIZES.md,
-    backgroundColor: COLORS.background,
   },
   leftContainer: {
     width: 44,
@@ -101,7 +111,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.surfaceContainer,
   },
   title: {
     fontSize: 18,
@@ -112,7 +121,6 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: COLORS.surfaceContainer,
     overflow: 'hidden',
   },
   topProfileAvatar: {

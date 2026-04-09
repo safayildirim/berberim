@@ -1,138 +1,143 @@
-import { Bell, Globe, HelpCircle, Lock } from 'lucide-react-native';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Screen } from '@/src/components/common/Screen';
-import { LogoutButton } from '@/src/components/profile/LogoutButton';
-import { LoyaltyBanner } from '@/src/components/profile/LoyaltyBanner';
-import { ProfileHeader } from '@/src/components/profile/ProfileHeader';
 import {
-  SettingItem,
-  SettingsSection,
-} from '@/src/components/profile/SettingsComponents';
+  BellRing,
+  Globe,
+  HelpCircle,
+  Settings,
+  Shield,
+  Moon,
+  Sun,
+} from 'lucide-react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Screen } from '@/src/components/common/Screen';
+import { ProfileUserCard } from '@/src/components/profile/ProfileUserCard';
+import {
+  ProfileMenuItem,
+  ProfileMenuSection,
+} from '@/src/components/profile/ProfileMenuComponents';
+import { LogoutButton } from '@/src/components/profile/LogoutButton';
 import { Typography } from '@/src/components/ui';
-import { COLORS, SIZES } from '@/src/constants/theme';
 import { useProfile } from '@/src/hooks/queries/useProfile';
+import { useTheme } from '@/src/store/useThemeStore';
 
 export default function ProfileScreen() {
-  const {
-    user,
-    wallet,
-    primaryColor,
-    t,
-    i18n,
-    handleLogout,
-    toggleLanguage,
-    navigateTo,
-  } = useProfile();
+  const { user, t, i18n, handleLogout, toggleLanguage, navigateTo } =
+    useProfile();
+
+  const { isDark, colors, toggleTheme, themeMode } = useTheme();
 
   return (
-    <Screen headerTitle={t('nav.profile')} scrollable style={styles.screen}>
-      <ProfileHeader
-        user={user!}
-        onEdit={() => navigateTo('/profile/edit')}
-        primaryColor={primaryColor}
-      />
+    <Screen
+      headerTitle={t('nav.profile')}
+      style={{ backgroundColor: colors.background }}
+      showProfile={false}
+      transparentStatusBar
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <ProfileUserCard
+          name={
+            user?.profile
+              ? `${user.profile.first_name} ${user.profile.last_name}`
+              : '---'
+          }
+          phone={user?.profile.phone_number || '---'}
+          avatarUrl={user?.profile.avatar_url}
+          onEdit={() => navigateTo('/profile/edit')}
+        />
 
-      <View style={styles.content}>
-        <SettingsSection>
-          <SettingItem
-            label={t('profile.language')}
-            subtitle={
-              i18n.language.startsWith('tr') ? 'Türkçe' : 'English (US)'
-            }
-            icon={Globe}
-            onPress={toggleLanguage}
-          />
-          <View style={styles.divider} />
-          <SettingItem
-            label={t('profile.notifications')}
-            icon={Bell}
-            onPress={() => navigateTo('/notifications')}
-            rightElement={
-              <View
-                style={[
-                  styles.toggleBackground,
-                  { backgroundColor: `${primaryColor}1A` },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.toggleCircle,
-                    { backgroundColor: primaryColor },
-                  ]}
-                />
-              </View>
-            }
-          />
-          <View style={styles.divider} />
-          <SettingItem
-            label={t('profile.security')}
-            icon={Lock}
-            onPress={() => {}}
-          />
-        </SettingsSection>
+        <View style={styles.sections}>
+          <ProfileMenuSection title={t('profile.editProfile')}>
+            <ProfileMenuItem
+              icon={
+                <Settings size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+              }
+              label={t('profile.editProfile')}
+              onPress={() => navigateTo('/profile/edit')}
+            />
+          </ProfileMenuSection>
 
-        <SettingsSection>
-          <SettingItem
-            label={t('profile.help')}
-            icon={HelpCircle}
-            onPress={() => {}}
-          />
-        </SettingsSection>
+          <ProfileMenuSection title={t('common.settings')}>
+            <ProfileMenuItem
+              icon={
+                <BellRing size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+              }
+              label={t('profile.notifications')}
+              onPress={() => navigateTo('/notifications')}
+            />
+            <ProfileMenuItem
+              icon={<Globe size={20} color={isDark ? '#a1a1aa' : '#71717a'} />}
+              label={t('profile.language')}
+              value={i18n.language.startsWith('tr') ? 'Türkçe' : 'English'}
+              onPress={toggleLanguage}
+            />
+            <ProfileMenuItem
+              icon={
+                themeMode === 'light' ? (
+                  <Sun size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+                ) : themeMode === 'dark' ? (
+                  <Moon size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+                ) : (
+                  <Settings size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+                )
+              }
+              label={t('profile.theme')}
+              value={
+                themeMode === 'system'
+                  ? t('profile.themeSystem')
+                  : themeMode === 'dark'
+                    ? t('profile.themeDark')
+                    : t('profile.themeLight')
+              }
+              onPress={toggleTheme}
+              isLast
+            />
+          </ProfileMenuSection>
+
+          <ProfileMenuSection title={t('profile.help')}>
+            <ProfileMenuItem
+              icon={
+                <HelpCircle size={20} color={isDark ? '#a1a1aa' : '#71717a'} />
+              }
+              label={t('profile.help')}
+              onPress={() => {}}
+            />
+            <ProfileMenuItem
+              icon={<Shield size={20} color={isDark ? '#a1a1aa' : '#71717a'} />}
+              label={t('campaigns.terms')}
+              onPress={() => {}}
+              isLast
+            />
+          </ProfileMenuSection>
+        </View>
 
         <LogoutButton onPress={handleLogout} label={t('profile.logout')} />
 
-        {wallet && (
-          <LoyaltyBanner
-            balance={wallet.current_points}
-            onViewCard={() => navigateTo('/(tabs)/loyalty')}
-            primaryColor={primaryColor}
-            t={t}
-          />
-        )}
-
         <Typography
           variant="caption"
-          color={COLORS.onSurfaceVariant}
           align="center"
-          style={styles.version}
+          style={[styles.version, { color: colors.onSurfaceVariant }]}
         >
           {t('profile.version')} 1.0.0 (Build 12)
         </Typography>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: COLORS.background,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 40,
   },
-  content: {
-    paddingHorizontal: SIZES.padding,
-    paddingBottom: SIZES.xl * 2,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.surfaceContainerHigh,
-    marginHorizontal: 16,
-  },
-  toggleBackground: {
-    width: 40,
-    height: 20,
-    borderRadius: 10,
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  toggleCircle: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    position: 'absolute',
-    right: 4,
+  sections: {
+    marginTop: 12,
   },
   version: {
-    marginTop: SIZES.xl,
-    opacity: 0.6,
+    marginTop: 12,
+    opacity: 0.5,
   },
 });

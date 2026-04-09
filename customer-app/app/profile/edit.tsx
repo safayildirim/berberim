@@ -25,7 +25,12 @@ export default function EditProfileScreen() {
   } = useProfile();
 
   return (
-    <Screen headerTitle={t('profile.editProfile')} showHeaderBack scrollable>
+    <Screen
+      headerTitle={t('profile.editProfile')}
+      showHeaderBack
+      scrollable
+      showProfile={false}
+    >
       <View style={styles.container}>
         <AvatarEdit
           uri={avatar}
