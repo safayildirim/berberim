@@ -87,4 +87,5 @@ jobs:
 #          gcloud run services update prod-berberim-gateway \
 #            --image=${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image_tag }} \
 #            --region=${{ env.REGION }} \
-#            --project=${{ secrets.GCP_PROJECT_ID }}
+#            --project=${{ secrets.GCP_PROJECT_ID }} \
+#

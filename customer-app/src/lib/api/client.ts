@@ -29,8 +29,6 @@ function sanitizeHeaders(
   );
 }
 
-// Matches Echo's RequestID middleware format: 32 chars from [A-Za-z].
-// Echo reuses the incoming X-Request-ID header, so this ID flows into gateway logs unchanged.
 const REQUEST_ID_CHARSET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 

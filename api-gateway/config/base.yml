@@ -1,5 +1,5 @@
 port: "8080"
-api_grpc_addr: "host.docker.internal:9091"
+api_grpc_addr: ""
 authz:
-  jwks_url: "http://host.docker.internal:8081/.well-known/jwks.json"
-  issuer: "https://berberim.com"
+  jwks_url: ""
+  issuer: ""
