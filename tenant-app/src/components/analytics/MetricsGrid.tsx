@@ -40,8 +40,17 @@ const MetricCard = ({
     <View style={styles.cardHeader}>
       {icon}
       {change && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{change}</Text>
+        <View
+          style={[styles.badge, change.startsWith('-') && styles.badgeNegative]}
+        >
+          <Text
+            style={[
+              styles.badgeText,
+              change.startsWith('-') && styles.badgeTextNegative,
+            ]}
+          >
+            {change}
+          </Text>
         </View>
       )}
     </View>
@@ -137,11 +146,17 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 10,
   },
+  badgeNegative: {
+    backgroundColor: '#FEF2F2', // red-50
+  },
   badgeText: {
     ...TYPOGRAPHY.caption,
     fontWeight: '900',
     color: '#059669', // emerald-600
     fontSize: 10,
+  },
+  badgeTextNegative: {
+    color: '#DC2626', // red-600
   },
   cardBody: {
     gap: 2,

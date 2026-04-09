@@ -80,9 +80,9 @@ export class Logger {
       platform: getPlatform(),
       correlationId: (mergedData?.requestId as string) ?? undefined,
       data: mergedData
-        ? (this.config.redact
-            ? (redact(mergedData) as Record<string, unknown>)
-            : mergedData)
+        ? this.config.redact
+          ? (redact(mergedData) as Record<string, unknown>)
+          : mergedData
         : undefined,
       error: normalized,
     };

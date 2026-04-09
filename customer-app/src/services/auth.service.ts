@@ -60,7 +60,10 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    await api.post('/auth/logout');
+    const refreshToken = await tokenStorage.getRefreshToken();
+    await api.post('/auth/logout', {
+      refresh_token: refreshToken ?? '',
+    });
   },
 
   refresh: async (

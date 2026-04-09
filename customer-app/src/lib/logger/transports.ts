@@ -43,9 +43,7 @@ export class ConsoleTransport implements LogTransport {
       const prefix = `[${entry.feature}]`;
       const hasData = entry.data && Object.keys(entry.data).length > 0;
       const dataStr = hasData ? `\n${prettyFormat(entry.data)}` : '';
-      const errorStr = entry.error
-        ? `\n${prettyFormat(entry.error)}`
-        : '';
+      const errorStr = entry.error ? `\n${prettyFormat(entry.error)}` : '';
       method(`${prefix} ${entry.message}${dataStr}${errorStr}`);
     } else {
       method(JSON.stringify(entry));
