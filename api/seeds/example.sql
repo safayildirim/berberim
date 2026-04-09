@@ -5,6 +5,7 @@
 -- =============================================================
 
 -- UUIDs used in this seed:
+-- platform user: c1000000-0000-0000-0000-000000000001
 -- tenant:        a1000000-0000-0000-0000-000000000001
 -- branding:      a2000000-0000-0000-0000-000000000001
 -- settings:      a3000000-0000-0000-0000-000000000001
@@ -655,4 +656,16 @@ INSERT INTO loyalty_wallets (id, tenant_id, customer_id, current_points, lifetim
 VALUES
   ('f1000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000004', 0, 0, 0, '2026-04-07 07:45+00'),
   ('f1000000-0000-0000-0000-000000000007', 'a1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000007', 7, 7, 0, '2026-04-01 07:20+00')
+ON CONFLICT DO NOTHING;
+
+-- Platform user
+-- password: 123456
+INSERT INTO platform_users (id, email, password_hash, role, status)
+VALUES (
+  'c1000000-0000-0000-0000-000000000001',
+  'safayildirim54@gmail.com',
+  '$2a$10$F3Lm3xU7jLFFVnkxiW/.3eXAVX7FLiTFhNyVSOYOicyD0X8jc7d9i',
+  'super_admin',
+  'active'
+)
 ON CONFLICT DO NOTHING;
