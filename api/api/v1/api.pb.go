@@ -6547,6 +6547,7 @@ type StaffProfile struct {
 	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	Role          string                 `protobuf:"bytes,5,opt,name=role,proto3" json:"role,omitempty"`
 	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	AvatarUrl     *string                `protobuf:"bytes,7,opt,name=avatar_url,json=avatarUrl,proto3,oneof" json:"avatar_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6619,6 +6620,13 @@ func (x *StaffProfile) GetRole() string {
 func (x *StaffProfile) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+func (x *StaffProfile) GetAvatarUrl() string {
+	if x != nil && x.AvatarUrl != nil {
+		return *x.AvatarUrl
 	}
 	return ""
 }
@@ -14556,7 +14564,7 @@ const file_v1_api_proto_rawDesc = "" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\"{\n" +
 	"\x1eGetLoyaltyTransactionsResponse\x12C\n" +
 	"\ftransactions\x18\x01 \x03(\v2\x1f.berberim.v1.LoyaltyTransactionR\ftransactions\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x9c\x01\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\xcf\x01\n" +
 	"\fStaffProfile\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -14564,7 +14572,10 @@ const file_v1_api_proto_rawDesc = "" +
 	"\tlast_name\x18\x03 \x01(\tR\blastName\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12\x12\n" +
 	"\x04role\x18\x05 \x01(\tR\x04role\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06status\"\x18\n" +
+	"\x06status\x18\x06 \x01(\tR\x06status\x12\"\n" +
+	"\n" +
+	"avatar_url\x18\a \x01(\tH\x00R\tavatarUrl\x88\x01\x01B\r\n" +
+	"\v_avatar_url\"\x18\n" +
 	"\x16GetStaffProfileRequest\"N\n" +
 	"\x17GetStaffProfileResponse\x123\n" +
 	"\aprofile\x18\x01 \x01(\v2\x19.berberim.v1.StaffProfileR\aprofile\"K\n" +
@@ -15761,6 +15772,7 @@ func file_v1_api_proto_init() {
 	}
 	file_v1_api_proto_msgTypes[36].OneofWrappers = []any{}
 	file_v1_api_proto_msgTypes[63].OneofWrappers = []any{}
+	file_v1_api_proto_msgTypes[112].OneofWrappers = []any{}
 	file_v1_api_proto_msgTypes[232].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

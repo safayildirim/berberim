@@ -890,6 +890,7 @@ message StaffProfile {
   string email = 4;
   string role = 5;
   string status = 6;
+  optional string avatar_url = 7;
 }
 
 message GetStaffProfileRequest {}

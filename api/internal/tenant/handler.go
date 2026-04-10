@@ -201,16 +201,19 @@ func (h *Handler) GetStaffProfile(ctx context.Context, _ *berberimv1.GetStaffPro
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
-	return &berberimv1.GetStaffProfileResponse{
-		Profile: &berberimv1.StaffProfile{
-			Id:        user.ID.String(),
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			Role:      user.Role,
-			Status:    user.Status,
-		},
-	}, nil
+	profile := &berberimv1.StaffProfile{
+		Id:        user.ID.String(),
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Role:      user.Role,
+		Status:    user.Status,
+	}
+	if user.AvatarKey != nil {
+		avatarURL := h.avatarCfg.PublicURL(*user.AvatarKey)
+		profile.AvatarUrl = &avatarURL
+	}
+	return &berberimv1.GetStaffProfileResponse{Profile: profile}, nil
 }
 
 // ── Public Bootstrap ──────────────────────────────────────────────────────────
