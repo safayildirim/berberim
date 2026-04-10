@@ -87,7 +87,7 @@ export const BookingStaffItem = ({
               variant="caption"
               style={[styles.ratingText, { color: colors.text }]}
             >
-              {rating}
+              {rating.toFixed(1)}
             </Typography>
             <Typography
               variant="caption"

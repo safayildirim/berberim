@@ -64,6 +64,18 @@ VALUES (
   2
 ) ON CONFLICT DO NOTHING;
 
+-- 3b. Notification Settings
+INSERT INTO notification_settings (id, tenant_id, appointment_reminder_enabled, reminder_offset_minutes, send_to_customer, send_to_staff, is_active)
+VALUES (
+  'a3000000-0000-0000-0000-000000000002',
+  'a1000000-0000-0000-0000-000000000001',
+  true,
+  120,
+  true,
+  false,
+  true
+) ON CONFLICT DO NOTHING;
+
 -- 4. Tenant Users
 -- Password for both: Test1234!  (bcrypt $2y$10$...)
 INSERT INTO tenant_users (id, tenant_id, email, password_hash, first_name, last_name, role, status)

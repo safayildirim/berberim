@@ -31,223 +31,212 @@ export default function BookingSuccessScreen() {
   if (isLoading) return null;
 
   return (
-    <View style={styles.root}>
-      <Screen
-        style={{ backgroundColor: colors.background }}
-        transparentStatusBar
+    <Screen style={{ backgroundColor: colors.background }} transparentStatusBar>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Checkmark Icon Overlay */}
-          <View style={styles.heroSection}>
-            <View
-              style={[
-                styles.checkCircle,
-                {
-                  backgroundColor: isDark
-                    ? 'rgba(34, 197, 94, 0.1)'
-                    : '#f0fdf4',
-                  borderColor: colors.background,
-                },
-              ]}
-            >
-              <Check size={40} color="#22c55e" strokeWidth={3} />
-            </View>
-            <Typography
-              variant="h1"
-              style={[styles.heroTitle, { color: colors.text }]}
-            >
-              {t('booking.successTitle')}
-            </Typography>
-            <Typography variant="body" style={styles.heroSubtitle}>
-              {t('booking.successSubtitle')}
-            </Typography>
-          </View>
-
-          {/* Confirmation Card */}
+        {/* Checkmark Icon Overlay */}
+        <View style={styles.heroSection}>
           <View
             style={[
-              styles.mainCard,
+              styles.checkCircle,
               {
-                backgroundColor: colors.card,
-                borderColor: colors.outlineVariant,
+                backgroundColor: isDark ? 'rgba(34, 197, 94, 0.1)' : '#f0fdf4',
+                borderColor: colors.background,
               },
             ]}
           >
-            <View style={styles.cardHeader}>
-              <View>
-                <Typography variant="caption" style={styles.cardLabel}>
-                  {t('booking.reservationId', { id: '' })
-                    .split(':')[0]
-                    .trim()
-                    .toUpperCase()}
-                </Typography>
-                <Typography
-                  variant="label"
-                  style={{ fontWeight: '800', color: colors.text }}
-                >
-                  {mockUUID}
-                </Typography>
-              </View>
-              <View style={styles.statusBadge}>
-                <Typography variant="caption" style={styles.statusText}>
-                  {t('appointments.status.confirmed').toUpperCase()}
-                </Typography>
-              </View>
-            </View>
+            <Check size={40} color="#22c55e" strokeWidth={3} />
+          </View>
+          <Typography
+            variant="h1"
+            style={[styles.heroTitle, { color: colors.text }]}
+          >
+            {t('booking.successTitle')}
+          </Typography>
+          <Typography variant="body" style={styles.heroSubtitle}>
+            {t('booking.successSubtitle')}
+          </Typography>
+        </View>
 
+        {/* Confirmation Card */}
+        <View
+          style={[
+            styles.mainCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.outlineVariant,
+            },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View>
+              <Typography variant="caption" style={styles.cardLabel}>
+                {t('booking.reservationId', { id: '' })
+                  .split(':')[0]
+                  .trim()
+                  .toUpperCase()}
+              </Typography>
+              <Typography
+                variant="label"
+                style={{ fontWeight: '800', color: colors.text }}
+              >
+                {mockUUID}
+              </Typography>
+            </View>
+            <View style={styles.statusBadge}>
+              <Typography variant="caption" style={styles.statusText}>
+                {t('appointments.status.confirmed').toUpperCase()}
+              </Typography>
+            </View>
+          </View>
+
+          <View
+            style={[styles.divider, { backgroundColor: colors.outlineVariant }]}
+          />
+
+          <View style={styles.infoRow}>
             <View
               style={[
-                styles.divider,
-                { backgroundColor: colors.outlineVariant },
+                styles.iconBox,
+                {
+                  backgroundColor: isDark
+                    ? 'rgba(245, 158, 11, 0.1)'
+                    : '#fffbeb',
+                  borderColor: isDark ? 'rgba(245, 158, 11, 0.2)' : '#fef3c7',
+                },
               ]}
-            />
+            >
+              <CalendarClock size={24} color="#f59e0b" />
+            </View>
+            <View>
+              <Typography
+                variant="h3"
+                style={[styles.infoTitle, { color: colors.text }]}
+              >
+                {appointment
+                  ? format(parseISO(appointment.starts_at), 'EEEE, MMM d', {
+                      locale: dateLocale,
+                    })
+                  : '...'}
+              </Typography>
+              <Typography
+                variant="caption"
+                style={{ color: colors.onSurfaceVariant }}
+              >
+                {appointment
+                  ? format(parseISO(appointment.starts_at), 'HH:mm')
+                  : '...'}
+              </Typography>
+            </View>
+          </View>
 
-            <View style={styles.infoRow}>
+          <View
+            style={[
+              styles.divider,
+              { backgroundColor: colors.outlineVariant, marginVertical: 20 },
+            ]}
+          />
+
+          <View style={styles.staffRow}>
+            {appointment?.staff ? (
+              <Image
+                source={{
+                  uri:
+                    appointment.staff.avatar ||
+                    'https://images.unsplash.com/photo-1618077360395-f3068be8e001?w=200',
+                }}
+                style={styles.avatar}
+              />
+            ) : (
               <View
                 style={[
-                  styles.iconBox,
-                  {
-                    backgroundColor: isDark
-                      ? 'rgba(245, 158, 11, 0.1)'
-                      : '#fffbeb',
-                    borderColor: isDark ? 'rgba(245, 158, 11, 0.2)' : '#fef3c7',
-                  },
+                  styles.avatarPlaceholder,
+                  { backgroundColor: isDark ? '#18181b' : '#f4f4f5' },
                 ]}
               >
-                <CalendarClock size={24} color="#f59e0b" />
+                <UserCircle size={20} color="#71717a" />
               </View>
-              <View>
-                <Typography
-                  variant="h3"
-                  style={[styles.infoTitle, { color: colors.text }]}
-                >
-                  {appointment
-                    ? format(parseISO(appointment.starts_at), 'EEEE, MMM d', {
-                        locale: dateLocale,
-                      })
-                    : '...'}
-                </Typography>
+            )}
+            <View>
+              <Typography
+                variant="label"
+                style={{ fontWeight: '800', color: colors.text }}
+              >
+                {appointment?.staff
+                  ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
+                  : t('booking.anyAvailable')}
+              </Typography>
+              {appointment?.staff && (
                 <Typography
                   variant="caption"
                   style={{ color: colors.onSurfaceVariant }}
                 >
-                  {appointment
-                    ? format(parseISO(appointment.starts_at), 'HH:mm')
-                    : '...'}
+                  {appointment.staff.specialty || t('booking.barber')}
                 </Typography>
-              </View>
-            </View>
-
-            <View
-              style={[
-                styles.divider,
-                { backgroundColor: colors.outlineVariant, marginVertical: 20 },
-              ]}
-            />
-
-            <View style={styles.staffRow}>
-              {appointment?.staff ? (
-                <Image
-                  source={{
-                    uri:
-                      appointment.staff.avatar ||
-                      'https://images.unsplash.com/photo-1618077360395-f3068be8e001?w=200',
-                  }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <View
-                  style={[
-                    styles.avatarPlaceholder,
-                    { backgroundColor: isDark ? '#18181b' : '#f4f4f5' },
-                  ]}
-                >
-                  <UserCircle size={20} color="#71717a" />
-                </View>
               )}
-              <View>
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.divider,
+              { backgroundColor: colors.outlineVariant, marginVertical: 20 },
+            ]}
+          />
+
+          <View style={styles.servicesList}>
+            {appointment?.services.map((srv, i) => (
+              <View key={i} style={styles.serviceItem}>
+                <Typography
+                  variant="label"
+                  style={{ color: colors.onSurfaceVariant }}
+                >
+                  {srv.service_name}
+                </Typography>
                 <Typography
                   variant="label"
                   style={{ fontWeight: '800', color: colors.text }}
                 >
-                  {appointment?.staff
-                    ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
-                    : t('booking.anyAvailable')}
+                  {srv.price} TL
                 </Typography>
-                {appointment?.staff && (
-                  <Typography
-                    variant="caption"
-                    style={{ color: colors.onSurfaceVariant }}
-                  >
-                    {appointment.staff.specialty || t('booking.barber')}
-                  </Typography>
-                )}
               </View>
-            </View>
-
-            <View
-              style={[
-                styles.divider,
-                { backgroundColor: colors.outlineVariant, marginVertical: 20 },
-              ]}
-            />
-
-            <View style={styles.servicesList}>
-              {appointment?.services.map((srv, i) => (
-                <View key={i} style={styles.serviceItem}>
-                  <Typography
-                    variant="label"
-                    style={{ color: colors.onSurfaceVariant }}
-                  >
-                    {srv.service_name}
-                  </Typography>
-                  <Typography
-                    variant="label"
-                    style={{ fontWeight: '800', color: colors.text }}
-                  >
-                    {srv.price} TL
-                  </Typography>
-                </View>
-              ))}
-            </View>
+            ))}
           </View>
+        </View>
 
-          {/* Action Buttons */}
-          <View style={styles.actions}>
-            <TouchableOpacity
-              onPress={() => router.replace('/(tabs)/appointments')}
-              style={[
-                styles.secondaryButton,
-                { backgroundColor: isDark ? '#18181b' : '#f4f4f5' },
-              ]}
+        {/* Action Buttons */}
+        <View style={styles.actions}>
+          <TouchableOpacity
+            onPress={() => router.replace('/(tabs)/appointments')}
+            style={[
+              styles.secondaryButton,
+              { backgroundColor: isDark ? '#18181b' : '#f4f4f5' },
+            ]}
+          >
+            <Typography
+              variant="label"
+              style={[styles.secondaryBtnText, { color: colors.text }]}
             >
-              <Typography
-                variant="label"
-                style={[styles.secondaryBtnText, { color: colors.text }]}
-              >
-                {t('booking.viewAppointmentsAction')}
-              </Typography>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.replace('/(tabs)')}
-              style={styles.primaryButton}
-            >
-              <Typography variant="label" style={styles.primaryBtnText}>
-                {t('booking.backToHome')}
-              </Typography>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </Screen>
-    </View>
+              {t('booking.viewAppointmentsAction')}
+            </Typography>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.replace('/(tabs)')}
+            style={styles.primaryButton}
+          >
+            <Typography variant="label" style={styles.primaryBtnText}>
+              {t('booking.backToHome')}
+            </Typography>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 60, paddingTop: 40 },
   heroSection: { alignItems: 'center', marginBottom: 32 },
   checkCircle: {

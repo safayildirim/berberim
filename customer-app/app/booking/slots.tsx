@@ -192,7 +192,7 @@ export default function BookingSlotsScreen() {
                     ]}
                   >
                     <Typography variant="caption" style={styles.recLabel}>
-                      {rec.label.toUpperCase()}
+                      {t(`booking.slots.${rec.label}`).toUpperCase()}
                     </Typography>
                     <Typography
                       variant="h2"
@@ -276,7 +276,7 @@ export default function BookingSlotsScreen() {
             {Object.entries(groupedSlots).map(([title, slots]) => (
               <View key={title} style={styles.timeOfDay}>
                 <Typography variant="caption" style={styles.timeOfDayTitle}>
-                  {title.toUpperCase()}
+                  {t(`booking.slots.${title}`).toUpperCase()}
                 </Typography>
                 <View style={styles.grid}>
                   {(slots as any[]).map((slot, i) => {
