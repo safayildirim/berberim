@@ -1,51 +1,50 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View, StatusBar } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
-import { Button, Typography } from '@/src/components/ui';
-import { COLORS, IMAGES, SIZES } from '@/src/constants/theme';
-
-const { width } = Dimensions.get('window');
+import { HeroSection } from '@/src/components/auth/welcome/HeroSection';
+import { WelcomeBottomSheet } from '@/src/components/auth/welcome/WelcomeBottomSheet';
+import { useTheme } from '@/src/store/useThemeStore';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { isDark } = useTheme();
+
+  const handleLoginPress = () => {
+    router.push('/(auth)/phone-login');
+  };
 
   return (
-    <Screen style={styles.container} transparentStatusBar>
-      <View style={styles.topSection}>
-        <Image source={{ uri: IMAGES.defaultLogo }} style={styles.logo} />
-        <View style={styles.overlay} />
-        <View style={styles.content}>
-          <Typography variant="h1" color={COLORS.white} align="center">
-            Berberim
-          </Typography>
-        </View>
-      </View>
+    <Screen
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#000000' : '#ffffff' },
+      ]}
+      transparentStatusBar
+    >
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        translucent
+        backgroundColor="transparent"
+      />
 
-      <View style={styles.bottomSection}>
-        <Typography variant="h2" align="center">
-          {t('auth.welcomeTitle')}
-        </Typography>
-        <Typography
-          variant="body"
-          color={COLORS.secondary}
-          align="center"
-          style={styles.description}
-        >
-          {t('auth.welcomeSubtitle')}
-        </Typography>
+      {/* Fake Dynamic Island */}
+      <View
+        style={[
+          styles.dynamicIsland,
+          {
+            backgroundColor: isDark
+              ? 'rgba(0, 0, 0, 0.9)'
+              : 'rgba(24, 24, 27, 0.9)',
+          },
+        ]}
+      />
 
-        <Button
-          title={t('auth.loginWithPhone')}
-          onPress={() => router.push('/(auth)/phone-login')}
-          style={styles.button}
-        />
+      <HeroSection />
 
-        <Typography variant="caption" color={COLORS.secondary} align="center">
-          {t('auth.termsNote')}
-        </Typography>
+      <View style={styles.contentContainer}>
+        <View style={styles.spacer} />
+        <WelcomeBottomSheet onLoginPress={handleLoginPress} />
       </View>
     </Screen>
   );
@@ -54,42 +53,26 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 0,
-  },
-  topSection: {
-    height: width * 1.2,
-    width: '100%',
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    opacity: 0.7,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-  },
-  content: {
-    padding: SIZES.padding * 2,
-    zIndex: 1,
-  },
-  bottomSection: {
     flex: 1,
-    padding: SIZES.padding * 1.5,
-    backgroundColor: COLORS.background,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    marginTop: -32,
-    justifyContent: 'space-between',
-    paddingBottom: SIZES.padding * 2,
   },
-  description: {
-    marginTop: SIZES.sm,
+  contentContainer: {
+    flex: 1,
+    zIndex: 10,
   },
-  button: {
-    marginVertical: SIZES.md,
+  dynamicIsland: {
+    position: 'absolute',
+    top: 12,
+    left: '50%',
+    marginLeft: -64,
+    width: 128,
+    height: 28,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    zIndex: 100,
+  },
+  spacer: {
+    flex: 1,
   },
 });

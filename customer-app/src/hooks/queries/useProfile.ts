@@ -30,6 +30,8 @@ export const useProfile = () => {
   const [lastName, setLastName] = useState(user?.profile.last_name || '');
   const [avatar, setAvatar] = useState(user?.profile.avatar_url || '');
 
+  const [saved, setSaved] = useState(false);
+
   const toggleLanguage = async () => {
     const nextLang = i18n.language.startsWith('tr') ? 'en' : 'tr';
     await i18n.changeLanguage(nextLang);
@@ -69,8 +71,11 @@ export const useProfile = () => {
         { first_name: firstName, last_name: lastName },
         {
           onSuccess: () => {
-            Alert.alert(t('common.done'), t('profile.updateSuccessMsg'));
-            router.back();
+            setSaved(true);
+            setTimeout(() => {
+              setSaved(false);
+              router.back();
+            }, 2000);
           },
           onError: () => {
             Alert.alert(t('common.error'), t('common.unexpectedError'));
@@ -174,6 +179,7 @@ export const useProfile = () => {
     avatar,
     setAvatar,
     isUpdating: isUpdating || isUploadingAvatar,
+    saved,
     handleSave,
     handlePickImage,
     tenantName: config?.name || 'Berberim',

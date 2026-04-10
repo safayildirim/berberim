@@ -42,9 +42,11 @@ export const resources = {
         welcomeSubtitle:
           'En sevdiğiniz berberden randevu almanın en kolay yolu.',
         loginWithPhone: 'Telefon ile Giriş Yap',
+        login: 'Giriş Yap',
         sendCode: 'Kod Gönder',
         verify: 'Doğrula',
         verifyCode: 'Kodu Doğrula',
+        checkPhone: 'Kodu Kontrol Edin',
         otpSentTo: '4 haneli kodu {{phone}} numarasına gönderdik.',
         resendOTP: 'OTP Tekrar Gönder',
         termsNote:
@@ -300,9 +302,11 @@ export const resources = {
         welcomeSubtitle:
           'The easiest way to book an appointment with your favorite barber.',
         loginWithPhone: 'Login with Phone',
+        login: 'Login',
         sendCode: 'Send Code',
         verify: 'Verify',
         verifyCode: 'Verify Code',
+        checkPhone: 'Check Your Phone',
         otpSentTo: 'We sent a 4-digit code to {{phone}}.',
         resendOTP: 'Resend OTP',
         termsNote: 'By continuing you agree to our Terms and Privacy Policy.',

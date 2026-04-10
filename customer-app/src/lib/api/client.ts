@@ -111,12 +111,12 @@ apiClient.interceptors.response.use(
       ? Date.now() - cfg._startTime
       : undefined;
 
-    apiLogger.error('Request failed', error, {
+    const logContext = {
       method: cfg?.method?.toUpperCase(),
       url: cfg?.url,
       requestId: cfg?._requestId,
       durationMs,
-    });
+    };
 
     // Handle Token Refresh (401 Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -141,14 +141,19 @@ apiClient.interceptors.response.use(
           await tokenStorage.setRefreshToken(refresh_token);
 
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          apiLogger.debug('Token refreshed, retrying request', logContext);
           return apiClient(originalRequest);
         } catch (refreshError) {
+          apiLogger.error('Token refresh failed', refreshError, logContext);
           await tokenStorage.clearAll();
           return Promise.reject(refreshError);
         }
       } else {
+        apiLogger.warn('No refresh token available', logContext);
         await tokenStorage.clearAll();
       }
+    } else {
+      apiLogger.error('Request failed', error, logContext);
     }
 
     return handleError(error);

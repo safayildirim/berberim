@@ -17,13 +17,7 @@ export default function TabLayout() {
   ) => (
     <View
       pointerEvents="none"
-      style={[
-        styles.itemContainer,
-        focused && [
-          styles.activeItemContainer,
-          { backgroundColor: isDark ? colors.surfaceVariant : '#565e74' },
-        ],
-      ]}
+      style={[styles.itemContainer, focused && styles.activeItemContainer]}
     >
       <Icon color={color} size={22} strokeWidth={focused ? 2.5 : 2} />
       <Text style={[styles.label, { color }]}>{label}</Text>
@@ -33,7 +27,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.white,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: isDark
           ? colors.onSurfaceVariant
           : colors.secondary,

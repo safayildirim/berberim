@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   ScrollView,
   StatusBar,
+  StyleProp,
   StyleSheet,
   View,
   ViewStyle,
@@ -16,7 +17,7 @@ import { Header } from './Header';
 
 interface ScreenProps {
   children?: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   scrollable?: boolean;
   loading?: boolean;
   error?: Error | null;
@@ -28,7 +29,7 @@ interface ScreenProps {
   showHeaderBack?: boolean;
   headerRightElement?: React.ReactNode;
   transparentStatusBar?: boolean;
-  contentContainerStyle?: ViewStyle;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Screen: React.FC<ScreenProps> = ({
