@@ -63,6 +63,38 @@ func (s *Service) GetBalance(ctx context.Context, tenantID, customerID uuid.UUID
 	return wallet, nil
 }
 
+// ListTransactions returns paginated loyalty transactions for a customer at a tenant.
+func (s *Service) ListTransactions(ctx context.Context, tenantID, customerID uuid.UUID, page, pageSize int) ([]Transaction, int64, error) {
+	return s.repo.ListTransactions(ctx, tenantID, customerID, page, pageSize)
+}
+
+// ── Rewards ──────────────────────────────────────────────────────────────────
+
+func (s *Service) ListRewards(ctx context.Context, tenantID uuid.UUID, activeOnly bool) ([]Reward, error) {
+	return s.repo.ListRewards(ctx, tenantID, activeOnly)
+}
+
+func (s *Service) GetReward(ctx context.Context, tenantID, rewardID uuid.UUID) (*Reward, error) {
+	return s.repo.GetReward(ctx, tenantID, rewardID)
+}
+
+func (s *Service) CreateReward(ctx context.Context, rw *Reward) error {
+	rw.ID = uuid.New()
+	return s.repo.CreateReward(ctx, rw)
+}
+
+func (s *Service) UpdateReward(ctx context.Context, tenantID, rewardID uuid.UUID, updates map[string]any) (*Reward, error) {
+	return s.repo.UpdateReward(ctx, tenantID, rewardID, updates)
+}
+
+func (s *Service) DeleteReward(ctx context.Context, tenantID, rewardID uuid.UUID) error {
+	return s.repo.DeleteReward(ctx, tenantID, rewardID)
+}
+
+func (s *Service) SetRewardStatus(ctx context.Context, tenantID, rewardID uuid.UUID, isActive bool) (*Reward, error) {
+	return s.repo.UpdateReward(ctx, tenantID, rewardID, map[string]any{"is_active": isActive})
+}
+
 // ── Ensure Service satisfies the appointment.LoyaltyService interface at compile time.
 var _ interface {
 	AwardPoints(ctx context.Context, tenantID, customerID, appointmentID uuid.UUID, pointsReward int) error

@@ -32,6 +32,7 @@ import (
 	"github.com/berberim/api/internal/customer"
 	grpcinterceptor "github.com/berberim/api/internal/grpc"
 	"github.com/berberim/api/internal/loyalty"
+	"github.com/berberim/api/internal/membership"
 	"github.com/berberim/api/internal/notification"
 	"github.com/berberim/api/internal/review"
 	"github.com/berberim/api/internal/tenant"
@@ -104,10 +105,15 @@ func New() *Server {
 	appointmentSvc.SetReminderScheduler(notificationSvc)
 	appointmentSvc.SetNotificationCreator(&notificationAdapter{svc: notificationSvc})
 
+	// ── Membership domain ─────────────────────────────────────────────────────
+	membershipRepo := membership.NewRepo(db)
+	membershipSvc := membership.NewService(logger, membershipRepo)
+	membershipHandler := membership.NewHandler(membershipSvc)
+
 	// ── Customer domain ───────────────────────────────────────────────────────
 	customerRepo := customer.NewRepo(db)
 	customerSvc := customer.NewService(customerRepo)
-	customerHandler := customer.NewHandler(&cfg.Avatar, customerSvc)
+	customerHandler := customer.NewHandler(&cfg.Avatar, customerSvc, membershipSvc)
 
 	// ── Review domain ─────────────────────────────────────────────────────────
 	reviewRepo := review.NewRepo(db)
@@ -130,7 +136,7 @@ func New() *Server {
 
 	// ── Compose ───────────────────────────────────────────────────────────────
 	composed := apihandler.NewHandler(authHandler, tenantHandler, appointmentHandler, loyaltyHandler,
-		customerHandler, notificationHandler, reviewHandler, analyticsHandler, avatarHandler)
+		customerHandler, membershipHandler, notificationHandler, reviewHandler, analyticsHandler, avatarHandler)
 
 	return &Server{
 		cfg:         cfg,
@@ -188,6 +194,7 @@ func (s *Server) startGRPC() *grpc.Server {
 			grpcinterceptor.InjectRequestID(),
 			grpcinterceptor.InjectClientMeta(),
 			grpcinterceptor.InjectIdentity(),
+			grpcinterceptor.ValidateCustomerMembership(s.db),
 			grpcinterceptor.LoggingUnaryServerInterceptor(s.logger),
 		),
 	)

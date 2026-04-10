@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS staff_reviews;
 DROP TABLE IF EXISTS audit_logs;
 DROP TABLE IF EXISTS customer_notifications;
 DROP TABLE IF EXISTS push_notification_logs;
@@ -14,6 +15,9 @@ DROP TABLE IF EXISTS staff_time_offs;
 DROP TABLE IF EXISTS staff_schedule_rules;
 DROP TABLE IF EXISTS staff_services;
 DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS tenant_customer_profiles;
+DROP TABLE IF EXISTS customer_tenant_memberships;
+DROP TABLE IF EXISTS tenant_link_codes;
 DROP TABLE IF EXISTS customer_identities;
 DROP TABLE IF EXISTS customer_otp_codes;
 DROP TABLE IF EXISTS customers;

@@ -127,21 +127,18 @@ CREATE TABLE tenant_users (
 
 CREATE INDEX idx_tenant_users_tenant_id ON tenant_users(tenant_id);
 
+-- ── Global customers (no tenant_id) ──────────────────────────────────────────
+
 CREATE TABLE customers (
   id uuid primary key,
-  tenant_id uuid not null references tenants(id),
-  phone_number varchar(30) not null,
+  phone_number varchar(30) not null unique,
   first_name varchar(100),
   last_name varchar(100),
   avatar_key text,
   status varchar(30) not null default 'active' CHECK (status IN ('active', 'disabled')),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (tenant_id, phone_number)
+  updated_at timestamptz not null default now()
 );
-
-CREATE INDEX idx_customers_tenant_id ON customers(tenant_id);
-CREATE INDEX idx_customers_tenant_phone_number ON customers(tenant_id, phone_number);
 
 CREATE TABLE customer_otp_codes (
   id uuid primary key,
@@ -156,15 +153,62 @@ CREATE INDEX idx_customer_otp_codes_customer_id ON customer_otp_codes(customer_i
 
 CREATE TABLE customer_identities (
   id uuid primary key,
-  tenant_id uuid not null references tenants(id),
   customer_id uuid not null references customers(id),
   provider varchar(30) not null CHECK (provider IN ('google', 'apple')),
   provider_user_id text not null,
   created_at timestamptz not null default now(),
-  unique (tenant_id, provider, provider_user_id)
+  unique (provider, provider_user_id)
 );
 
 CREATE INDEX idx_customer_identities_customer_id ON customer_identities(customer_id);
+
+-- ── Tenant link codes ────────────────────────────────────────────────────────
+
+CREATE TABLE tenant_link_codes (
+  id uuid primary key,
+  tenant_id uuid not null references tenants(id),
+  code varchar(8) not null,
+  created_by_user_id uuid not null references tenant_users(id),
+  max_uses integer not null default 1,
+  current_uses integer not null default 0,
+  expires_at timestamptz not null,
+  revoked_at timestamptz,
+  revoked_by_user_id uuid references tenant_users(id),
+  created_at timestamptz not null default now()
+);
+
+CREATE UNIQUE INDEX idx_link_codes_active_code ON tenant_link_codes(code) WHERE revoked_at IS NULL;
+CREATE INDEX idx_link_codes_tenant ON tenant_link_codes(tenant_id, created_at DESC);
+
+-- ── Customer–tenant memberships ──────────────────────────────────────────────
+
+CREATE TABLE customer_tenant_memberships (
+  id uuid primary key,
+  customer_id uuid not null references customers(id),
+  tenant_id uuid not null references tenants(id),
+  status varchar(30) not null default 'active' CHECK (status IN ('active', 'disabled')),
+  link_code_id uuid references tenant_link_codes(id),
+  joined_at timestamptz not null default now(),
+  disabled_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (customer_id, tenant_id)
+);
+
+CREATE INDEX idx_ctm_tenant_id ON customer_tenant_memberships(tenant_id);
+CREATE INDEX idx_ctm_customer_id ON customer_tenant_memberships(customer_id);
+CREATE INDEX idx_ctm_tenant_status ON customer_tenant_memberships(tenant_id, status);
+
+-- ── Tenant-specific customer profiles (1:1 extension of membership) ──────────
+
+CREATE TABLE tenant_customer_profiles (
+  membership_id uuid primary key references customer_tenant_memberships(id),
+  notes_internal text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- ── Services & staff ─────────────────────────────────────────────────────────
 
 CREATE TABLE services (
   id uuid primary key,
@@ -225,6 +269,8 @@ CREATE TABLE staff_time_offs (
 
 CREATE INDEX idx_staff_time_offs_staff_user_id ON staff_time_offs(staff_user_id);
 
+-- ── Appointments ─────────────────────────────────────────────────────────────
+
 CREATE TABLE appointments (
   id uuid primary key,
   tenant_id uuid not null references tenants(id),
@@ -250,15 +296,12 @@ CREATE INDEX idx_appointments_tenant_starts_at ON appointments(tenant_id, starts
 CREATE INDEX idx_appointments_staff_user_id ON appointments(staff_user_id);
 CREATE INDEX idx_appointments_customer_id ON appointments(customer_id);
 CREATE INDEX idx_appointments_status ON appointments(tenant_id, status);
--- Composite index for cohort/retention/LTV queries: customer's first visit and visit aggregations.
 CREATE INDEX idx_appointments_tenant_customer_starts
     ON appointments(tenant_id, customer_id, starts_at)
     WHERE status IN ('completed', 'payment_received');
--- Index for weekly booking limit count queries (covers all active statuses).
 CREATE INDEX idx_appointments_tenant_customer_active
     ON appointments(tenant_id, customer_id, starts_at)
     WHERE status IN ('confirmed', 'payment_received', 'completed');
--- Index for no-show analysis: covers (tenant, date range, status) grouping.
 CREATE INDEX idx_appointments_tenant_starts_status
     ON appointments(tenant_id, starts_at, status);
 
@@ -275,9 +318,10 @@ CREATE TABLE appointment_services (
 );
 
 CREATE INDEX idx_appointment_services_appointment_id ON appointment_services(appointment_id);
--- Covering index for LTV queries to avoid heap lookups on appointment_services.
 CREATE INDEX idx_appointment_services_appt_price
     ON appointment_services(appointment_id) INCLUDE (price_snapshot, service_id);
+
+-- ── Loyalty ──────────────────────────────────────────────────────────────────
 
 CREATE TABLE loyalty_wallets (
   id uuid primary key,
@@ -335,6 +379,8 @@ CREATE TABLE reward_redemptions (
   created_at timestamptz not null default now()
 );
 
+-- ── Campaigns ────────────────────────────────────────────────────────────────
+
 CREATE TABLE campaigns (
   id uuid primary key,
   tenant_id uuid not null references tenants(id),
@@ -348,6 +394,8 @@ CREATE TABLE campaigns (
 );
 
 CREATE INDEX idx_campaigns_tenant_id ON campaigns(tenant_id);
+
+-- ── Notifications ────────────────────────────────────────────────────────────
 
 CREATE TABLE notification_settings (
   id uuid primary key,
@@ -420,6 +468,8 @@ CREATE TABLE customer_notifications (
 
 CREATE INDEX idx_customer_notifications_inbox ON customer_notifications(tenant_id, customer_id, created_at DESC);
 CREATE INDEX idx_customer_notifications_unread ON customer_notifications(tenant_id, customer_id) WHERE is_read = false;
+
+-- ── Audit & reviews ──────────────────────────────────────────────────────────
 
 CREATE TABLE audit_logs (
   id uuid primary key,

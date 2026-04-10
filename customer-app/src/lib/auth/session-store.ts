@@ -1,14 +1,18 @@
 import { create } from 'zustand';
-import { CustomerProfile, TenantConfig } from '@/src/types';
+import { CustomerProfile, TenantConfig, TenantMembership } from '@/src/types';
 import { tokenStorage } from '@/src/lib/auth/token-storage';
 
 interface SessionState {
   isAuthenticated: boolean;
   isBootstrapped: boolean;
   user: CustomerProfile | null;
-  tenant: TenantConfig | null;
   loading: boolean;
   error: string | null;
+
+  // Multi-tenant state
+  tenants: TenantMembership[];
+  activeTenantId: string | null;
+  activeTenantConfig: TenantConfig | null;
 
   // Actions
   setSession: (
@@ -17,20 +21,24 @@ interface SessionState {
     refreshToken: string,
   ) => Promise<void>;
   updateUser: (user: Partial<CustomerProfile>) => void;
-  setTenant: (tenant: TenantConfig) => Promise<void>;
+  setTenants: (tenants: TenantMembership[]) => void;
+  setActiveTenant: (tenantId: string, config: TenantConfig) => Promise<void>;
+  clearActiveTenant: () => Promise<void>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  bootstrap: (tenant: TenantConfig, user?: CustomerProfile | null) => void;
+  bootstrap: (user?: CustomerProfile | null) => void;
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
   isAuthenticated: false,
   isBootstrapped: false,
   user: null,
-  tenant: null,
   loading: true,
   error: null,
+  tenants: [],
+  activeTenantId: null,
+  activeTenantConfig: null,
 
   setSession: async (user, accessToken, refreshToken) => {
     await tokenStorage.setAccessToken(accessToken);
@@ -45,14 +53,22 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
-  setTenant: async (tenant) => {
-    await tokenStorage.setTenantId(tenant.id);
-    set({ tenant, isBootstrapped: true });
+  setTenants: (tenants) => {
+    set({ tenants });
   },
 
-  bootstrap: (tenant, user = null) => {
+  setActiveTenant: async (tenantId, config) => {
+    await tokenStorage.setActiveTenantId(tenantId);
+    set({ activeTenantId: tenantId, activeTenantConfig: config });
+  },
+
+  clearActiveTenant: async () => {
+    await tokenStorage.clearActiveTenantId();
+    set({ activeTenantId: null, activeTenantConfig: null });
+  },
+
+  bootstrap: (user = null) => {
     set({
-      tenant,
       user,
       isAuthenticated: !!user,
       isBootstrapped: true,
@@ -62,7 +78,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   logout: async () => {
     await tokenStorage.clearAll();
-    set({ isAuthenticated: false, user: null });
+    set({
+      isAuthenticated: false,
+      user: null,
+      tenants: [],
+      activeTenantId: null,
+      activeTenantConfig: null,
+    });
   },
 
   setLoading: (loading) => set({ loading }),

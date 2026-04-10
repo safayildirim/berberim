@@ -10,6 +10,7 @@ import {
   FileText,
   Gift,
   Globe,
+  Link2,
   HelpCircle,
   LogOut,
   Moon,
@@ -344,6 +345,12 @@ export default function MoreScreen() {
                 title={t('settings.items.catalog')}
                 small
                 onPress={() => router.push('/services' as any)}
+              />
+              <BentoItem
+                icon={Link2}
+                title={t('settings.items.linkCodes', 'Bağlantı Kodları')}
+                small
+                onPress={() => router.push('/link-codes' as any)}
               />
               <BentoItem
                 icon={Gift}

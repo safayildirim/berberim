@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { MapPin, Bell } from 'lucide-react-native';
+import { MapPin, Bell, ArrowLeftRight } from 'lucide-react-native';
 import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
 import { SIZES } from '@/src/constants/theme';
 import { useUnreadNotificationCount } from '@/src/hooks/queries/useCampaigns';
+import { TenantSwitcherModal } from './TenantSwitcherModal';
 
 interface HomeHeaderProps {
   user: {
@@ -21,63 +22,87 @@ export const HomeHeader = ({ user, location }: HomeHeaderProps) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
+  const [showSwitcher, setShowSwitcher] = useState(false);
 
   return (
-    <View style={[styles.header, { backgroundColor: colors.background }]}>
-      <View style={styles.userInfo}>
-        <View style={styles.avatarContainer}>
-          <Image source={{ uri: user?.avatar }} style={styles.avatar} />
-          <View
-            style={[styles.statusIndicator, { borderColor: colors.background }]}
-          />
+    <>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
+        <View style={styles.userInfo}>
+          <View style={styles.avatarContainer}>
+            <Image source={{ uri: user?.avatar }} style={styles.avatar} />
+            <View
+              style={[
+                styles.statusIndicator,
+                { borderColor: colors.background },
+              ]}
+            />
+          </View>
+          <View>
+            <Typography
+              variant="caption"
+              style={{ color: colors.onSurfaceVariant }}
+            >
+              {t('home.welcomeBack')}
+            </Typography>
+            <Typography style={[styles.userName, { color: colors.text }]}>
+              {user?.name}
+            </Typography>
+          </View>
         </View>
-        <View>
-          <Typography
-            variant="caption"
-            style={{ color: colors.onSurfaceVariant }}
+
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[
+              styles.locationButton,
+              {
+                backgroundColor: colors.surfaceContainer,
+                borderColor: colors.outlineVariant,
+              },
+            ]}
           >
-            {t('home.welcomeBack')}
-          </Typography>
-          <Typography style={[styles.userName, { color: colors.text }]}>
-            {user?.name}
-          </Typography>
+            <MapPin size={12} color="#f59e0b" />
+            <Typography
+              variant="caption"
+              style={[styles.locationText, { color: colors.text }]}
+            >
+              {location}
+            </Typography>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor: colors.surfaceContainer,
+                borderColor: colors.outlineVariant,
+              },
+            ]}
+            onPress={() => router.push('/notifications')}
+          >
+            <Bell size={18} color={colors.text} />
+            {unreadCount > 0 && <View style={styles.notificationDot} />}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor: colors.surfaceContainer,
+                borderColor: colors.outlineVariant,
+              },
+            ]}
+            onPress={() => setShowSwitcher(true)}
+          >
+            <ArrowLeftRight size={18} color={colors.text} />
+          </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={[
-            styles.locationButton,
-            {
-              backgroundColor: colors.surfaceContainer,
-              borderColor: colors.outlineVariant,
-            },
-          ]}
-        >
-          <MapPin size={12} color="#f59e0b" />
-          <Typography
-            variant="caption"
-            style={[styles.locationText, { color: colors.text }]}
-          >
-            {location}
-          </Typography>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.iconButton,
-            {
-              backgroundColor: colors.surfaceContainer,
-              borderColor: colors.outlineVariant,
-            },
-          ]}
-          onPress={() => router.push('/notifications')}
-        >
-          <Bell size={18} color={colors.text} />
-          {unreadCount > 0 && <View style={styles.notificationDot} />}
-        </TouchableOpacity>
-      </View>
-    </View>
+      <TenantSwitcherModal
+        visible={showSwitcher}
+        onClose={() => setShowSwitcher(false)}
+      />
+    </>
   );
 };
 
@@ -121,7 +146,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   locationButton: {
     flexDirection: 'row',

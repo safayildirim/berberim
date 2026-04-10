@@ -308,6 +308,17 @@ export interface NoShowAnalysis {
   trends: NoShowTrend[];
 }
 
+export interface LinkCode {
+  id: string;
+  code: string;
+  max_uses: number;
+  current_uses: number;
+  expires_at: string;
+  revoked_at?: string;
+  created_at: string;
+  created_by_user_id: string;
+}
+
 export interface AuditLog {
   id: string;
   actor_id: string;

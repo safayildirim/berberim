@@ -49,11 +49,7 @@ func (h *Handler) JWKS(cache JWKSCache, limit JWKSRateLimiter) echo.HandlerFunc 
 // ── Auth RPC delegations ──────────────────────────────────────────────────────
 
 func (h *Handler) SendCustomerOTP(ctx context.Context, req *berberimv1.SendCustomerOTPRequest) (*berberimv1.SendCustomerOTPResponse, error) {
-	tenantID, err := uuid.Parse(req.TenantId)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid tenant_id: %v", err)
-	}
-	expiresIn, err := h.service.SendCustomerOTP(ctx, tenantID, req.PhoneNumber)
+	expiresIn, err := h.service.SendCustomerOTP(ctx, req.PhoneNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -61,11 +57,7 @@ func (h *Handler) SendCustomerOTP(ctx context.Context, req *berberimv1.SendCusto
 }
 
 func (h *Handler) VerifyCustomerOTP(ctx context.Context, req *berberimv1.VerifyCustomerOTPRequest) (*berberimv1.VerifyCustomerOTPResponse, error) {
-	tenantID, err := uuid.Parse(req.TenantId)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid tenant_id: %v", err)
-	}
-	result, err := h.service.VerifyCustomerOTP(ctx, tenantID, req.PhoneNumber, req.Code)
+	result, err := h.service.VerifyCustomerOTP(ctx, req.PhoneNumber, req.Code)
 	if err != nil {
 		return nil, err
 	}
@@ -78,11 +70,7 @@ func (h *Handler) VerifyCustomerOTP(ctx context.Context, req *berberimv1.VerifyC
 }
 
 func (h *Handler) VerifyCustomerSocialLogin(ctx context.Context, req *berberimv1.VerifyCustomerSocialLoginRequest) (*berberimv1.VerifyCustomerSocialLoginResponse, error) {
-	tenantID, err := uuid.Parse(req.TenantId)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid tenant_id: %v", err)
-	}
-	result, err := h.service.VerifyCustomerSocialLogin(ctx, tenantID, req.Provider, req.IdToken)
+	result, err := h.service.VerifyCustomerSocialLogin(ctx, req.Provider, req.IdToken)
 	if err != nil {
 		return nil, err
 	}

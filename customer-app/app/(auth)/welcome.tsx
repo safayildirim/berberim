@@ -5,28 +5,21 @@ import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
 import { Button, Typography } from '@/src/components/ui';
 import { COLORS, IMAGES, SIZES } from '@/src/constants/theme';
-import { useTenantStore } from '@/src/store/useTenantStore';
 
 const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { config } = useTenantStore();
-
-  if (!config) return null;
 
   return (
     <Screen style={styles.container} transparentStatusBar>
       <View style={styles.topSection}>
-        <Image
-          source={{ uri: config.branding.logo_url || IMAGES.defaultLogo }}
-          style={styles.logo}
-        />
+        <Image source={{ uri: IMAGES.defaultLogo }} style={styles.logo} />
         <View style={styles.overlay} />
         <View style={styles.content}>
           <Typography variant="h1" color={COLORS.white} align="center">
-            {config.name}
+            Berberim
           </Typography>
         </View>
       </View>

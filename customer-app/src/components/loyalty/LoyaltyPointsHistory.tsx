@@ -40,10 +40,10 @@ export const LoyaltyPointsHistory = ({
       >
         {transactions.map((item, index) => {
           const isLast = index === transactions.length - 1;
-          const formattedDate = format(parseISO(item.date), 'MMM d, yyyy', {
-            locale,
-          });
-          const isPositive = item.type === 'earned';
+          const formattedDate = item.created_at
+            ? format(parseISO(item.created_at), 'MMM d, yyyy', { locale })
+            : '';
+          const isPositive = item.type === 'earn';
 
           return (
             <View
@@ -75,7 +75,7 @@ export const LoyaltyPointsHistory = ({
                   <Typography
                     style={[styles.actionText, { color: colors.text }]}
                   >
-                    {item.description}
+                    {item.reason}
                   </Typography>
                   <Typography variant="caption" style={styles.dateText}>
                     {formattedDate}

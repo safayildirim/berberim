@@ -34,7 +34,7 @@ func (s *Service) GetProfile(ctx context.Context, tenantID, customerID uuid.UUID
 	return c, nil
 }
 
-func (s *Service) UpdateCustomer(ctx context.Context, tenantID, customerID uuid.UUID, req UpdateProfileRequest) (*Customer, error) {
+func (s *Service) UpdateCustomer(ctx context.Context, customerID uuid.UUID, req UpdateProfileRequest) error {
 	updates := map[string]any{}
 	if req.FirstName != "" {
 		updates["first_name"] = req.FirstName
@@ -43,33 +43,15 @@ func (s *Service) UpdateCustomer(ctx context.Context, tenantID, customerID uuid.
 		updates["last_name"] = req.LastName
 	}
 	if len(updates) == 0 {
-		return s.GetProfile(ctx, tenantID, customerID)
+		return nil
 	}
-	c, err := s.repo.Update(ctx, tenantID, customerID, updates)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "customer not found")
-		}
-		return nil, status.Errorf(codes.Internal, "update customer: %v", err)
-	}
-	return c, nil
-}
-
-func (s *Service) SetCustomerStatus(ctx context.Context, tenantID, customerID uuid.UUID, customerStatus string) error {
-	valid := map[string]bool{"active": true, "disabled": true}
-	if !valid[customerStatus] {
-		return status.Errorf(codes.InvalidArgument, "invalid status %q", customerStatus)
-	}
-	if err := s.repo.UpdateStatus(ctx, tenantID, customerID, customerStatus); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return status.Error(codes.NotFound, "customer not found")
-		}
-		return status.Errorf(codes.Internal, "set customer status: %v", err)
+	if err := s.repo.Update(ctx, customerID, updates); err != nil {
+		return status.Errorf(codes.Internal, "update customer: %v", err)
 	}
 	return nil
 }
 
-func (s *Service) UpdateProfile(ctx context.Context, tenantID, customerID uuid.UUID, req UpdateProfileRequest) (*Customer, error) {
+func (s *Service) UpdateProfile(ctx context.Context, customerID uuid.UUID, req UpdateProfileRequest) (*Customer, error) {
 	updates := map[string]any{}
 	if req.FirstName != "" {
 		updates["first_name"] = req.FirstName
@@ -80,12 +62,11 @@ func (s *Service) UpdateProfile(ctx context.Context, tenantID, customerID uuid.U
 	if len(updates) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "at least one field must be provided")
 	}
-	c, err := s.repo.Update(ctx, tenantID, customerID, updates)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "customer not found")
-		}
+	if err := s.repo.Update(ctx, customerID, updates); err != nil {
 		return nil, status.Errorf(codes.Internal, "update customer: %v", err)
 	}
-	return c, nil
+	// Return a minimal customer for the global profile response (no tenant context)
+	var c Customer
+	c.ID = customerID
+	return &c, nil
 }

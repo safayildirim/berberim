@@ -829,3 +829,40 @@ func (h *TenantHandler) ConfirmStaffAvatarUpload(c *echo.Context) error {
 	}
 	return writeProto(c, resp)
 }
+
+// ── Link Codes ───────────────────────────────────────────────────────────────
+
+// POST /api/v1/tenant/link-codes
+func (h *TenantHandler) GenerateLinkCode(c *echo.Context) error {
+	var req berberimv1.GenerateLinkCodeRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.GenerateLinkCode(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// GET /api/v1/tenant/link-codes
+func (h *TenantHandler) ListLinkCodes(c *echo.Context) error {
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ListLinkCodes(ctx, &berberimv1.ListLinkCodesRequest{})
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// DELETE /api/v1/tenant/link-codes/:id
+func (h *TenantHandler) RevokeLinkCode(c *echo.Context) error {
+	req := &berberimv1.RevokeLinkCodeRequest{LinkCodeId: c.Param("id")}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.RevokeLinkCode(ctx, req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}

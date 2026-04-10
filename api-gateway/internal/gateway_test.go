@@ -359,6 +359,21 @@ func (s *stubClient) GenerateStaffAvatarUploadURL(_ context.Context, _ *berberim
 func (s *stubClient) ConfirmStaffAvatarUpload(_ context.Context, _ *berberimv1.ConfirmAvatarUploadRequest, _ ...grpc.CallOption) (*berberimv1.ConfirmAvatarUploadResponse, error) {
 	return &berberimv1.ConfirmAvatarUploadResponse{}, nil
 }
+func (s *stubClient) ListCustomerTenants(_ context.Context, _ *berberimv1.ListCustomerTenantsRequest, _ ...grpc.CallOption) (*berberimv1.ListCustomerTenantsResponse, error) {
+	return &berberimv1.ListCustomerTenantsResponse{}, nil
+}
+func (s *stubClient) ClaimLinkCode(_ context.Context, _ *berberimv1.ClaimLinkCodeRequest, _ ...grpc.CallOption) (*berberimv1.ClaimLinkCodeResponse, error) {
+	return &berberimv1.ClaimLinkCodeResponse{}, nil
+}
+func (s *stubClient) GenerateLinkCode(_ context.Context, _ *berberimv1.GenerateLinkCodeRequest, _ ...grpc.CallOption) (*berberimv1.GenerateLinkCodeResponse, error) {
+	return &berberimv1.GenerateLinkCodeResponse{}, nil
+}
+func (s *stubClient) ListLinkCodes(_ context.Context, _ *berberimv1.ListLinkCodesRequest, _ ...grpc.CallOption) (*berberimv1.ListLinkCodesResponse, error) {
+	return &berberimv1.ListLinkCodesResponse{}, nil
+}
+func (s *stubClient) RevokeLinkCode(_ context.Context, _ *berberimv1.RevokeLinkCodeRequest, _ ...grpc.CallOption) (*berberimv1.RevokeLinkCodeResponse, error) {
+	return &berberimv1.RevokeLinkCodeResponse{}, nil
+}
 
 // ── Fake JWT validator ────────────────────────────────────────────────────────
 
@@ -443,7 +458,7 @@ func buildRouter(t *testing.T) (*fakeValidator, func(method, path, token string)
 
 func TestRouter_Healthz(t *testing.T) {
 	_, do := buildRouter(t)
-	rec := do("GET", "/healthz", "")
+	rec := do("GET", "/health", "")
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
@@ -683,20 +698,31 @@ func TestRouter_TenantAdminRoutes_RequireAdminRole(t *testing.T) {
 	}
 }
 
-func TestRouter_CustomerRoutes_RequireTenantFromJWT(t *testing.T) {
+func TestRouter_CustomerGlobalRoutes_NoTenantRequired(t *testing.T) {
 	_, do := buildRouter(t)
 
-	t.Run("customer token without tenant_id returns 403", func(t *testing.T) {
+	t.Run("customer token without tenant_id can access /me (global)", func(t *testing.T) {
 		rec := do("GET", "/api/v1/customer/me", "customer-token")
-		if rec.Code != http.StatusForbidden {
-			t.Fatalf("status = %d, want 403", rec.Code)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d, want 200", rec.Code)
 		}
 	})
 
-	t.Run("customer token with tenant_id passes", func(t *testing.T) {
-		rec := do("GET", "/api/v1/customer/me", "customer-tenant-token")
+	t.Run("customer token without tenant_id can list tenants (global)", func(t *testing.T) {
+		rec := do("GET", "/api/v1/customer/tenants", "customer-token")
 		if rec.Code != http.StatusOK {
 			t.Fatalf("status = %d, want 200", rec.Code)
+		}
+	})
+}
+
+func TestRouter_CustomerTenantRoutes_RequireTenantHeader(t *testing.T) {
+	_, do := buildRouter(t)
+
+	t.Run("customer token without X-Tenant-ID header on tenant-scoped route returns 400", func(t *testing.T) {
+		rec := do("GET", "/api/v1/customer/appointments", "customer-token")
+		if rec.Code != http.StatusBadRequest {
+			t.Fatalf("status = %d, want 400", rec.Code)
 		}
 	})
 }

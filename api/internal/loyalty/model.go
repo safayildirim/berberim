@@ -36,3 +36,17 @@ type Transaction struct {
 }
 
 func (Transaction) TableName() string { return "loyalty_transactions" }
+
+// Reward mirrors the reward_catalog_items table.
+type Reward struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	TenantID    uuid.UUID `gorm:"type:uuid;not null"`
+	Title       string    `gorm:"size:150;not null"`
+	Description *string   `gorm:"type:text"`
+	PointsCost  int       `gorm:"not null"`
+	IsActive    bool      `gorm:"not null;default:true"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+func (Reward) TableName() string { return "reward_catalog_items" }

@@ -140,10 +140,12 @@ export type LoyaltyWallet = {
 
 export type LoyaltyTransaction = {
   id: string;
+  type: 'earn' | 'redeem' | 'expire' | 'adjust';
   points: number;
-  type: 'earned' | 'redeemed';
-  description: string;
-  date: string;
+  balance_after: number;
+  reason: string;
+  appointment_id?: string;
+  created_at: string;
 };
 
 export type Reward = {
@@ -161,6 +163,17 @@ export type Campaign = {
   imageUrl: string;
   startDate: string;
   endDate: string;
+};
+
+// ── Multi-tenant membership types ──────────────────────────────────────────
+
+export type TenantMembership = {
+  tenant_id: string;
+  name: string;
+  slug: string;
+  logo_url: string;
+  status: string;
+  joined_at: string;
 };
 
 export type AppNotification = {

@@ -4,6 +4,7 @@ import {
   CohortAnalysis,
   Customer,
   CustomerLTV,
+  LinkCode,
   NoShowAnalysis,
   NotificationSettings,
   RetentionAnalysis,
@@ -167,5 +168,32 @@ export const adminService = {
 
   setCustomerStatus: async (id: string, active: boolean): Promise<void> => {
     return api.patch(`/tenant/customers/${id}/status`, { is_active: active });
+  },
+
+  // ── Link Codes ──────────────────────────────────────────────────────────────
+
+  generateLinkCode: async (
+    maxUses: number = 1,
+    expiresInHours: number = 24,
+  ): Promise<{
+    id: string;
+    code: string;
+    expires_at: string;
+    max_uses: number;
+  }> => {
+    return api.post('/tenant/link-codes', {
+      max_uses: maxUses,
+      expires_in_hours: expiresInHours,
+    });
+  },
+
+  listLinkCodes: async (): Promise<LinkCode[]> => {
+    return api
+      .get<{ codes: LinkCode[] }>('/tenant/link-codes')
+      .then((res: any) => res.codes || []);
+  },
+
+  revokeLinkCode: async (id: string): Promise<void> => {
+    return api.delete(`/tenant/link-codes/${id}`);
   },
 };

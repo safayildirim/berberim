@@ -1,16 +1,13 @@
-import { tokenStorage } from '@/src/lib/auth/token-storage';
 import { api } from '@/src/lib/api/client';
 import { CustomerProfile } from '@/src/types';
 
 export interface OtpRequest {
   phone_number: string;
-  tenant_id: string;
 }
 
 export interface OtpVerifyRequest {
   phone_number: string;
   code: string;
-  tenant_id: string;
 }
 
 export interface AuthResponse {
@@ -32,27 +29,13 @@ export interface RegisterPushDeviceRequest {
 
 export const authService = {
   requestOtp: async (
-    data: Omit<OtpRequest, 'tenant_id'>,
+    data: OtpRequest,
   ): Promise<{ expires_in_seconds: number }> => {
-    const tenant_id = await tokenStorage.getTenantId();
-    if (!tenant_id) throw new Error('Tenant ID is required');
-
-    return api.post('/auth/customers/login', {
-      ...data,
-      tenant_id,
-    });
+    return api.post('/auth/customers/login', data);
   },
 
-  verifyOtp: async (
-    data: Omit<OtpVerifyRequest, 'tenant_id'>,
-  ): Promise<AuthResponse> => {
-    const tenant_id = await tokenStorage.getTenantId();
-    if (!tenant_id) throw new Error('Tenant ID is required');
-
-    return api.post('/auth/customers/login/verify', {
-      ...data,
-      tenant_id,
-    });
+  verifyOtp: async (data: OtpVerifyRequest): Promise<AuthResponse> => {
+    return api.post('/auth/customers/login/verify', data);
   },
 
   me: async (): Promise<CustomerProfile> => {
@@ -60,6 +43,7 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
+    const { tokenStorage } = await import('@/src/lib/auth/token-storage');
     const refreshToken = await tokenStorage.getRefreshToken();
     await api.post('/auth/logout', {
       refresh_token: refreshToken ?? '',

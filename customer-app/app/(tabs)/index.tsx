@@ -4,7 +4,6 @@ import { Screen } from '@/src/components/common/Screen';
 import { useTheme } from '@/src/store/useThemeStore';
 import { SIZES, getColors } from '@/src/constants/theme';
 import { HomeHeader } from '@/src/components/home/HomeHeader';
-import { HomeSearch } from '@/src/components/home/HomeSearch';
 import { PrimaryBooking } from '@/src/components/home/PrimaryBooking';
 import { UpcomingAppointment } from '@/src/components/home/UpcomingAppointment';
 import { QuickRebook } from '@/src/components/home/QuickRebook';
@@ -28,8 +27,6 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <HomeSearch />
-
         <PrimaryBooking
           earliestAvailable={data.bookingData.earliestAvailable}
           limitReached={data.bookingData.limitReached}

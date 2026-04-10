@@ -74,6 +74,10 @@ service BerberimAPI {
   rpc ListPublicStaffServices(ListPublicStaffServicesRequest) returns (ListPublicStaffServicesResponse);
   rpc GetAvailabilityDays(GetAvailabilityDaysRequest) returns (GetAvailabilityDaysResponse);
 
+  // ── Customer: tenant memberships ───────────────────────────────────────────
+  rpc ListCustomerTenants(ListCustomerTenantsRequest) returns (ListCustomerTenantsResponse);
+  rpc ClaimLinkCode(ClaimLinkCodeRequest) returns (ClaimLinkCodeResponse);
+
   // ── Customer profile ──────────────────────────────────────────────────────
   rpc GetCustomerProfile(GetCustomerProfileRequest) returns (GetCustomerProfileResponse);
   rpc UpdateCustomerProfile(UpdateCustomerProfileRequest) returns (UpdateCustomerProfileResponse);
@@ -133,6 +137,11 @@ service BerberimAPI {
   rpc UpdateCustomer(UpdateCustomerRequest) returns (UpdateCustomerResponse);
   rpc SetCustomerStatus(SetCustomerStatusRequest) returns (SetCustomerStatusResponse);
 
+  // ── Admin: link codes ─────────────────────────────────────────────────────
+  rpc GenerateLinkCode(GenerateLinkCodeRequest) returns (GenerateLinkCodeResponse);
+  rpc ListLinkCodes(ListLinkCodesRequest) returns (ListLinkCodesResponse);
+  rpc RevokeLinkCode(RevokeLinkCodeRequest) returns (RevokeLinkCodeResponse);
+
   // ── Admin: loyalty settings ───────────────────────────────────────────────
   rpc GetLoyaltySettings(GetLoyaltySettingsRequest) returns (GetLoyaltySettingsResponse);
   rpc UpdateLoyaltySettings(UpdateLoyaltySettingsRequest) returns (UpdateLoyaltySettingsResponse);
@@ -174,8 +183,7 @@ service BerberimAPI {
 // ── Auth: Customer ────────────────────────────────────────────────────────────
 
 message SendCustomerOTPRequest {
-  string tenant_id = 1;
-  string phone_number = 2;
+  string phone_number = 1;
 }
 
 message SendCustomerOTPResponse {
@@ -184,9 +192,8 @@ message SendCustomerOTPResponse {
 }
 
 message VerifyCustomerOTPRequest {
-  string tenant_id = 1;
-  string phone_number = 2;
-  string code = 3;
+  string phone_number = 1;
+  string code = 2;
 }
 
 message VerifyCustomerOTPResponse {
@@ -199,11 +206,10 @@ message VerifyCustomerOTPResponse {
 }
 
 message VerifyCustomerSocialLoginRequest {
-  string tenant_id = 1;
   // "google" | "apple"
-  string provider = 2;
+  string provider = 1;
   // ID token returned by the provider SDK on the device.
-  string id_token = 3;
+  string id_token = 2;
 }
 
 message VerifyCustomerSocialLoginResponse {
@@ -1095,6 +1101,10 @@ message Customer {
   string created_at = 8;
   int32 loyalty_points = 9;
   string avatar_url = 10;
+  // Tenant-scoped membership fields (populated when accessed via tenant context)
+  string membership_status = 11;
+  string joined_at = 12;
+  string notes_internal = 13;
 }
 
 message ListCustomersRequest {
@@ -1113,6 +1123,7 @@ message CreateCustomerRequest {
   string phone_number = 1;
   string first_name = 2;
   string last_name = 3;
+  string notes_internal = 4;
 }
 
 message CreateCustomerResponse {
@@ -1139,10 +1150,73 @@ message UpdateCustomerResponse {
 
 message SetCustomerStatusRequest {
   string customer_id = 1;
+  // "active" | "disabled" — changes the customer's MEMBERSHIP status at this tenant
   string status = 2;
 }
 
 message SetCustomerStatusResponse {}
+
+// ── Customer: tenant memberships ─────────────────────────────────────────────
+
+message CustomerTenantMembership {
+  string tenant_id = 1;
+  string name = 2;
+  string slug = 3;
+  string logo_url = 4;
+  string status = 5;
+  string joined_at = 6;
+}
+
+message ListCustomerTenantsRequest {}
+
+message ListCustomerTenantsResponse {
+  repeated CustomerTenantMembership tenants = 1;
+}
+
+message ClaimLinkCodeRequest {
+  string code = 1;
+}
+
+message ClaimLinkCodeResponse {
+  CustomerTenantMembership membership = 1;
+}
+
+// ── Admin: link codes ────────────────────────────────────────────────────────
+
+message GenerateLinkCodeRequest {
+  int32 max_uses = 1;
+  int32 expires_in_hours = 2;
+}
+
+message GenerateLinkCodeResponse {
+  string id = 1;
+  string code = 2;
+  string expires_at = 3;
+  int32 max_uses = 4;
+}
+
+message LinkCode {
+  string id = 1;
+  string code = 2;
+  int32 max_uses = 3;
+  int32 current_uses = 4;
+  string expires_at = 5;
+  string revoked_at = 6;
+  string created_at = 7;
+  string created_by_user_id = 8;
+}
+
+message ListLinkCodesRequest {}
+
+message ListLinkCodesResponse {
+  repeated LinkCode codes = 1;
+}
+
+message RevokeLinkCodeRequest {
+  string link_code_id = 1;
+}
+
+message RevokeLinkCodeResponse {}
 
 // ── Admin: loyalty settings ───────────────────────────────────────────────────
 

@@ -12,8 +12,7 @@ import { authLogger } from '@/src/lib/logger';
 
 export const useRequestOtp = () => {
   return useMutation({
-    mutationFn: (data: Omit<OtpRequest, 'tenant_id'>) =>
-      authService.requestOtp(data),
+    mutationFn: (data: OtpRequest) => authService.requestOtp(data),
   });
 };
 
@@ -22,8 +21,7 @@ export const useVerifyOtp = () => {
   const setSession = useSessionStore((state) => state.setSession);
 
   return useMutation({
-    mutationFn: (data: Omit<OtpVerifyRequest, 'tenant_id'>) =>
-      authService.verifyOtp(data),
+    mutationFn: (data: OtpVerifyRequest) => authService.verifyOtp(data),
     onSuccess: async (data) => {
       // 1. Store tokens first so authService.me() can use them
       await tokenStorage.setAccessToken(data.access_token);

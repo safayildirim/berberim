@@ -24,11 +24,13 @@ func (r *Repo) List(ctx context.Context, tenantID uuid.UUID, status, search stri
 	}
 
 	// Build WHERE conditions for the count and data queries.
-	where := "c.tenant_id = ?"
+	where := "m.tenant_id = ?"
 	args := []interface{}{tenantID}
 	if status != "" {
-		where += " AND c.status = ?"
+		where += " AND m.status = ?"
 		args = append(args, status)
+	} else {
+		where += " AND m.status = 'active'"
 	}
 	if search != "" {
 		like := "%" + search + "%"
@@ -38,7 +40,9 @@ func (r *Repo) List(ctx context.Context, tenantID uuid.UUID, status, search stri
 
 	var total int64
 	if err := r.db.WithContext(ctx).Raw(
-		"SELECT COUNT(*) FROM customers c WHERE "+where, args...,
+		`SELECT COUNT(*) FROM customers c
+		 JOIN customer_tenant_memberships m ON m.customer_id = c.id
+		 WHERE `+where, args...,
 	).Scan(&total).Error; err != nil {
 		return nil, 0, err
 	}
@@ -47,19 +51,24 @@ func (r *Repo) List(ctx context.Context, tenantID uuid.UUID, status, search stri
 	var customers []Customer
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
-			c.id, c.tenant_id, c.phone_number, c.first_name, c.last_name,
+			c.id, c.phone_number, c.first_name, c.last_name,
 			c.avatar_key, c.status, c.created_at, c.updated_at,
+			m.status AS membership_status,
+			m.joined_at,
+			p.notes_internal,
 			COUNT(a.id) FILTER (WHERE a.status = 'completed') AS total_completed_appointments,
 			MAX(a.starts_at)                                   AS last_appointment_at,
 			COALESCE(lw.current_points, 0)                     AS loyalty_points
 		FROM customers c
-		LEFT JOIN appointments a  ON a.customer_id = c.id AND a.tenant_id = c.tenant_id
-		LEFT JOIN loyalty_wallets lw ON lw.customer_id = c.id AND lw.tenant_id = c.tenant_id
+		JOIN customer_tenant_memberships m ON m.customer_id = c.id AND m.tenant_id = ?
+		LEFT JOIN tenant_customer_profiles p ON p.membership_id = m.id
+		LEFT JOIN appointments a  ON a.customer_id = c.id AND a.tenant_id = m.tenant_id
+		LEFT JOIN loyalty_wallets lw ON lw.customer_id = c.id AND lw.tenant_id = m.tenant_id
 		WHERE `+where+`
-		GROUP BY c.id, lw.current_points
-		ORDER BY c.created_at DESC
+		GROUP BY c.id, m.id, p.membership_id, lw.current_points
+		ORDER BY m.joined_at DESC
 		LIMIT ? OFFSET ?
-	`, dataArgs...).Scan(&customers).Error
+	`, append([]interface{}{tenantID}, dataArgs...)...).Scan(&customers).Error
 
 	return customers, total, err
 }
@@ -68,57 +77,68 @@ func (r *Repo) GetByID(ctx context.Context, tenantID, customerID uuid.UUID) (*Cu
 	var c Customer
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
-			c.id, c.tenant_id, c.phone_number, c.first_name, c.last_name,
+			c.id, c.phone_number, c.first_name, c.last_name,
 			c.avatar_key, c.status, c.created_at, c.updated_at,
+			m.status AS membership_status,
+			m.joined_at,
+			p.notes_internal,
 			COUNT(a.id) FILTER (WHERE a.status = 'completed') AS total_completed_appointments,
 			MAX(a.starts_at)                                   AS last_appointment_at,
 			COALESCE(lw.current_points, 0)                     AS loyalty_points
 		FROM customers c
-		LEFT JOIN appointments a  ON a.customer_id = c.id AND a.tenant_id = c.tenant_id
-		LEFT JOIN loyalty_wallets lw ON lw.customer_id = c.id AND lw.tenant_id = c.tenant_id
-		WHERE c.id = ? AND c.tenant_id = ?
-		GROUP BY c.id, lw.current_points
-	`, customerID, tenantID).Scan(&c).Error
+		JOIN customer_tenant_memberships m ON m.customer_id = c.id AND m.tenant_id = ?
+		LEFT JOIN tenant_customer_profiles p ON p.membership_id = m.id
+		LEFT JOIN appointments a  ON a.customer_id = c.id AND a.tenant_id = ?
+		LEFT JOIN loyalty_wallets lw ON lw.customer_id = c.id AND lw.tenant_id = ?
+		WHERE c.id = ?
+		GROUP BY c.id, m.id, p.membership_id, lw.current_points
+	`, tenantID, tenantID, tenantID, customerID).Scan(&c).Error
 	if c.ID == uuid.Nil {
 		return nil, gorm.ErrRecordNotFound
 	}
 	return &c, err
 }
 
-func (r *Repo) UpdateStatus(ctx context.Context, tenantID, customerID uuid.UUID, status string) error {
-	result := r.db.WithContext(ctx).Model(&Customer{}).
-		Where("id = ? AND tenant_id = ?", customerID, tenantID).
-		Update("status", status)
-	if result.Error != nil {
-		return result.Error
+// GetGlobalByID fetches the global customer record without tenant-scoped data.
+func (r *Repo) GetGlobalByID(ctx context.Context, customerID uuid.UUID) (*Customer, error) {
+	var c Customer
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT id, phone_number, first_name, last_name, avatar_key, status, created_at, updated_at
+		FROM customers
+		WHERE id = ?
+	`, customerID).Scan(&c).Error
+	if c.ID == uuid.Nil {
+		return nil, gorm.ErrRecordNotFound
 	}
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
-	}
-	return nil
+	return &c, err
 }
 
-func (r *Repo) GetAvatarKey(ctx context.Context, tenantID, customerID uuid.UUID) (string, error) {
-	c, err := r.GetByID(ctx, tenantID, customerID)
+// GetAvatarKey satisfies the avatar.AvatarRepo interface.
+// tenantID is ignored — customer avatars are global.
+func (r *Repo) GetAvatarKey(ctx context.Context, _ /* tenantID */, customerID uuid.UUID) (string, error) {
+	var avatarKey *string
+	err := r.db.WithContext(ctx).Raw(`SELECT avatar_key FROM customers WHERE id = ?`, customerID).Scan(&avatarKey).Error
 	if err != nil {
 		return "", err
 	}
-	if c.AvatarKey != nil {
-		return *c.AvatarKey, nil
+	if avatarKey != nil {
+		return *avatarKey, nil
 	}
 	return "", nil
 }
 
-func (r *Repo) SetAvatarKey(ctx context.Context, tenantID, customerID uuid.UUID, avatarKey string) error {
-	_, err := r.Update(ctx, tenantID, customerID, map[string]any{"avatar_key": avatarKey})
-	return err
+// SetAvatarKey satisfies the avatar.AvatarRepo interface.
+// tenantID is ignored — customer avatars are global.
+func (r *Repo) SetAvatarKey(ctx context.Context, _ /* tenantID */, customerID uuid.UUID, avatarKey string) error {
+	return r.db.WithContext(ctx).
+		Table("customers").
+		Where("id = ?", customerID).
+		Update("avatar_key", avatarKey).Error
 }
 
-func (r *Repo) Update(ctx context.Context, tenantID, customerID uuid.UUID, updates map[string]any) (*Customer, error) {
-	if err := r.db.WithContext(ctx).Model(&Customer{}).
-		Where("id = ? AND tenant_id = ?", customerID, tenantID).
-		Updates(updates).Error; err != nil {
-		return nil, err
-	}
-	return r.GetByID(ctx, tenantID, customerID)
+func (r *Repo) Update(ctx context.Context, customerID uuid.UUID, updates map[string]any) error {
+	return r.db.WithContext(ctx).
+		Table("customers").
+		Where("id = ?", customerID).
+		Updates(updates).Error
 }

@@ -4,7 +4,7 @@ import { authLogger } from '@/src/lib/logger';
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'auth_access_token',
   REFRESH_TOKEN: 'auth_refresh_token',
-  TENANT_ID: 'app_tenant_id',
+  ACTIVE_TENANT_ID: 'active_tenant_id',
 } as const;
 
 export const tokenStorage = {
@@ -42,20 +42,28 @@ export const tokenStorage = {
     }
   },
 
-  async getTenantId() {
+  async getActiveTenantId() {
     try {
-      return await SecureStore.getItemAsync(STORAGE_KEYS.TENANT_ID);
+      return await SecureStore.getItemAsync(STORAGE_KEYS.ACTIVE_TENANT_ID);
     } catch (e) {
-      authLogger.error('Failed to get tenant id', e);
+      authLogger.error('Failed to get active tenant id', e);
       return null;
     }
   },
 
-  async setTenantId(tenantId: string) {
+  async setActiveTenantId(tenantId: string) {
     try {
-      await SecureStore.setItemAsync(STORAGE_KEYS.TENANT_ID, tenantId);
+      await SecureStore.setItemAsync(STORAGE_KEYS.ACTIVE_TENANT_ID, tenantId);
     } catch (e) {
-      authLogger.error('Failed to set tenant id', e);
+      authLogger.error('Failed to set active tenant id', e);
+    }
+  },
+
+  async clearActiveTenantId() {
+    try {
+      await SecureStore.deleteItemAsync(STORAGE_KEYS.ACTIVE_TENANT_ID);
+    } catch (e) {
+      authLogger.error('Failed to clear active tenant id', e);
     }
   },
 

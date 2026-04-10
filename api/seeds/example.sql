@@ -169,45 +169,30 @@ VALUES
   )
 ON CONFLICT DO NOTHING;
 
--- 7. Customers
+-- 7. Customers (global — no tenant_id)
 -- customer 1:    b1000000-0000-0000-0000-000000000001
 -- customer 2:    b1000000-0000-0000-0000-000000000002
 -- customer 3:    b1000000-0000-0000-0000-000000000003
 -- customer 4:    b1000000-0000-0000-0000-000000000004
-INSERT INTO customers (id, tenant_id, phone_number, first_name, last_name, status)
+INSERT INTO customers (id, phone_number, first_name, last_name, status)
 VALUES
-  (
-    'b1000000-0000-0000-0000-000000000001',
-    'a1000000-0000-0000-0000-000000000001',
-    '905301112233',
-    'Ahmet',
-    'Demir',
-    'active'
-  ),
-  (
-    'b1000000-0000-0000-0000-000000000002',
-    'a1000000-0000-0000-0000-000000000001',
-    '905302223344',
-    'Burak',
-    'Şahin',
-    'active'
-  ),
-  (
-    'b1000000-0000-0000-0000-000000000003',
-    'a1000000-0000-0000-0000-000000000001',
-    '905303334455',
-    'Can',
-    'Arslan',
-    'active'
-  ),
-  (
-    'b1000000-0000-0000-0000-000000000004',
-    'a1000000-0000-0000-0000-000000000001',
-    '905304445566',
-    'Deniz',
-    'Çelik',
-    'active'
-  )
+  ('b1000000-0000-0000-0000-000000000001', '905301112233', 'Ahmet', 'Demir',  'active'),
+  ('b1000000-0000-0000-0000-000000000002', '905302223344', 'Burak', 'Şahin',  'active'),
+  ('b1000000-0000-0000-0000-000000000003', '905303334455', 'Can',   'Arslan', 'active'),
+  ('b1000000-0000-0000-0000-000000000004', '905304445566', 'Deniz', 'Çelik',  'active')
+ON CONFLICT DO NOTHING;
+
+-- 7b. Customer–tenant memberships
+-- membership 1: b2000000-0000-0000-0000-000000000001
+-- membership 2: b2000000-0000-0000-0000-000000000002
+-- membership 3: b2000000-0000-0000-0000-000000000003
+-- membership 4: b2000000-0000-0000-0000-000000000004
+INSERT INTO customer_tenant_memberships (id, customer_id, tenant_id, status, joined_at)
+VALUES
+  ('b2000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000001', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000001', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000003', 'a1000000-0000-0000-0000-000000000001', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000004', 'b1000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000001', 'active', now())
 ON CONFLICT DO NOTHING;
 
 -- 8. Staff Schedule Rules
@@ -467,13 +452,22 @@ ON CONFLICT DO NOTHING;
 -- for period-over-period comparisons (no-show rate change, etc.)
 -- =============================================================
 
--- 14. Additional Customers
-INSERT INTO customers (id, tenant_id, phone_number, first_name, last_name, status)
+-- 14. Additional Customers (global)
+INSERT INTO customers (id, phone_number, first_name, last_name, status)
 VALUES
-  ('b1000000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000001', '905305556677', 'Emre',   'Koç',      'active'),
-  ('b1000000-0000-0000-0000-000000000006', 'a1000000-0000-0000-0000-000000000001', '905306667788', 'Fatih',  'Öztürk',   'active'),
-  ('b1000000-0000-0000-0000-000000000007', 'a1000000-0000-0000-0000-000000000001', '905307778899', 'Gökhan', 'Aydın',    'active'),
-  ('b1000000-0000-0000-0000-000000000008', 'a1000000-0000-0000-0000-000000000001', '905308889900', 'Hakan',  'Yıldırım', 'active')
+  ('b1000000-0000-0000-0000-000000000005', '905305556677', 'Emre',   'Koç',      'active'),
+  ('b1000000-0000-0000-0000-000000000006', '905306667788', 'Fatih',  'Öztürk',   'active'),
+  ('b1000000-0000-0000-0000-000000000007', '905307778899', 'Gökhan', 'Aydın',    'active'),
+  ('b1000000-0000-0000-0000-000000000008', '905308889900', 'Hakan',  'Yıldırım', 'active')
+ON CONFLICT DO NOTHING;
+
+-- 14b. Additional memberships
+INSERT INTO customer_tenant_memberships (id, customer_id, tenant_id, status, joined_at)
+VALUES
+  ('b2000000-0000-0000-0000-000000000005', 'b1000000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000001', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000006', 'b1000000-0000-0000-0000-000000000006', 'a1000000-0000-0000-0000-000000000001', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000007', 'b1000000-0000-0000-0000-000000000007', 'a1000000-0000-0000-0000-000000000001', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000008', 'b1000000-0000-0000-0000-000000000008', 'a1000000-0000-0000-0000-000000000001', 'active', now())
 ON CONFLICT DO NOTHING;
 
 -- 15. Ali Staff Services (Ali also offers all 3 services)
@@ -681,3 +675,147 @@ VALUES (
   'active'
 )
 ON CONFLICT DO NOTHING;
+
+-- =============================================================
+-- Second Tenant: Salon Yıldız
+-- =============================================================
+--
+-- tenant 2:       a1000000-0000-0000-0000-000000000002
+-- branding 2:     a2000000-0000-0000-0000-000000000002
+-- settings 2:     a3000000-0000-0000-0000-000000000002
+-- notif set 2:    a3000000-0000-0000-0000-000000000003
+-- user admin 2:   a4000000-0000-0000-0000-000000000003  (Yıldız Kara)
+-- user staff 2:   a4000000-0000-0000-0000-000000000004  (Serkan Acar)
+-- service 4:      a5000000-0000-0000-0000-000000000004
+-- service 5:      a5000000-0000-0000-0000-000000000005
+-- service 6:      a5000000-0000-0000-0000-000000000006
+-- membership 9:   b2000000-0000-0000-0000-000000000009  (Ahmet @ Salon Yıldız)
+-- membership 10:  b2000000-0000-0000-0000-000000000010  (Burak @ Salon Yıldız)
+
+-- T2-1. Tenant
+INSERT INTO tenants (id, name, slug, phone_number, address, status, timezone)
+VALUES (
+  'a1000000-0000-0000-0000-000000000002',
+  'Salon Yıldız',
+  'salon-yildiz',
+  '+905339876543',
+  'Kadıköy, İstanbul',
+  'active',
+  'Europe/Istanbul'
+) ON CONFLICT DO NOTHING;
+
+-- T2-2. Branding
+INSERT INTO tenant_brandings (id, tenant_id, logo_url, primary_color, secondary_color, tertiary_color)
+VALUES (
+  'a2000000-0000-0000-0000-000000000002',
+  'a1000000-0000-0000-0000-000000000002',
+  'https://placehold.co/200x200?text=SY',
+  '#1B4332',
+  '#D4A373',
+  '#FFFFFF'
+) ON CONFLICT DO NOTHING;
+
+-- T2-3. Settings
+INSERT INTO tenant_settings (id, tenant_id, notification_reminder_hours, cancellation_limit_hours, loyalty_enabled, walk_in_enabled, same_day_booking_enabled, max_weekly_customer_bookings)
+VALUES (
+  'a3000000-0000-0000-0000-000000000002',
+  'a1000000-0000-0000-0000-000000000002',
+  24, 2, true, true, true, 3
+) ON CONFLICT DO NOTHING;
+
+-- T2-3b. Notification Settings
+INSERT INTO notification_settings (id, tenant_id, appointment_reminder_enabled, reminder_offset_minutes, send_to_customer, send_to_staff, is_active)
+VALUES (
+  'a3000000-0000-0000-0000-000000000003',
+  'a1000000-0000-0000-0000-000000000002',
+  true, 120, true, false, true
+) ON CONFLICT DO NOTHING;
+
+-- T2-4. Tenant Users (password: Test1234!)
+INSERT INTO tenant_users (id, tenant_id, email, password_hash, first_name, last_name, role, status)
+VALUES
+  (
+    'a4000000-0000-0000-0000-000000000003',
+    'a1000000-0000-0000-0000-000000000002',
+    'yildiz@salonyildiz.com',
+    '$2y$10$uANeEQ4XqYhP4ocbaK9L6.2QN2vDj8jFaqL61eeliwDzcfSw6wC0i',
+    'Yıldız',
+    'Kara',
+    'admin',
+    'active'
+  ),
+  (
+    'a4000000-0000-0000-0000-000000000004',
+    'a1000000-0000-0000-0000-000000000002',
+    'serkan@salonyildiz.com',
+    '$2y$10$uANeEQ4XqYhP4ocbaK9L6.2QN2vDj8jFaqL61eeliwDzcfSw6wC0i',
+    'Serkan',
+    'Acar',
+    'staff',
+    'active'
+  )
+ON CONFLICT DO NOTHING;
+
+-- T2-5. Services
+INSERT INTO services (id, tenant_id, name, description, duration_minutes, base_price, points_reward, category_name, is_active)
+VALUES
+  ('a5000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000002', 'Saç Kesim',      'Klasik erkek saç kesimi',    30, 200.00, 10, 'Saç',   true),
+  ('a5000000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000002', 'Sakal Tıraşı',   'Düzeltme ve şekillendirme',  20, 120.00,  5, 'Sakal', true),
+  ('a5000000-0000-0000-0000-000000000006', 'a1000000-0000-0000-0000-000000000002', 'Yıkama & Bakım', 'Şampuan, maske, masaj',      40, 250.00, 15, 'Bakım', true)
+ON CONFLICT DO NOTHING;
+
+-- T2-6. Staff service assignments (Serkan offers all 3)
+INSERT INTO staff_services (id, tenant_id, staff_user_id, service_id, custom_price, is_active)
+VALUES
+  ('a6000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 'a5000000-0000-0000-0000-000000000004', NULL,   true),
+  ('a6000000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 'a5000000-0000-0000-0000-000000000005', NULL,   true),
+  ('a6000000-0000-0000-0000-000000000006', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 'a5000000-0000-0000-0000-000000000006', NULL,   true)
+ON CONFLICT DO NOTHING;
+
+-- T2-6b. Yıldız (admin) also offers services
+INSERT INTO staff_services (id, tenant_id, staff_user_id, service_id, custom_price, is_active)
+VALUES
+  ('a6000000-0000-0000-0000-000000000007', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 'a5000000-0000-0000-0000-000000000004', NULL,   true),
+  ('a6000000-0000-0000-0000-000000000008', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 'a5000000-0000-0000-0000-000000000005', NULL,   true),
+  ('a6000000-0000-0000-0000-000000000009', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 'a5000000-0000-0000-0000-000000000006', 220.00, true)
+ON CONFLICT DO NOTHING;
+
+-- T2-7. Schedule rules: Serkan Mon–Sat 10:00–19:00, Sun off
+INSERT INTO staff_schedule_rules (id, tenant_id, staff_user_id, day_of_week, start_time, end_time, slot_interval_minutes, is_working_day)
+VALUES
+  ('c2000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 1, '10:00', '19:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 2, '10:00', '19:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000003', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 3, '10:00', '19:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 4, '10:00', '19:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 5, '10:00', '19:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000006', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 6, '10:00', '17:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000007', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000004', 0, '10:00', '17:00', 30, false)
+ON CONFLICT DO NOTHING;
+
+-- T2-7b. Schedule rules: Yıldız Mon–Fri 09:00–18:00, Sat+Sun off
+INSERT INTO staff_schedule_rules (id, tenant_id, staff_user_id, day_of_week, start_time, end_time, slot_interval_minutes, is_working_day)
+VALUES
+  ('c2000000-0000-0000-0000-000000000008', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 1, '09:00', '18:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000009', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 2, '09:00', '18:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000010', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 3, '09:00', '18:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000011', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 4, '09:00', '18:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000012', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 5, '09:00', '18:00', 30, true),
+  ('c2000000-0000-0000-0000-000000000013', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 6, '09:00', '18:00', 30, false),
+  ('c2000000-0000-0000-0000-000000000014', 'a1000000-0000-0000-0000-000000000002', 'a4000000-0000-0000-0000-000000000003', 0, '09:00', '18:00', 30, false)
+ON CONFLICT DO NOTHING;
+
+-- T2-8. Link Ahmet & Burak to Salon Yıldız (multi-tenant customers)
+INSERT INTO customer_tenant_memberships (id, customer_id, tenant_id, status, joined_at)
+VALUES
+  ('b2000000-0000-0000-0000-000000000009', 'b1000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000002', 'active', now()),
+  ('b2000000-0000-0000-0000-000000000010', 'b1000000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000002', 'active', now())
+ON CONFLICT DO NOTHING;
+
+-- T2-9. Loyalty wallet for Ahmet at Salon Yıldız
+INSERT INTO loyalty_wallets (id, tenant_id, customer_id, current_points, lifetime_earned_points, lifetime_spent_points)
+VALUES (
+  'f1000000-0000-0000-0000-000000000002',
+  'a1000000-0000-0000-0000-000000000002',
+  'b1000000-0000-0000-0000-000000000001',
+  25, 25, 0
+) ON CONFLICT DO NOTHING;

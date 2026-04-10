@@ -60,6 +60,8 @@ const (
 	BerberimAPI_GetPublicStaff_FullMethodName                  = "/berberim.v1.BerberimAPI/GetPublicStaff"
 	BerberimAPI_ListPublicStaffServices_FullMethodName         = "/berberim.v1.BerberimAPI/ListPublicStaffServices"
 	BerberimAPI_GetAvailabilityDays_FullMethodName             = "/berberim.v1.BerberimAPI/GetAvailabilityDays"
+	BerberimAPI_ListCustomerTenants_FullMethodName             = "/berberim.v1.BerberimAPI/ListCustomerTenants"
+	BerberimAPI_ClaimLinkCode_FullMethodName                   = "/berberim.v1.BerberimAPI/ClaimLinkCode"
 	BerberimAPI_GetCustomerProfile_FullMethodName              = "/berberim.v1.BerberimAPI/GetCustomerProfile"
 	BerberimAPI_UpdateCustomerProfile_FullMethodName           = "/berberim.v1.BerberimAPI/UpdateCustomerProfile"
 	BerberimAPI_GetLoyaltyTransactions_FullMethodName          = "/berberim.v1.BerberimAPI/GetLoyaltyTransactions"
@@ -101,6 +103,9 @@ const (
 	BerberimAPI_GetAdminCustomer_FullMethodName                = "/berberim.v1.BerberimAPI/GetAdminCustomer"
 	BerberimAPI_UpdateCustomer_FullMethodName                  = "/berberim.v1.BerberimAPI/UpdateCustomer"
 	BerberimAPI_SetCustomerStatus_FullMethodName               = "/berberim.v1.BerberimAPI/SetCustomerStatus"
+	BerberimAPI_GenerateLinkCode_FullMethodName                = "/berberim.v1.BerberimAPI/GenerateLinkCode"
+	BerberimAPI_ListLinkCodes_FullMethodName                   = "/berberim.v1.BerberimAPI/ListLinkCodes"
+	BerberimAPI_RevokeLinkCode_FullMethodName                  = "/berberim.v1.BerberimAPI/RevokeLinkCode"
 	BerberimAPI_GetLoyaltySettings_FullMethodName              = "/berberim.v1.BerberimAPI/GetLoyaltySettings"
 	BerberimAPI_UpdateLoyaltySettings_FullMethodName           = "/berberim.v1.BerberimAPI/UpdateLoyaltySettings"
 	BerberimAPI_ListRewards_FullMethodName                     = "/berberim.v1.BerberimAPI/ListRewards"
@@ -188,6 +193,9 @@ type BerberimAPIClient interface {
 	GetPublicStaff(ctx context.Context, in *GetPublicStaffRequest, opts ...grpc.CallOption) (*GetPublicStaffResponse, error)
 	ListPublicStaffServices(ctx context.Context, in *ListPublicStaffServicesRequest, opts ...grpc.CallOption) (*ListPublicStaffServicesResponse, error)
 	GetAvailabilityDays(ctx context.Context, in *GetAvailabilityDaysRequest, opts ...grpc.CallOption) (*GetAvailabilityDaysResponse, error)
+	// ── Customer: tenant memberships ───────────────────────────────────────────
+	ListCustomerTenants(ctx context.Context, in *ListCustomerTenantsRequest, opts ...grpc.CallOption) (*ListCustomerTenantsResponse, error)
+	ClaimLinkCode(ctx context.Context, in *ClaimLinkCodeRequest, opts ...grpc.CallOption) (*ClaimLinkCodeResponse, error)
 	// ── Customer profile ──────────────────────────────────────────────────────
 	GetCustomerProfile(ctx context.Context, in *GetCustomerProfileRequest, opts ...grpc.CallOption) (*GetCustomerProfileResponse, error)
 	UpdateCustomerProfile(ctx context.Context, in *UpdateCustomerProfileRequest, opts ...grpc.CallOption) (*UpdateCustomerProfileResponse, error)
@@ -238,6 +246,10 @@ type BerberimAPIClient interface {
 	GetAdminCustomer(ctx context.Context, in *GetAdminCustomerRequest, opts ...grpc.CallOption) (*GetAdminCustomerResponse, error)
 	UpdateCustomer(ctx context.Context, in *UpdateCustomerRequest, opts ...grpc.CallOption) (*UpdateCustomerResponse, error)
 	SetCustomerStatus(ctx context.Context, in *SetCustomerStatusRequest, opts ...grpc.CallOption) (*SetCustomerStatusResponse, error)
+	// ── Admin: link codes ─────────────────────────────────────────────────────
+	GenerateLinkCode(ctx context.Context, in *GenerateLinkCodeRequest, opts ...grpc.CallOption) (*GenerateLinkCodeResponse, error)
+	ListLinkCodes(ctx context.Context, in *ListLinkCodesRequest, opts ...grpc.CallOption) (*ListLinkCodesResponse, error)
+	RevokeLinkCode(ctx context.Context, in *RevokeLinkCodeRequest, opts ...grpc.CallOption) (*RevokeLinkCodeResponse, error)
 	// ── Admin: loyalty settings ───────────────────────────────────────────────
 	GetLoyaltySettings(ctx context.Context, in *GetLoyaltySettingsRequest, opts ...grpc.CallOption) (*GetLoyaltySettingsResponse, error)
 	UpdateLoyaltySettings(ctx context.Context, in *UpdateLoyaltySettingsRequest, opts ...grpc.CallOption) (*UpdateLoyaltySettingsResponse, error)
@@ -690,6 +702,26 @@ func (c *berberimAPIClient) GetAvailabilityDays(ctx context.Context, in *GetAvai
 	return out, nil
 }
 
+func (c *berberimAPIClient) ListCustomerTenants(ctx context.Context, in *ListCustomerTenantsRequest, opts ...grpc.CallOption) (*ListCustomerTenantsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCustomerTenantsResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ListCustomerTenants_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) ClaimLinkCode(ctx context.Context, in *ClaimLinkCodeRequest, opts ...grpc.CallOption) (*ClaimLinkCodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimLinkCodeResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ClaimLinkCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *berberimAPIClient) GetCustomerProfile(ctx context.Context, in *GetCustomerProfileRequest, opts ...grpc.CallOption) (*GetCustomerProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCustomerProfileResponse)
@@ -1100,6 +1132,36 @@ func (c *berberimAPIClient) SetCustomerStatus(ctx context.Context, in *SetCustom
 	return out, nil
 }
 
+func (c *berberimAPIClient) GenerateLinkCode(ctx context.Context, in *GenerateLinkCodeRequest, opts ...grpc.CallOption) (*GenerateLinkCodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateLinkCodeResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_GenerateLinkCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) ListLinkCodes(ctx context.Context, in *ListLinkCodesRequest, opts ...grpc.CallOption) (*ListLinkCodesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListLinkCodesResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ListLinkCodes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) RevokeLinkCode(ctx context.Context, in *RevokeLinkCodeRequest, opts ...grpc.CallOption) (*RevokeLinkCodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeLinkCodeResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_RevokeLinkCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *berberimAPIClient) GetLoyaltySettings(ctx context.Context, in *GetLoyaltySettingsRequest, opts ...grpc.CallOption) (*GetLoyaltySettingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetLoyaltySettingsResponse)
@@ -1428,6 +1490,9 @@ type BerberimAPIServer interface {
 	GetPublicStaff(context.Context, *GetPublicStaffRequest) (*GetPublicStaffResponse, error)
 	ListPublicStaffServices(context.Context, *ListPublicStaffServicesRequest) (*ListPublicStaffServicesResponse, error)
 	GetAvailabilityDays(context.Context, *GetAvailabilityDaysRequest) (*GetAvailabilityDaysResponse, error)
+	// ── Customer: tenant memberships ───────────────────────────────────────────
+	ListCustomerTenants(context.Context, *ListCustomerTenantsRequest) (*ListCustomerTenantsResponse, error)
+	ClaimLinkCode(context.Context, *ClaimLinkCodeRequest) (*ClaimLinkCodeResponse, error)
 	// ── Customer profile ──────────────────────────────────────────────────────
 	GetCustomerProfile(context.Context, *GetCustomerProfileRequest) (*GetCustomerProfileResponse, error)
 	UpdateCustomerProfile(context.Context, *UpdateCustomerProfileRequest) (*UpdateCustomerProfileResponse, error)
@@ -1478,6 +1543,10 @@ type BerberimAPIServer interface {
 	GetAdminCustomer(context.Context, *GetAdminCustomerRequest) (*GetAdminCustomerResponse, error)
 	UpdateCustomer(context.Context, *UpdateCustomerRequest) (*UpdateCustomerResponse, error)
 	SetCustomerStatus(context.Context, *SetCustomerStatusRequest) (*SetCustomerStatusResponse, error)
+	// ── Admin: link codes ─────────────────────────────────────────────────────
+	GenerateLinkCode(context.Context, *GenerateLinkCodeRequest) (*GenerateLinkCodeResponse, error)
+	ListLinkCodes(context.Context, *ListLinkCodesRequest) (*ListLinkCodesResponse, error)
+	RevokeLinkCode(context.Context, *RevokeLinkCodeRequest) (*RevokeLinkCodeResponse, error)
 	// ── Admin: loyalty settings ───────────────────────────────────────────────
 	GetLoyaltySettings(context.Context, *GetLoyaltySettingsRequest) (*GetLoyaltySettingsResponse, error)
 	UpdateLoyaltySettings(context.Context, *UpdateLoyaltySettingsRequest) (*UpdateLoyaltySettingsResponse, error)
@@ -1643,6 +1712,12 @@ func (UnimplementedBerberimAPIServer) ListPublicStaffServices(context.Context, *
 func (UnimplementedBerberimAPIServer) GetAvailabilityDays(context.Context, *GetAvailabilityDaysRequest) (*GetAvailabilityDaysResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAvailabilityDays not implemented")
 }
+func (UnimplementedBerberimAPIServer) ListCustomerTenants(context.Context, *ListCustomerTenantsRequest) (*ListCustomerTenantsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCustomerTenants not implemented")
+}
+func (UnimplementedBerberimAPIServer) ClaimLinkCode(context.Context, *ClaimLinkCodeRequest) (*ClaimLinkCodeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ClaimLinkCode not implemented")
+}
 func (UnimplementedBerberimAPIServer) GetCustomerProfile(context.Context, *GetCustomerProfileRequest) (*GetCustomerProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCustomerProfile not implemented")
 }
@@ -1765,6 +1840,15 @@ func (UnimplementedBerberimAPIServer) UpdateCustomer(context.Context, *UpdateCus
 }
 func (UnimplementedBerberimAPIServer) SetCustomerStatus(context.Context, *SetCustomerStatusRequest) (*SetCustomerStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetCustomerStatus not implemented")
+}
+func (UnimplementedBerberimAPIServer) GenerateLinkCode(context.Context, *GenerateLinkCodeRequest) (*GenerateLinkCodeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GenerateLinkCode not implemented")
+}
+func (UnimplementedBerberimAPIServer) ListLinkCodes(context.Context, *ListLinkCodesRequest) (*ListLinkCodesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListLinkCodes not implemented")
+}
+func (UnimplementedBerberimAPIServer) RevokeLinkCode(context.Context, *RevokeLinkCodeRequest) (*RevokeLinkCodeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeLinkCode not implemented")
 }
 func (UnimplementedBerberimAPIServer) GetLoyaltySettings(context.Context, *GetLoyaltySettingsRequest) (*GetLoyaltySettingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetLoyaltySettings not implemented")
@@ -2606,6 +2690,42 @@ func _BerberimAPI_GetAvailabilityDays_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BerberimAPI_ListCustomerTenants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCustomerTenantsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ListCustomerTenants(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ListCustomerTenants_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ListCustomerTenants(ctx, req.(*ListCustomerTenantsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_ClaimLinkCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimLinkCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ClaimLinkCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ClaimLinkCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ClaimLinkCode(ctx, req.(*ClaimLinkCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BerberimAPI_GetCustomerProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCustomerProfileRequest)
 	if err := dec(in); err != nil {
@@ -3344,6 +3464,60 @@ func _BerberimAPI_SetCustomerStatus_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BerberimAPI_GenerateLinkCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateLinkCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).GenerateLinkCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_GenerateLinkCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).GenerateLinkCode(ctx, req.(*GenerateLinkCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_ListLinkCodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListLinkCodesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ListLinkCodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ListLinkCodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ListLinkCodes(ctx, req.(*ListLinkCodesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_RevokeLinkCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeLinkCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).RevokeLinkCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_RevokeLinkCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).RevokeLinkCode(ctx, req.(*RevokeLinkCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BerberimAPI_GetLoyaltySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLoyaltySettingsRequest)
 	if err := dec(in); err != nil {
@@ -4002,6 +4176,14 @@ var BerberimAPI_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BerberimAPI_GetAvailabilityDays_Handler,
 		},
 		{
+			MethodName: "ListCustomerTenants",
+			Handler:    _BerberimAPI_ListCustomerTenants_Handler,
+		},
+		{
+			MethodName: "ClaimLinkCode",
+			Handler:    _BerberimAPI_ClaimLinkCode_Handler,
+		},
+		{
 			MethodName: "GetCustomerProfile",
 			Handler:    _BerberimAPI_GetCustomerProfile_Handler,
 		},
@@ -4164,6 +4346,18 @@ var BerberimAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetCustomerStatus",
 			Handler:    _BerberimAPI_SetCustomerStatus_Handler,
+		},
+		{
+			MethodName: "GenerateLinkCode",
+			Handler:    _BerberimAPI_GenerateLinkCode_Handler,
+		},
+		{
+			MethodName: "ListLinkCodes",
+			Handler:    _BerberimAPI_ListLinkCodes_Handler,
+		},
+		{
+			MethodName: "RevokeLinkCode",
+			Handler:    _BerberimAPI_RevokeLinkCode_Handler,
 		},
 		{
 			MethodName: "GetLoyaltySettings",

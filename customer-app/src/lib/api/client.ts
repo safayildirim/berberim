@@ -42,15 +42,15 @@ export const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   async (config: TrackedConfig) => {
     const accessToken = await tokenStorage.getAccessToken();
-    const tenantId = await tokenStorage.getTenantId();
+    const activeTenantId = await tokenStorage.getActiveTenantId();
     const deviceHeaders = await getDeviceHeaders();
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
-    if (tenantId) {
-      config.headers['X-Tenant-ID'] = tenantId;
+    if (activeTenantId) {
+      config.headers['X-Tenant-ID'] = activeTenantId;
       const isPublicRoute =
         config.url?.startsWith('/public/') || config.url?.startsWith('public/');
       if (isPublicRoute) {
@@ -58,7 +58,7 @@ apiClient.interceptors.request.use(
         if (!params.tenant_id) {
           config.params = {
             ...params,
-            tenant_id: tenantId,
+            tenant_id: activeTenantId,
           };
         }
       }

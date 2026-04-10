@@ -20,6 +20,30 @@ func NewCustomerHandler(client berberimv1.BerberimAPIClient) *CustomerHandler {
 	return &CustomerHandler{base{client: client}}
 }
 
+// GET /api/v1/customer/tenants
+func (h *CustomerHandler) ListTenants(c *echo.Context) error {
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ListCustomerTenants(ctx, &berberimv1.ListCustomerTenantsRequest{})
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// POST /api/v1/customer/tenants/link
+func (h *CustomerHandler) ClaimLinkCode(c *echo.Context) error {
+	var req berberimv1.ClaimLinkCodeRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ClaimLinkCode(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
 // GET /api/v1/customer/availability?service_ids=id1,id2&date=
 func (h *CustomerHandler) SearchAvailability(c *echo.Context) error {
 	req := &berberimv1.SearchAvailabilityRequest{

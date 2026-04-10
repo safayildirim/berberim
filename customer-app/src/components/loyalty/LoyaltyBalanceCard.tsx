@@ -65,7 +65,11 @@ export const LoyaltyBalanceCard = ({
               <Typography variant="caption" style={styles.label}>
                 {t('loyalty.currentBalance')}
               </Typography>
-              <Typography variant="caption" style={styles.nextRewardLabel}>
+              <Typography
+                variant="caption"
+                style={styles.nextRewardLabel}
+                numberOfLines={1}
+              >
                 {t('loyalty.progressNote_short', {
                   reward: displayReward,
                   remaining: remaining,
@@ -105,8 +109,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   card: {
-    padding: 24,
-    minHeight: 240,
+    padding: 28,
+    paddingTop: 32,
+    paddingBottom: 28,
     justifyContent: 'center',
     position: 'relative',
   },
@@ -160,6 +165,7 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontSize: 44,
+    lineHeight: 52,
     fontWeight: '800',
     color: '#fff',
   },
@@ -175,6 +181,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
+    gap: 12,
   },
   label: {
     color: '#a1a1aa',
@@ -183,6 +190,8 @@ const styles = StyleSheet.create({
   nextRewardLabel: {
     color: '#f59e0b',
     fontWeight: '700',
+    flexShrink: 1,
+    textAlign: 'right',
   },
   progressBarBg: {
     width: '100%',

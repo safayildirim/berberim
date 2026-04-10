@@ -20,23 +20,19 @@ type SigningKey struct {
 func (SigningKey) TableName() string { return "signing_keys" }
 
 type Customer struct {
-	ID                         uuid.UUID `gorm:"type:uuid;primaryKey"`
-	TenantID                   uuid.UUID `gorm:"type:uuid;not null"`
-	PhoneNumber                string    `gorm:"size:30;not null"`
-	FirstName                  *string   `gorm:"size:100"`
-	LastName                   *string   `gorm:"size:100"`
-	LastAppointmentAt          *time.Time
-	TotalCompletedAppointments int    `gorm:"not null;default:0"`
-	Status                     string `gorm:"size:30;not null;default:active"`
-	CreatedAt                  time.Time
-	UpdatedAt                  time.Time
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	PhoneNumber string    `gorm:"size:30;not null"`
+	FirstName   *string   `gorm:"size:100"`
+	LastName    *string   `gorm:"size:100"`
+	Status      string    `gorm:"size:30;not null;default:active"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (Customer) TableName() string { return "customers" }
 
 type CustomerIdentity struct {
 	ID             uuid.UUID `gorm:"type:uuid;primaryKey"`
-	TenantID       uuid.UUID `gorm:"type:uuid;not null"`
 	CustomerID     uuid.UUID `gorm:"type:uuid;not null"`
 	Provider       string    `gorm:"size:30;not null"`
 	ProviderUserID string    `gorm:"type:text;not null"`

@@ -10,6 +10,7 @@ import (
 	"github.com/berberim/api/internal/avatar"
 	"github.com/berberim/api/internal/customer"
 	"github.com/berberim/api/internal/loyalty"
+	"github.com/berberim/api/internal/membership"
 	"github.com/berberim/api/internal/notification"
 	"github.com/berberim/api/internal/review"
 	"github.com/berberim/api/internal/tenant"
@@ -23,6 +24,7 @@ type Handler struct {
 	appointment  *appointment.Handler
 	loyalty      *loyalty.Handler
 	customer     *customer.Handler
+	membership   *membership.Handler
 	notification *notification.Handler
 	review       *review.Handler
 	analytics    *analytics.Handler
@@ -35,6 +37,7 @@ func NewHandler(
 	appointment *appointment.Handler,
 	loyalty *loyalty.Handler,
 	customer *customer.Handler,
+	membership *membership.Handler,
 	notification *notification.Handler,
 	review *review.Handler,
 	analytics *analytics.Handler,
@@ -46,6 +49,7 @@ func NewHandler(
 		appointment:  appointment,
 		loyalty:      loyalty,
 		customer:     customer,
+		membership:   membership,
 		notification: notification,
 		review:       review,
 		analytics:    analytics,
@@ -339,6 +343,34 @@ func (h *Handler) GetLoyaltyBalance(ctx context.Context, req *berberimv1.GetLoya
 	return h.loyalty.GetLoyaltyBalance(ctx, req)
 }
 
+func (h *Handler) GetLoyaltyTransactions(ctx context.Context, req *berberimv1.GetLoyaltyTransactionsRequest) (*berberimv1.GetLoyaltyTransactionsResponse, error) {
+	return h.loyalty.GetLoyaltyTransactions(ctx, req)
+}
+
+func (h *Handler) ListRewards(ctx context.Context, req *berberimv1.ListRewardsRequest) (*berberimv1.ListRewardsResponse, error) {
+	return h.loyalty.ListRewards(ctx, req)
+}
+
+func (h *Handler) CreateReward(ctx context.Context, req *berberimv1.CreateRewardRequest) (*berberimv1.CreateRewardResponse, error) {
+	return h.loyalty.CreateReward(ctx, req)
+}
+
+func (h *Handler) GetReward(ctx context.Context, req *berberimv1.GetRewardRequest) (*berberimv1.GetRewardResponse, error) {
+	return h.loyalty.GetReward(ctx, req)
+}
+
+func (h *Handler) UpdateReward(ctx context.Context, req *berberimv1.UpdateRewardRequest) (*berberimv1.UpdateRewardResponse, error) {
+	return h.loyalty.UpdateReward(ctx, req)
+}
+
+func (h *Handler) DeleteReward(ctx context.Context, req *berberimv1.DeleteRewardRequest) (*berberimv1.DeleteRewardResponse, error) {
+	return h.loyalty.DeleteReward(ctx, req)
+}
+
+func (h *Handler) SetRewardStatus(ctx context.Context, req *berberimv1.SetRewardStatusRequest) (*berberimv1.SetRewardStatusResponse, error) {
+	return h.loyalty.SetRewardStatus(ctx, req)
+}
+
 // ── Customer RPCs ─────────────────────────────────────────────────────────────
 
 func (h *Handler) GetCustomerProfile(ctx context.Context, req *berberimv1.GetCustomerProfileRequest) (*berberimv1.GetCustomerProfileResponse, error) {
@@ -363,6 +395,28 @@ func (h *Handler) UpdateCustomer(ctx context.Context, req *berberimv1.UpdateCust
 
 func (h *Handler) SetCustomerStatus(ctx context.Context, req *berberimv1.SetCustomerStatusRequest) (*berberimv1.SetCustomerStatusResponse, error) {
 	return h.customer.SetCustomerStatus(ctx, req)
+}
+
+// ── Membership RPCs ──────────────────────────────────────────────────────────
+
+func (h *Handler) ListCustomerTenants(ctx context.Context, req *berberimv1.ListCustomerTenantsRequest) (*berberimv1.ListCustomerTenantsResponse, error) {
+	return h.membership.ListCustomerTenants(ctx, req)
+}
+
+func (h *Handler) ClaimLinkCode(ctx context.Context, req *berberimv1.ClaimLinkCodeRequest) (*berberimv1.ClaimLinkCodeResponse, error) {
+	return h.membership.ClaimLinkCode(ctx, req)
+}
+
+func (h *Handler) GenerateLinkCode(ctx context.Context, req *berberimv1.GenerateLinkCodeRequest) (*berberimv1.GenerateLinkCodeResponse, error) {
+	return h.membership.GenerateLinkCode(ctx, req)
+}
+
+func (h *Handler) ListLinkCodes(ctx context.Context, req *berberimv1.ListLinkCodesRequest) (*berberimv1.ListLinkCodesResponse, error) {
+	return h.membership.ListLinkCodes(ctx, req)
+}
+
+func (h *Handler) RevokeLinkCode(ctx context.Context, req *berberimv1.RevokeLinkCodeRequest) (*berberimv1.RevokeLinkCodeResponse, error) {
+	return h.membership.RevokeLinkCode(ctx, req)
 }
 
 // ── Review RPCs ──────────────────────────────────────────────────────────────

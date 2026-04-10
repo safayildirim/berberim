@@ -242,23 +242,14 @@ func (s *Service) issueTokenPair(ctx context.Context, userType string, userID uu
 
 // ── Auth methods ──────────────────────────────────────────────────────────────
 
-func (s *Service) SendCustomerOTP(ctx context.Context, tenantID uuid.UUID, phoneNumber string) (expiresInSeconds int32, err error) {
-	tenant, err := s.repo.GetTenantByID(ctx, tenantID)
-	if err != nil {
-		return 0, status.Error(codes.FailedPrecondition, "tenant not found or inactive")
-	}
-	if tenant.Status != "active" {
-		return 0, status.Error(codes.FailedPrecondition, "tenant is inactive")
-	}
-
-	customer, err := s.repo.GetCustomerByPhone(ctx, tenantID, phoneNumber)
+func (s *Service) SendCustomerOTP(ctx context.Context, phoneNumber string) (expiresInSeconds int32, err error) {
+	customer, err := s.repo.GetCustomerByPhone(ctx, phoneNumber)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return 0, status.Errorf(codes.Internal, "lookup customer: %v", err)
 		}
 		customer = &Customer{
 			ID:          uuid.New(),
-			TenantID:    tenantID,
 			PhoneNumber: phoneNumber,
 			Status:      "active",
 		}
@@ -285,13 +276,8 @@ func (s *Service) SendCustomerOTP(ctx context.Context, tenantID uuid.UUID, phone
 	return int32(otpTTL.Seconds()), nil
 }
 
-func (s *Service) VerifyCustomerOTP(ctx context.Context, tenantID uuid.UUID, phoneNumber, code string) (AuthTokenResult, error) {
-	tenant, err := s.repo.GetTenantByID(ctx, tenantID)
-	if err != nil || tenant.Status != "active" {
-		return AuthTokenResult{}, status.Error(codes.FailedPrecondition, "tenant is inactive")
-	}
-
-	customer, err := s.repo.GetCustomerByPhone(ctx, tenantID, phoneNumber)
+func (s *Service) VerifyCustomerOTP(ctx context.Context, phoneNumber, code string) (AuthTokenResult, error) {
+	customer, err := s.repo.GetCustomerByPhone(ctx, phoneNumber)
 	if err != nil {
 		return AuthTokenResult{}, status.Error(codes.Unauthenticated, "invalid or expired OTP code")
 	}
@@ -305,13 +291,14 @@ func (s *Service) VerifyCustomerOTP(ctx context.Context, tenantID uuid.UUID, pho
 		return AuthTokenResult{}, status.Errorf(codes.Internal, "mark otp verified: %v", err)
 	}
 
-	isNew := customer.TotalCompletedAppointments == 0 && customer.LastAppointmentAt == nil
-
-	tid := tenantID
-	accessToken, rawRefresh, _, err := s.issueTokenPair(ctx, "customer", customer.ID, &tid, "")
+	// Customer JWT has no tenant_id — tenant context comes from X-Tenant-ID header.
+	accessToken, rawRefresh, _, err := s.issueTokenPair(ctx, "customer", customer.ID, nil, "")
 	if err != nil {
 		return AuthTokenResult{}, err
 	}
+
+	// A customer is "new" if they were just created (no name set yet).
+	isNew := customer.FirstName == nil && customer.LastName == nil
 
 	return AuthTokenResult{
 		AccessToken:  accessToken,
@@ -321,18 +308,13 @@ func (s *Service) VerifyCustomerOTP(ctx context.Context, tenantID uuid.UUID, pho
 	}, nil
 }
 
-func (s *Service) VerifyCustomerSocialLogin(ctx context.Context, tenantID uuid.UUID, provider, idToken string) (AuthTokenResult, error) {
-	tenant, err := s.repo.GetTenantByID(ctx, tenantID)
-	if err != nil || tenant.Status != "active" {
-		return AuthTokenResult{}, status.Error(codes.FailedPrecondition, "tenant is inactive")
-	}
-
+func (s *Service) VerifyCustomerSocialLogin(ctx context.Context, provider, idToken string) (AuthTokenResult, error) {
 	providerUserID, err := s.socialVerifier.Verify(ctx, provider, idToken)
 	if err != nil {
 		return AuthTokenResult{}, status.Error(codes.Unauthenticated, "invalid social token")
 	}
 
-	ident, err := s.repo.GetCustomerIdentity(ctx, tenantID, provider, providerUserID)
+	ident, err := s.repo.GetCustomerIdentity(ctx, provider, providerUserID)
 
 	var customer *Customer
 	isNew := false
@@ -340,16 +322,14 @@ func (s *Service) VerifyCustomerSocialLogin(ctx context.Context, tenantID uuid.U
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		isNew = true
 		customer = &Customer{
-			ID:       uuid.New(),
-			TenantID: tenantID,
-			Status:   "active",
+			ID:     uuid.New(),
+			Status: "active",
 		}
 		if err := s.repo.UpsertCustomer(ctx, customer); err != nil {
 			return AuthTokenResult{}, status.Errorf(codes.Internal, "create customer: %v", err)
 		}
 		ci := &CustomerIdentity{
 			ID:             uuid.New(),
-			TenantID:       tenantID,
 			CustomerID:     customer.ID,
 			Provider:       provider,
 			ProviderUserID: providerUserID,
@@ -366,8 +346,8 @@ func (s *Service) VerifyCustomerSocialLogin(ctx context.Context, tenantID uuid.U
 		}
 	}
 
-	tid := tenantID
-	accessToken, rawRefresh, _, err := s.issueTokenPair(ctx, "customer", customer.ID, &tid, "")
+	// Customer JWT has no tenant_id.
+	accessToken, rawRefresh, _, err := s.issueTokenPair(ctx, "customer", customer.ID, nil, "")
 	if err != nil {
 		return AuthTokenResult{}, err
 	}

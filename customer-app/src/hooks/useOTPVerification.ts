@@ -34,7 +34,9 @@ export const useOTPVerification = () => {
       { phone_number: phone as string, code },
       {
         onSuccess: () => {
-          router.replace('/(tabs)');
+          // After OTP verification, go to root which handles routing:
+          // no tenants → link-code, multiple → select-tenant, one → tabs
+          router.replace('/');
         },
       },
     );

@@ -4,9 +4,8 @@ import { TenantConfig } from '@/src/types';
 
 interface TenantState {
   config: TenantConfig | null;
-  isLoading: boolean;
-  error: Error | null;
   setConfig: (config: TenantConfig) => void;
+  clearConfig: () => void;
   getBranding: () => {
     name: string;
     primaryColor: string;
@@ -18,9 +17,8 @@ interface TenantState {
 
 export const useTenantStore = create<TenantState>((set, get) => ({
   config: null,
-  isLoading: true,
-  error: null,
-  setConfig: (config) => set({ config, isLoading: false }),
+  setConfig: (config) => set({ config }),
+  clearConfig: () => set({ config: null }),
   getBranding: () => {
     const { config } = get();
     return {

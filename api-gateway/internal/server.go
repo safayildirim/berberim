@@ -64,16 +64,30 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	authJWT.GET("/sessions", h.Auth.ListSessions)
 	authJWT.DELETE("/sessions/:session_id", h.Auth.RevokeSession)
 
-	// ── Customer API ──────────────────────────────────────────────────────────
+	// ── Customer API — global (no tenant needed) ─────────────────────────────
 	// Who:   authenticated customers
-	// Scope: tenant from JWT claim
+	// Scope: global customer identity (no X-Tenant-ID header required)
+	customerGlobal := e.Group("/api/v1/customer",
+		validateJWT,
+		authzmw.RequireTokenType("customer"),
+	)
+	customerGlobal.GET("/me", h.Customer.GetProfile)
+	customerGlobal.PATCH("/me", h.Customer.UpdateProfile)
+	customerGlobal.GET("/tenants", h.Customer.ListTenants)
+	customerGlobal.POST("/tenants/link", h.Customer.ClaimLinkCode)
+	customerGlobal.POST("/push-devices", h.Customer.RegisterPushDevice)
+	customerGlobal.DELETE("/push-devices/:id", h.Customer.DeletePushDevice)
+	customerGlobal.POST("/avatar/upload-url", h.Customer.GenerateAvatarUploadURL)
+	customerGlobal.PUT("/avatar/confirm", h.Customer.ConfirmAvatarUpload)
+
+	// ── Customer API — tenant-scoped ──────────────────────────────────────────
+	// Who:   authenticated customers
+	// Scope: active tenant from X-Tenant-ID header (validated by backend interceptor)
 	customer := e.Group("/api/v1/customer",
 		validateJWT,
 		authzmw.RequireTokenType("customer"),
-		authzmw.RequireTenantID(),
+		authzmw.RequireTenantHeader(),
 	)
-	customer.GET("/me", h.Customer.GetProfile)
-	customer.PATCH("/me", h.Customer.UpdateProfile)
 	customer.GET("/slot-recommendations", h.Customer.GetSlotRecommendations)
 	customer.GET("/booking-limit", h.Customer.GetBookingLimitStatus)
 	customer.GET("/appointments", h.Customer.ListMyAppointments)
@@ -84,8 +98,6 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	customer.GET("/loyalty/balance", h.Customer.GetLoyaltyBalance)
 	customer.GET("/loyalty/transactions", h.Customer.GetLoyaltyTransactions)
 	customer.GET("/loyalty/rewards", h.Customer.ListRewards)
-	customer.POST("/push-devices", h.Customer.RegisterPushDevice)
-	customer.DELETE("/push-devices/:id", h.Customer.DeletePushDevice)
 	customer.POST("/reviews", h.Customer.CreateReview)
 	customer.PATCH("/reviews/:id", h.Customer.UpdateReview)
 	customer.DELETE("/reviews/:id", h.Customer.DeleteReview)
@@ -94,8 +106,6 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	customer.GET("/notifications/unread-count", h.Customer.GetUnreadNotificationCount)
 	customer.PATCH("/notifications/read-all", h.Customer.MarkAllNotificationsRead)
 	customer.PATCH("/notifications/:id/read", h.Customer.MarkNotificationRead)
-	customer.POST("/avatar/upload-url", h.Customer.GenerateAvatarUploadURL)
-	customer.PUT("/avatar/confirm", h.Customer.ConfirmAvatarUpload)
 
 	// ── Tenant API — staff + admin ────────────────────────────────────────────
 	// Who:   tenant_user (role=staff or role=admin)
@@ -186,6 +196,10 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	tenantAdmin.POST("/customers", h.Tenant.CreateCustomer)
 	tenantAdmin.PATCH("/customers/:id", h.Tenant.UpdateCustomer)
 	tenantAdmin.PATCH("/customers/:id/status", h.Tenant.SetCustomerStatus)
+
+	tenantAdmin.POST("/link-codes", h.Tenant.GenerateLinkCode)
+	tenantAdmin.GET("/link-codes", h.Tenant.ListLinkCodes)
+	tenantAdmin.DELETE("/link-codes/:id", h.Tenant.RevokeLinkCode)
 
 	// ── Platform API ──────────────────────────────────────────────────────────
 	// Who:   platform_user (super admin)

@@ -6,6 +6,7 @@ import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
 import { SIZES } from '@/src/constants/theme';
 import { LoyaltyData } from '@/src/hooks/useHomeData';
+import { useRouter } from 'expo-router';
 
 interface LoyaltyCardProps {
   data: LoyaltyData;
@@ -14,6 +15,7 @@ interface LoyaltyCardProps {
 export const LoyaltyCard = ({ data }: LoyaltyCardProps) => {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
 
   const progress = (data.points / data.pointsNeeded) * 100;
 
@@ -26,7 +28,10 @@ export const LoyaltyCard = ({ data }: LoyaltyCardProps) => {
         >
           {t('loyalty.title')}
         </Typography>
-        <TouchableOpacity style={styles.detailsLink}>
+        <TouchableOpacity
+          style={styles.detailsLink}
+          onPress={() => router.push('/loyalty')}
+        >
           <Typography style={styles.detailsText}>
             {t('common.details')}
           </Typography>

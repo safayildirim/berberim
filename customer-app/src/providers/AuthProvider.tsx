@@ -13,7 +13,8 @@ interface AuthContextType {
   initialized: boolean;
   isLoggedIn: boolean;
   user: any;
-  tenant: any;
+  activeTenantId: string | null;
+  hasTenants: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -22,7 +23,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isLoading, isError } = useBootstrap();
-  const { isAuthenticated, user, tenant, isBootstrapped } = useSessionStore();
+  const { isAuthenticated, user, isBootstrapped, tenants, activeTenantId } =
+    useSessionStore();
 
   useEffect(() => {
     if ((!isLoading && isBootstrapped) || isError) {
@@ -45,7 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     initialized: isBootstrapped,
     isLoggedIn: isAuthenticated,
     user,
-    tenant,
+    activeTenantId,
+    hasTenants: tenants.length > 0,
   };
 
   if (isLoading && !isBootstrapped) {

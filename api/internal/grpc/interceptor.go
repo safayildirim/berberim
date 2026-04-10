@@ -7,12 +7,14 @@ import (
 	"github.com/berberim/api/internal/identity"
 	"github.com/berberim/api/internal/requestmeta"
 	"github.com/berberim/api/internal/service"
+	"github.com/google/uuid"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 // metaKeyRequestID is the gRPC metadata key for request ID.
@@ -78,6 +80,28 @@ func RequestIDFromContext(ctx context.Context) string {
 		return ""
 	}
 	return ids[0]
+}
+
+// ValidateCustomerMembership is a unary server interceptor that checks whether
+// a customer has an active membership in the tenant they are trying to access.
+// It skips non-customer tokens and requests without a tenant context (global
+// customer endpoints like ListCustomerTenants and ClaimLinkCode).
+func ValidateCustomerMembership(db *gorm.DB) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		rc, ok := identity.FromContext(ctx)
+		if !ok || rc.TokenType != "customer" || rc.TenantID == uuid.Nil {
+			return handler(ctx, req)
+		}
+		var exists bool
+		db.WithContext(ctx).Raw(
+			`SELECT EXISTS(SELECT 1 FROM customer_tenant_memberships WHERE customer_id = ? AND tenant_id = ? AND status = 'active')`,
+			rc.UserID, rc.TenantID,
+		).Scan(&exists)
+		if !exists {
+			return nil, status.Error(codes.PermissionDenied, "not a member of this tenant")
+		}
+		return handler(ctx, req)
+	}
 }
 
 // LoggingUnaryServerInterceptor returns a unary interceptor that logs every RPC

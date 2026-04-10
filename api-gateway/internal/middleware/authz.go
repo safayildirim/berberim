@@ -78,6 +78,7 @@ func RequireRole(role string) echo.MiddlewareFunc {
 }
 
 // RequireTenantID enforces that the JWT carries a tenant_id claim.
+// Used for tenant_user tokens where tenant_id is baked into the JWT.
 // Must be chained after ValidateJWT.
 func RequireTenantID() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -86,6 +87,27 @@ func RequireTenantID() echo.MiddlewareFunc {
 			if !ok || auth.TenantID == "" {
 				return apierr.Write(c, http.StatusForbidden, apierr.New("forbidden", "token not scoped to a tenant"))
 			}
+			return next(c)
+		}
+	}
+}
+
+// RequireTenantHeader reads the active tenant from the X-Tenant-ID request header
+// and stores it in AuthContext.TenantID. Used for customer tokens where tenant_id
+// is NOT in the JWT (customer identity is global).
+// Must be chained after ValidateJWT + RequireTokenType("customer").
+func RequireTenantHeader() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			tenantID := c.Request().Header.Get("X-Tenant-ID")
+			if tenantID == "" {
+				return apierr.Write(c, http.StatusBadRequest, apierr.New("missing_tenant", "X-Tenant-ID header is required"))
+			}
+			auth, ok := AuthContextFrom(c)
+			if !ok {
+				return apierr.Write(c, http.StatusUnauthorized, apierr.New("unauthorized", "missing auth context"))
+			}
+			auth.TenantID = tenantID
 			return next(c)
 		}
 	}

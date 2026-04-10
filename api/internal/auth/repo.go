@@ -25,9 +25,9 @@ func (r *Repo) GetTenantByID(ctx context.Context, id uuid.UUID) (*Tenant, error)
 	return &t, nil
 }
 
-func (r *Repo) GetCustomerByPhone(ctx context.Context, tenantID uuid.UUID, phone string) (*Customer, error) {
+func (r *Repo) GetCustomerByPhone(ctx context.Context, phone string) (*Customer, error) {
 	var c Customer
-	err := r.db.WithContext(ctx).Where("tenant_id = ? AND phone_number = ?", tenantID, phone).First(&c).Error
+	err := r.db.WithContext(ctx).Where("phone_number = ?", phone).First(&c).Error
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +76,10 @@ func (r *Repo) MarkOTPVerified(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Model(&OTPCode{}).Where("id = ?", id).Update("verified_at", now).Error
 }
 
-func (r *Repo) GetCustomerIdentity(ctx context.Context, tenantID uuid.UUID, provider, providerUserID string) (*CustomerIdentity, error) {
+func (r *Repo) GetCustomerIdentity(ctx context.Context, provider, providerUserID string) (*CustomerIdentity, error) {
 	var ci CustomerIdentity
 	err := r.db.WithContext(ctx).
-		Where("tenant_id = ? AND provider = ? AND provider_user_id = ?", tenantID, provider, providerUserID).
+		Where("provider = ? AND provider_user_id = ?", provider, providerUserID).
 		First(&ci).Error
 	if err != nil {
 		return nil, err

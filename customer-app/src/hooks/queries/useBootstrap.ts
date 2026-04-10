@@ -4,49 +4,62 @@ import { tokenStorage } from '@/src/lib/auth/token-storage';
 import { authService } from '@/src/services/auth.service';
 import { tenantService } from '@/src/services/tenant.service';
 import { useTenantStore } from '@/src/store/useTenantStore';
-
-const DEFAULT_TENANT_ID = 'a1000000-0000-0000-0000-000000000001'; // Should come from environmental variable
+import { TenantMembership } from '@/src/types';
 
 export const useBootstrap = () => {
-  const bootstrap = useSessionStore((state) => state.bootstrap);
+  const setTenants = useSessionStore((state) => state.setTenants);
+  const setActiveTenant = useSessionStore((state) => state.setActiveTenant);
   const setTenantConfig = useTenantStore((state) => state.setConfig);
+  const bootstrap = useSessionStore((state) => state.bootstrap);
 
   return useQuery({
     queryKey: ['bootstrap'],
     queryFn: async () => {
-      // 1. Get Tenant Slug (could be from app config/constants)
-      const slug = DEFAULT_TENANT_ID;
-
-      // 2. Load Tenant Config
-      const tenant = await tenantService.getBootstrapConfig(slug);
-
-      // 3. Update Tenant Store with branding/contact info
-      setTenantConfig(tenant);
-
-      // 4. Persist tenant ID for API headers
-      if (tenant?.id) {
-        await tokenStorage.setTenantId(String(tenant.id));
-      }
-
-      // 4. Check for existing session
+      // 1. Check for existing session
       const token = await tokenStorage.getAccessToken();
       let user = null;
+      let tenants: TenantMembership[] = [];
 
       if (token) {
         try {
-          // If we have a token, attempt to fetch user info
           user = await authService.me();
         } catch {
-          // Token might be invalid or expired, clear it
           await tokenStorage.clearAll();
         }
       }
 
-      // 5. Initialize Zustand store
-      bootstrap(tenant, user);
+      // 2. If authenticated, load tenants BEFORE calling bootstrap
+      //    so the store is fully populated when navigation reads it.
+      if (user) {
+        try {
+          tenants = await tenantService.listMyTenants();
+          setTenants(tenants);
 
-      return { tenant, user };
+          // Restore previously active tenant, or auto-select if only one
+          const savedTenantId = await tokenStorage.getActiveTenantId();
+          const targetTenantId =
+            savedTenantId && tenants.some((t) => t.tenant_id === savedTenantId)
+              ? savedTenantId
+              : tenants.length === 1
+                ? tenants[0].tenant_id
+                : null;
+
+          if (targetTenantId) {
+            const config =
+              await tenantService.getBootstrapConfig(targetTenantId);
+            setTenantConfig(config);
+            await setActiveTenant(targetTenantId, config);
+          }
+        } catch {
+          // Tenant loading failure is non-fatal — user can still link tenants
+        }
+      }
+
+      // 3. Now mark bootstrapped — tenants and active tenant are already set
+      bootstrap(user);
+
+      return { user };
     },
-    staleTime: Infinity, // Bootstrap config rarely changes within a session
+    staleTime: Infinity,
   });
 };
