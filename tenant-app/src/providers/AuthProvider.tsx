@@ -1,10 +1,10 @@
 import * as SplashScreen from 'expo-splash-screen';
 import React, { createContext, useContext, useEffect } from 'react';
 import { View } from 'react-native';
-import { useBootstrap } from '../hooks/queries/useBootstrap';
-import { syncPushDeviceRegistration } from '../lib/device/push-registration';
-import { authService } from '../services/auth.service';
-import { useSessionStore } from '../store/useSessionStore';
+import { useBootstrap } from '@/src/hooks/queries/useBootstrap';
+import { syncPushDeviceRegistration } from '@/src/lib/device/push-registration';
+import { authService } from '@/src/services/auth.service';
+import { useSessionStore } from '@/src/store/useSessionStore';
 
 // Prevent splash screen from hiding until bootstrapped
 SplashScreen.preventAutoHideAsync();

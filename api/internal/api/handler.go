@@ -7,6 +7,7 @@ import (
 	"github.com/berberim/api/internal/analytics"
 	"github.com/berberim/api/internal/appointment"
 	"github.com/berberim/api/internal/auth"
+	"github.com/berberim/api/internal/avatar"
 	"github.com/berberim/api/internal/customer"
 	"github.com/berberim/api/internal/loyalty"
 	"github.com/berberim/api/internal/notification"
@@ -25,6 +26,7 @@ type Handler struct {
 	notification *notification.Handler
 	review       *review.Handler
 	analytics    *analytics.Handler
+	avatar       *avatar.Handler
 }
 
 func NewHandler(
@@ -36,6 +38,7 @@ func NewHandler(
 	notification *notification.Handler,
 	review *review.Handler,
 	analytics *analytics.Handler,
+	avatar *avatar.Handler,
 ) *Handler {
 	return &Handler{
 		auth:         auth,
@@ -46,6 +49,7 @@ func NewHandler(
 		notification: notification,
 		review:       review,
 		analytics:    analytics,
+		avatar:       avatar,
 	}
 }
 
@@ -399,4 +403,22 @@ func (h *Handler) MarkAllNotificationsRead(ctx context.Context, req *berberimv1.
 
 func (h *Handler) GetUnreadNotificationCount(ctx context.Context, req *berberimv1.GetUnreadNotificationCountRequest) (*berberimv1.GetUnreadNotificationCountResponse, error) {
 	return h.notification.GetUnreadNotificationCount(ctx, req)
+}
+
+// ── Avatar RPCs ─────────────────────────────────────────────────────────────
+
+func (h *Handler) GenerateCustomerAvatarUploadURL(ctx context.Context, req *berberimv1.GenerateAvatarUploadURLRequest) (*berberimv1.GenerateAvatarUploadURLResponse, error) {
+	return h.avatar.GenerateCustomerAvatarUploadURL(ctx, req)
+}
+
+func (h *Handler) ConfirmCustomerAvatarUpload(ctx context.Context, req *berberimv1.ConfirmAvatarUploadRequest) (*berberimv1.ConfirmAvatarUploadResponse, error) {
+	return h.avatar.ConfirmCustomerAvatarUpload(ctx, req)
+}
+
+func (h *Handler) GenerateStaffAvatarUploadURL(ctx context.Context, req *berberimv1.GenerateAvatarUploadURLRequest) (*berberimv1.GenerateAvatarUploadURLResponse, error) {
+	return h.avatar.GenerateStaffAvatarUploadURL(ctx, req)
+}
+
+func (h *Handler) ConfirmStaffAvatarUpload(ctx context.Context, req *berberimv1.ConfirmAvatarUploadRequest) (*berberimv1.ConfirmAvatarUploadResponse, error) {
+	return h.avatar.ConfirmStaffAvatarUpload(ctx, req)
 }

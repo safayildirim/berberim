@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useCreateService } from '../mutations/useServiceMutations';
+import { useCreateService } from '@/src/hooks/mutations/useServiceMutations';
 import { createLogger } from '@/src/lib/logger';
 
 const serviceLogger = createLogger('services');

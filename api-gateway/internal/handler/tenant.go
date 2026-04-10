@@ -801,3 +801,31 @@ func (h *TenantHandler) ListStaffReviews(c *echo.Context) error {
 	}
 	return writeProto(c, resp)
 }
+
+// POST /api/v1/tenant/avatar/upload-url
+func (h *TenantHandler) GenerateStaffAvatarUploadURL(c *echo.Context) error {
+	var req berberimv1.GenerateAvatarUploadURLRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.GenerateStaffAvatarUploadURL(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// PUT /api/v1/tenant/avatar/confirm
+func (h *TenantHandler) ConfirmStaffAvatarUpload(c *echo.Context) error {
+	var req berberimv1.ConfirmAvatarUploadRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ConfirmStaffAvatarUpload(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}

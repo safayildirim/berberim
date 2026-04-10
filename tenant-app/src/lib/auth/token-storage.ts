@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { authLogger } from '../logger';
+import { authLogger } from '@/src/lib/logger';
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'staff_token',

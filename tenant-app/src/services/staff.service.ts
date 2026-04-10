@@ -1,4 +1,4 @@
-import { api } from '../lib/api/client';
+import { api } from '@/src/lib/api/client';
 import { ScheduleRule, Staff, StaffReview, TimeOff, UserRole } from '../types';
 
 export interface CreateStaffRequest {

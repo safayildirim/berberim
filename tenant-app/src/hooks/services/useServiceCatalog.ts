@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useServices } from '../queries/useServices';
+import { useServices } from '@/src/hooks/queries/useServices';
 
 export function useServiceCatalog() {
   const [activeCategory, setActiveCategory] = useState<string>('all');

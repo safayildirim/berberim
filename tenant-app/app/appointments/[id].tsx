@@ -11,14 +11,14 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppointmentActionHub } from '../../src/components/appointments/details/AppointmentActionHub';
-import { AppointmentBentoDetails } from '../../src/components/appointments/details/AppointmentBentoDetails';
-import { AppointmentFinancialNotes } from '../../src/components/appointments/details/AppointmentFinancialNotes';
-import { AppointmentHeader } from '../../src/components/appointments/details/AppointmentHeader';
-import { Screen } from '../../src/components/common/Screen';
-import { COLORS } from '../../src/constants/theme';
-import { useAppointmentActions } from '../../src/hooks/appointments/useAppointmentActions';
-import { useAppointmentDetail } from '../../src/hooks/queries/useAppointments';
+import { AppointmentActionHub } from '@/src/components/appointments/details/AppointmentActionHub';
+import { AppointmentBentoDetails } from '@/src/components/appointments/details/AppointmentBentoDetails';
+import { AppointmentFinancialNotes } from '@/src/components/appointments/details/AppointmentFinancialNotes';
+import { AppointmentHeader } from '@/src/components/appointments/details/AppointmentHeader';
+import { Screen } from '@/src/components/common/Screen';
+import { COLORS } from '@/src/constants/theme';
+import { useAppointmentActions } from '@/src/hooks/appointments/useAppointmentActions';
+import { useAppointmentDetail } from '@/src/hooks/queries/useAppointments';
 
 export default function AppointmentDetailScreen() {
   const { t } = useTranslation();
@@ -33,6 +33,11 @@ export default function AppointmentDetailScreen() {
   } = useAppointmentDetail(id as string);
 
   const actions = useAppointmentActions(id as string);
+
+  const isTerminal =
+    appointment?.status === 'completed' ||
+    appointment?.status === 'cancelled' ||
+    appointment?.status === 'no_show';
 
   if (isLoading) {
     return (
@@ -88,7 +93,7 @@ export default function AppointmentDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: 40 + insets.bottom },
+          { paddingBottom: isTerminal ? 40 + insets.bottom : 24 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -97,7 +102,9 @@ export default function AppointmentDetailScreen() {
         <AppointmentBentoDetails appointment={appointment} />
 
         <AppointmentFinancialNotes appointment={appointment} />
+      </ScrollView>
 
+      {!isTerminal && (
         <AppointmentActionHub
           appointment={appointment}
           onComplete={actions.markCompleted}
@@ -115,7 +122,7 @@ export default function AppointmentDetailScreen() {
           isMarkingNoShow={actions.isMarkingNoShow}
           isCancelling={actions.isCancelling}
         />
-      </ScrollView>
+      )}
     </Screen>
   );
 }

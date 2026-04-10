@@ -92,6 +92,12 @@ service BerberimAPI {
   rpc MarkAllNotificationsRead(MarkAllNotificationsReadRequest) returns (MarkAllNotificationsReadResponse);
   rpc GetUnreadNotificationCount(GetUnreadNotificationCountRequest) returns (GetUnreadNotificationCountResponse);
 
+  // ── Avatar upload ─────────────────────────────────────────────────────────
+  rpc GenerateCustomerAvatarUploadURL(GenerateAvatarUploadURLRequest) returns (GenerateAvatarUploadURLResponse);
+  rpc ConfirmCustomerAvatarUpload(ConfirmAvatarUploadRequest) returns (ConfirmAvatarUploadResponse);
+  rpc GenerateStaffAvatarUploadURL(GenerateAvatarUploadURLRequest) returns (GenerateAvatarUploadURLResponse);
+  rpc ConfirmStaffAvatarUpload(ConfirmAvatarUploadRequest) returns (ConfirmAvatarUploadResponse);
+
   // ── Staff profile & calendar ──────────────────────────────────────────────
   rpc GetStaffProfile(GetStaffProfileRequest) returns (GetStaffProfileResponse);
   rpc GetStaffCalendar(GetStaffCalendarRequest) returns (GetStaffCalendarResponse);
@@ -849,7 +855,6 @@ message GetCustomerProfileResponse {
 message UpdateCustomerProfileRequest {
   string first_name = 1;
   string last_name = 2;
-  string avatar_url = 3;
 }
 
 message UpdateCustomerProfileResponse {
@@ -1595,4 +1600,24 @@ message GetUnreadNotificationCountRequest {}
 
 message GetUnreadNotificationCountResponse {
   int32 count = 1;
+}
+
+// ── Avatar upload messages ──────────────────────────────────────────────────
+
+message GenerateAvatarUploadURLRequest {
+  string content_type = 1; // image/jpeg, image/png, image/webp
+  int64  file_size    = 2; // bytes
+}
+
+message GenerateAvatarUploadURLResponse {
+  string upload_url  = 1; // signed GCS PUT URL
+  string object_key  = 2; // e.g. "avatars/{uuid}.jpg"
+}
+
+message ConfirmAvatarUploadRequest {
+  string object_key = 1;
+}
+
+message ConfirmAvatarUploadResponse {
+  string avatar_url = 1; // full public URL
 }

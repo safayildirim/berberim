@@ -14,7 +14,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '@/src/components/common/Screen';
-import { ManageStaffHeader } from '@/src/components/staff/ManageStaffHeader';
 import { PersonalInfoSection } from '@/src/components/staff/PersonalInfoSection';
 import { StaffPhotoSection } from '@/src/components/staff/StaffPhotoSection';
 import { SystemRoleSection } from '@/src/components/staff/SystemRoleSection';
@@ -49,8 +48,12 @@ export default function ManageStaffScreen() {
 
   if (!staff) {
     return (
-      <Screen style={styles.container} withPadding={false}>
-        <ManageStaffHeader onDelete={() => {}} />
+      <Screen
+        style={styles.container}
+        withPadding={false}
+        headerTitle={t('settings.staff.manage.title')}
+        showHeaderBack={true}
+      >
         <View style={styles.center}>
           <Text style={styles.errorText}>
             {t('settings.staff.manage.notFound')}
@@ -67,9 +70,13 @@ export default function ManageStaffScreen() {
   }
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      <ManageStaffHeader onDelete={actions.handleDelete} />
-
+    <Screen
+      style={styles.container}
+      withPadding={false}
+      transparentStatusBar
+      headerTitle={t('settings.staff.manage.title')}
+      showHeaderBack={true}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -77,12 +84,12 @@ export default function ManageStaffScreen() {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 40 },
-          ]}
+          contentContainerStyle={styles.scrollContent}
         >
-          <StaffPhotoSection />
+          <StaffPhotoSection
+            avatarUri={form.avatar || undefined}
+            onPickImage={actions.handlePickImage}
+          />
 
           <PersonalInfoSection
             firstName={form.firstName}
@@ -94,37 +101,42 @@ export default function ManageStaffScreen() {
           />
 
           <SystemRoleSection role={form.role} setRole={form.setRole} />
-
-          {/* Update Action */}
-          <View style={styles.submitContainer}>
-            <TouchableOpacity
-              onPress={actions.handleUpdate}
-              disabled={ui.isSubmitting}
-              activeOpacity={0.9}
-              style={styles.submitBtnWrapper}
-            >
-              <LinearGradient
-                colors={[COLORS.primary, '#1b263b']}
-                style={styles.submitBtn}
-              >
-                {ui.isSubmitting ? (
-                  <ActivityIndicator size="small" color={COLORS.white} />
-                ) : (
-                  <View style={styles.submitBtnContent}>
-                    <Text style={styles.submitBtnText}>
-                      {t('settings.staff.manage.update')}
-                    </Text>
-                    <Save size={20} color={COLORS.white} strokeWidth={2.5} />
-                  </View>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <Text style={styles.footerHint}>
-              {t('settings.staff.manage.updateHint')}
-            </Text>
-          </View>
         </ScrollView>
+
+        {/* Sticky Update Action */}
+        <View
+          style={[
+            styles.stickyFooter,
+            { paddingBottom: Math.max(insets.bottom, 20) },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={actions.handleUpdate}
+            disabled={ui.isSubmitting}
+            activeOpacity={0.9}
+            style={styles.submitBtnWrapper}
+          >
+            <LinearGradient
+              colors={[COLORS.primary, '#1b263b']}
+              style={styles.submitBtn}
+            >
+              {ui.isSubmitting ? (
+                <ActivityIndicator size="small" color={COLORS.white} />
+              ) : (
+                <View style={styles.submitBtnContent}>
+                  <Text style={styles.submitBtnText}>
+                    {t('settings.staff.manage.update')}
+                  </Text>
+                  <Save size={20} color={COLORS.white} strokeWidth={2.5} />
+                </View>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <Text style={styles.footerHint}>
+            {t('settings.staff.manage.updateHint')}
+          </Text>
+        </View>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -138,8 +150,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
   },
-  submitContainer: {
-    marginTop: 8,
+  stickyFooter: {
+    paddingTop: 16,
+    paddingHorizontal: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: COLORS.background,
   },
   submitBtnWrapper: {
     borderRadius: 20,

@@ -13,10 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Screen } from '../../src/components/common/Screen';
-import { COLORS, SHADOWS, SIZES, TYPOGRAPHY } from '../../src/constants/theme';
-import { useLogin } from '../../src/hooks/mutations/useAuthMutations';
-import { useTenantStore } from '../../src/store/useTenantStore';
+import { Screen } from '@/src/components/common/Screen';
+import { COLORS, SHADOWS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { useLogin } from '@/src/hooks/mutations/useAuthMutations';
+import { useTenantStore } from '@/src/store/useTenantStore';
 
 export default function LoginScreen() {
   const { t } = useTranslation();

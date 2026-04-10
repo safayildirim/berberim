@@ -7,7 +7,10 @@ import { Alert, Linking } from 'react-native';
 import { useSessionStore } from '@/src/lib/auth/session-store';
 import { useTenantStore } from '@/src/store/useTenantStore';
 import { useLogout } from '@/src/hooks/mutations/useAuthMutations';
-import { useUpdateProfile } from '@/src/hooks/mutations/useProfileMutations';
+import {
+  useUpdateProfile,
+  useUploadAvatar,
+} from '@/src/hooks/mutations/useProfileMutations';
 import { useLoyaltyWallet } from '@/src/hooks/queries/useLoyalty';
 
 export const useProfile = () => {
@@ -19,6 +22,8 @@ export const useProfile = () => {
   const { config, getBranding } = useTenantStore();
   const { primaryColor } = getBranding();
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
+  const { mutateAsync: uploadAvatar, isPending: isUploadingAvatar } =
+    useUploadAvatar();
 
   // Form State (for Edit Profile)
   const [firstName, setFirstName] = useState(user?.profile.first_name || '');
@@ -45,28 +50,36 @@ export const useProfile = () => {
     ]);
   };
 
-  const handleSave = () => {
+  const isLocalUri = (uri: string) =>
+    uri.startsWith('file://') || uri.startsWith('ph://');
+
+  const handleSave = async () => {
     if (!firstName || !lastName) {
       Alert.alert(t('common.error'), t('common.unexpectedError'));
       return;
     }
 
-    updateProfile(
-      {
-        first_name: firstName,
-        last_name: lastName,
-        avatar_url: avatar,
-      },
-      {
-        onSuccess: () => {
-          Alert.alert(t('common.done'), t('profile.updateSuccessMsg'));
-          router.back();
+    try {
+      // Upload avatar if user picked a new local image
+      if (avatar && isLocalUri(avatar)) {
+        await uploadAvatar(avatar);
+      }
+
+      updateProfile(
+        { first_name: firstName, last_name: lastName },
+        {
+          onSuccess: () => {
+            Alert.alert(t('common.done'), t('profile.updateSuccessMsg'));
+            router.back();
+          },
+          onError: () => {
+            Alert.alert(t('common.error'), t('common.unexpectedError'));
+          },
         },
-        onError: () => {
-          Alert.alert(t('common.error'), t('common.unexpectedError'));
-        },
-      },
-    );
+      );
+    } catch {
+      Alert.alert(t('common.error'), t('common.unexpectedError'));
+    }
   };
 
   const handlePickImage = () => {
@@ -160,7 +173,7 @@ export const useProfile = () => {
     setLastName,
     avatar,
     setAvatar,
-    isUpdating,
+    isUpdating: isUpdating || isUploadingAvatar,
     handleSave,
     handlePickImage,
     tenantName: config?.name || 'Berberim',

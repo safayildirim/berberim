@@ -6,9 +6,9 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { Screen } from '../../src/components/common/Screen';
-import { Header } from '../../src/components/common/Header';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '../../src/constants/theme';
+import { Screen } from '@/src/components/common/Screen';
+import { Header } from '@/src/components/common/Header';
+import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
 import {
   Megaphone,
   Plus,
@@ -16,7 +16,7 @@ import {
   Share2,
   Bell,
 } from 'lucide-react-native';
-import { Badge } from '../../src/components/common/Badge';
+import { Badge } from '@/src/components/common/Badge';
 
 const MOCK_CAMPAIGNS = [
   {

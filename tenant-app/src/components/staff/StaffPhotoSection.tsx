@@ -1,24 +1,34 @@
 import { Camera, UserPlus } from 'lucide-react-native';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS, SHADOWS } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
 
-export const StaffPhotoSection = () => {
+type Props = {
+  avatarUri?: string;
+  onPickImage?: () => void;
+};
+
+export const StaffPhotoSection = ({ avatarUri, onPickImage }: Props) => {
   const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <View style={styles.photoContainer}>
-        <View style={styles.avatarPlaceholder}>
-          <UserPlus size={48} color={COLORS.secondary} />
-        </View>
-        <TouchableOpacity
-          style={[styles.cameraBtn, SHADOWS.md]}
-          activeOpacity={0.9}
-        >
+      <TouchableOpacity
+        style={styles.photoContainer}
+        onPress={onPickImage}
+        activeOpacity={0.8}
+      >
+        {avatarUri ? (
+          <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+        ) : (
+          <View style={styles.avatarPlaceholder}>
+            <UserPlus size={48} color={COLORS.secondary} />
+          </View>
+        )}
+        <View style={[styles.cameraBtn, SHADOWS.md]}>
           <Camera size={14} color={COLORS.white} />
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
       <View style={styles.textContent}>
         <Text style={styles.title}>
           {t('settings.staff.create.teamIntegration')}
@@ -40,6 +50,12 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     position: 'relative',
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+    backgroundColor: COLORS.surfaceContainerHigh,
   },
   avatarPlaceholder: {
     width: 120,

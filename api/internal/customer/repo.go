@@ -48,7 +48,7 @@ func (r *Repo) List(ctx context.Context, tenantID uuid.UUID, status, search stri
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			c.id, c.tenant_id, c.phone_number, c.first_name, c.last_name,
-			c.avatar_url, c.status, c.created_at, c.updated_at,
+			c.avatar_key, c.status, c.created_at, c.updated_at,
 			COUNT(a.id) FILTER (WHERE a.status = 'completed') AS total_completed_appointments,
 			MAX(a.starts_at)                                   AS last_appointment_at,
 			COALESCE(lw.current_points, 0)                     AS loyalty_points
@@ -69,7 +69,7 @@ func (r *Repo) GetByID(ctx context.Context, tenantID, customerID uuid.UUID) (*Cu
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			c.id, c.tenant_id, c.phone_number, c.first_name, c.last_name,
-			c.avatar_url, c.status, c.created_at, c.updated_at,
+			c.avatar_key, c.status, c.created_at, c.updated_at,
 			COUNT(a.id) FILTER (WHERE a.status = 'completed') AS total_completed_appointments,
 			MAX(a.starts_at)                                   AS last_appointment_at,
 			COALESCE(lw.current_points, 0)                     AS loyalty_points
@@ -96,6 +96,22 @@ func (r *Repo) UpdateStatus(ctx context.Context, tenantID, customerID uuid.UUID,
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (r *Repo) GetAvatarKey(ctx context.Context, tenantID, customerID uuid.UUID) (string, error) {
+	c, err := r.GetByID(ctx, tenantID, customerID)
+	if err != nil {
+		return "", err
+	}
+	if c.AvatarKey != nil {
+		return *c.AvatarKey, nil
+	}
+	return "", nil
+}
+
+func (r *Repo) SetAvatarKey(ctx context.Context, tenantID, customerID uuid.UUID, avatarKey string) error {
+	_, err := r.Update(ctx, tenantID, customerID, map[string]any{"avatar_key": avatarKey})
+	return err
 }
 
 func (r *Repo) Update(ctx context.Context, tenantID, customerID uuid.UUID, updates map[string]any) (*Customer, error) {

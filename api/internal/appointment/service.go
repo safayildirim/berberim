@@ -923,7 +923,7 @@ func staffMemberToOption(m *StaffMember) StaffOption {
 		ID:          m.ID,
 		FirstName:   m.FirstName,
 		LastName:    m.LastName,
-		AvatarURL:   m.AvatarURL,
+		AvatarKey:   m.AvatarKey,
 		Specialty:   m.Specialty,
 		Bio:         m.Bio,
 		AvgRating:   m.AvgRating,

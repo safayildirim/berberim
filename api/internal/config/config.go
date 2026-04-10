@@ -12,11 +12,29 @@ import (
 
 type Config struct {
 	Env               string
-	Port              string    `mapstructure:"port"`
-	GrpcPort          string    `mapstructure:"grpc_port"`
-	HttpListenAddress string    `mapstructure:"http_listen_address"`
-	DB                DBConfig  `mapstructure:"db"`
-	JWT               JWTConfig `mapstructure:"jwt"`
+	Port              string       `mapstructure:"port"`
+	GrpcPort          string       `mapstructure:"grpc_port"`
+	HttpListenAddress string       `mapstructure:"http_listen_address"`
+	DB                DBConfig     `mapstructure:"db"`
+	JWT               JWTConfig    `mapstructure:"jwt"`
+	Avatar            AvatarConfig `mapstructure:"avatar"`
+}
+
+type AvatarConfig struct {
+	Bucket          string        `mapstructure:"bucket"`
+	BaseURL         string        `mapstructure:"base_url"`
+	MaxFileSize     int64         `mapstructure:"max_file_size"`
+	UploadURLExpiry time.Duration `mapstructure:"upload_url_expiry"`
+	AllowedTypes    []string      `mapstructure:"allowed_types"`
+}
+
+// PublicURL constructs the full avatar URL from an object key.
+// Returns empty string if objectKey is empty.
+func (c *AvatarConfig) PublicURL(objectKey string) string {
+	if objectKey == "" {
+		return ""
+	}
+	return c.BaseURL + "/" + objectKey
 }
 
 type DBConfig struct {
@@ -99,6 +117,14 @@ func Load() *Config {
 		}
 	}
 
+	// Avatar env var overrides
+	if b := os.Getenv("AVATAR_BUCKET"); b != "" {
+		cfg.Avatar.Bucket = b
+	}
+	if u := os.Getenv("AVATAR_BASE_URL"); u != "" {
+		cfg.Avatar.BaseURL = u
+	}
+
 	// DB pool env var overrides (used in Cloud Run to tune for Neon)
 	if v := os.Getenv("DB_MAX_OPEN_CONNS"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
@@ -144,6 +170,17 @@ func Load() *Config {
 	}
 	if cfg.JWT.Algorithm == "" {
 		cfg.JWT.Algorithm = "RS256"
+	}
+
+	// Avatar defaults
+	if cfg.Avatar.MaxFileSize == 0 {
+		cfg.Avatar.MaxFileSize = 5 * 1024 * 1024 // 5MB
+	}
+	if cfg.Avatar.UploadURLExpiry == 0 {
+		cfg.Avatar.UploadURLExpiry = 15 * time.Minute
+	}
+	if len(cfg.Avatar.AllowedTypes) == 0 {
+		cfg.Avatar.AllowedTypes = []string{"image/jpeg", "image/png", "image/webp"}
 	}
 
 	return cfg

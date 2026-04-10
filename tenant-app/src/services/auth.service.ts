@@ -1,6 +1,6 @@
-import { api } from '../lib/api/client';
-import { tokenStorage } from '../lib/auth/token-storage';
-import { User } from '../types';
+import { api } from '@/src/lib/api/client';
+import { tokenStorage } from '@/src/lib/auth/token-storage';
+import { User } from '@/src/types';
 
 export interface LoginParams {
   email: string;

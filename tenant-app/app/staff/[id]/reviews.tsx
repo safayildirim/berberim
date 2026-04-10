@@ -13,14 +13,11 @@ import { Star, User } from 'lucide-react-native';
 import { format } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 
-import { Header } from '../../../src/components/common/Header';
-import { Screen } from '../../../src/components/common/Screen';
-import { COLORS, SIZES, TYPOGRAPHY } from '../../../src/constants/theme';
-import {
-  useStaffDetail,
-  useStaffReviews,
-} from '../../../src/hooks/queries/useStaff';
-import { StaffReview } from '../../../src/types';
+import { Header } from '@/src/components/common/Header';
+import { Screen } from '@/src/components/common/Screen';
+import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { useStaffDetail, useStaffReviews } from '@/src/hooks/queries/useStaff';
+import { StaffReview } from '@/src/types';
 
 const ReviewCard = ({ review }: { review: StaffReview }) => {
   const { t, i18n } = useTranslation();

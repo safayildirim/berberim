@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
-import { Screen } from '../../src/components/common/Screen';
-import { Header } from '../../src/components/common/Header';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '../../src/constants/theme';
+import { Screen } from '@/src/components/common/Screen';
+import { Header } from '@/src/components/common/Header';
+import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
 import { ShieldCheck, History, UserCircle2 } from 'lucide-react-native';
 
 const MOCK_LOGS = [

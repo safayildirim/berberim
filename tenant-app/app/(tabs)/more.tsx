@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import {
   Bell,
@@ -25,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -32,17 +34,100 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen } from '../../src/components/common/Screen';
-import { COLORS, SHADOWS } from '../../src/constants/theme';
-import { useLogout } from '../../src/hooks/mutations/useAuthMutations';
-import { useSessionStore } from '../../src/store/useSessionStore';
+import { Screen } from '@/src/components/common/Screen';
+import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { useLogout } from '@/src/hooks/mutations/useAuthMutations';
+import { avatarService } from '@/src/services/avatar.service';
+import { useSessionStore } from '@/src/store/useSessionStore';
 
 export default function MoreScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, tenant, isAdmin } = useSessionStore();
+  const { user, tenant, isAdmin, setUser } = useSessionStore();
   const { mutateAsync: logout } = useLogout();
+  const [avatarLocal, setAvatarLocal] = React.useState('');
+
+  const handlePickAvatar = () => {
+    Alert.alert(t('profile.changePhoto') || 'Change Photo', '', [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('profile.camera') || 'Camera',
+        onPress: () => launchCamera(),
+      },
+      {
+        text: t('profile.gallery') || 'Gallery',
+        onPress: () => launchGallery(),
+      },
+    ]);
+  };
+
+  const launchCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        t('profile.permissionDenied') || 'Permission Denied',
+        t('profile.cameraPermissionMsg') || 'Camera access is required.',
+        [
+          {
+            text: t('common.settings') || 'Settings',
+            onPress: () => Linking.openSettings(),
+          },
+          { text: 'OK' },
+        ],
+      );
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+    if (!result.canceled) {
+      uploadAvatar(result.assets[0].uri);
+    }
+  };
+
+  const launchGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        t('profile.permissionDenied') || 'Permission Denied',
+        t('profile.galleryPermissionMsg') || 'Gallery access is required.',
+        [
+          {
+            text: t('common.settings') || 'Settings',
+            onPress: () => Linking.openSettings(),
+          },
+          { text: 'OK' },
+        ],
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+    if (!result.canceled) {
+      uploadAvatar(result.assets[0].uri);
+    }
+  };
+
+  const uploadAvatar = async (uri: string) => {
+    setAvatarLocal(uri);
+    try {
+      const avatarUrl = await avatarService.upload(uri);
+      if (user) setUser({ ...user, avatar_url: avatarUrl });
+    } catch {
+      setAvatarLocal('');
+      Alert.alert(
+        t('common.error'),
+        t('common.unexpectedError') || 'Upload failed',
+      );
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -149,9 +234,9 @@ export default function MoreScreen() {
         <View style={styles.profileSection}>
           <View style={styles.avatarWrapper}>
             <View style={styles.avatarBorder}>
-              {user?.avatar_url ? (
+              {avatarLocal || user?.avatar_url ? (
                 <Image
-                  source={{ uri: user.avatar_url }}
+                  source={{ uri: avatarLocal || user?.avatar_url }}
                   style={styles.avatar}
                 />
               ) : (
@@ -164,7 +249,10 @@ export default function MoreScreen() {
                 </View>
               )}
             </View>
-            <TouchableOpacity style={styles.editAvatarBtn}>
+            <TouchableOpacity
+              style={styles.editAvatarBtn}
+              onPress={handlePickAvatar}
+            >
               <Edit2 size={14} color={COLORS.white} />
             </TouchableOpacity>
           </View>

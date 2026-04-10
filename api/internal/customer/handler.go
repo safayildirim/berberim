@@ -4,6 +4,7 @@ import (
 	"context"
 
 	berberimv1 "github.com/berberim/api/api/v1"
+	"github.com/berberim/api/internal/config"
 	"github.com/berberim/api/internal/identity"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -13,11 +14,12 @@ import (
 // Handler is a thin gRPC bridge — parse → call service → marshal.
 // No business logic lives here.
 type Handler struct {
-	svc *Service
+	avatarCfg *config.AvatarConfig
+	svc       *Service
 }
 
-func NewHandler(svc *Service) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(avatarCfg *config.AvatarConfig, svc *Service) *Handler {
+	return &Handler{avatarCfg: avatarCfg, svc: svc}
 }
 
 func (h *Handler) GetCustomerProfile(ctx context.Context, _ *berberimv1.GetCustomerProfileRequest) (*berberimv1.GetCustomerProfileResponse, error) {
@@ -32,7 +34,8 @@ func (h *Handler) GetCustomerProfile(ctx context.Context, _ *berberimv1.GetCusto
 	if err != nil {
 		return nil, err
 	}
-	return &berberimv1.GetCustomerProfileResponse{Profile: customerToProto(c)}, nil
+
+	return &berberimv1.GetCustomerProfileResponse{Profile: h.customerToProto(c)}, nil
 }
 
 func (h *Handler) UpdateCustomerProfile(ctx context.Context, req *berberimv1.UpdateCustomerProfileRequest) (*berberimv1.UpdateCustomerProfileResponse, error) {
@@ -46,12 +49,11 @@ func (h *Handler) UpdateCustomerProfile(ctx context.Context, req *berberimv1.Upd
 	c, err := h.svc.UpdateProfile(ctx, rc.TenantID, rc.UserID, UpdateProfileRequest{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
-		AvatarURL: req.AvatarUrl,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &berberimv1.UpdateCustomerProfileResponse{Profile: customerToProto(c)}, nil
+	return &berberimv1.UpdateCustomerProfileResponse{Profile: h.customerToProto(c)}, nil
 }
 
 func (h *Handler) ListCustomers(ctx context.Context, req *berberimv1.ListCustomersRequest) (*berberimv1.ListCustomersResponse, error) {
@@ -76,7 +78,7 @@ func (h *Handler) ListCustomers(ctx context.Context, req *berberimv1.ListCustome
 	}
 	out := make([]*berberimv1.Customer, 0, len(customers))
 	for i := range customers {
-		out = append(out, customerToProto(&customers[i]))
+		out = append(out, h.customerToProto(&customers[i]))
 	}
 	return &berberimv1.ListCustomersResponse{
 		Customers: out,
@@ -102,7 +104,7 @@ func (h *Handler) GetAdminCustomer(ctx context.Context, req *berberimv1.GetAdmin
 	if err != nil {
 		return nil, err
 	}
-	return &berberimv1.GetAdminCustomerResponse{Customer: customerToProto(c)}, nil
+	return &berberimv1.GetAdminCustomerResponse{Customer: h.customerToProto(c)}, nil
 }
 
 func (h *Handler) UpdateCustomer(ctx context.Context, req *berberimv1.UpdateCustomerRequest) (*berberimv1.UpdateCustomerResponse, error) {
@@ -124,7 +126,7 @@ func (h *Handler) UpdateCustomer(ctx context.Context, req *berberimv1.UpdateCust
 	if err != nil {
 		return nil, err
 	}
-	return &berberimv1.UpdateCustomerResponse{Customer: customerToProto(c)}, nil
+	return &berberimv1.UpdateCustomerResponse{Customer: h.customerToProto(c)}, nil
 }
 
 func (h *Handler) SetCustomerStatus(ctx context.Context, req *berberimv1.SetCustomerStatusRequest) (*berberimv1.SetCustomerStatusResponse, error) {
@@ -145,7 +147,7 @@ func (h *Handler) SetCustomerStatus(ctx context.Context, req *berberimv1.SetCust
 	return &berberimv1.SetCustomerStatusResponse{}, nil
 }
 
-func customerToProto(c *Customer) *berberimv1.Customer {
+func (h *Handler) customerToProto(c *Customer) *berberimv1.Customer {
 	p := &berberimv1.Customer{
 		Id:                         c.ID.String(),
 		PhoneNumber:                c.PhoneNumber,
@@ -160,8 +162,8 @@ func customerToProto(c *Customer) *berberimv1.Customer {
 	if c.LastName != nil {
 		p.LastName = *c.LastName
 	}
-	if c.AvatarURL != nil {
-		p.AvatarUrl = *c.AvatarURL
+	if c.AvatarKey != nil {
+		p.AvatarUrl = h.avatarCfg.PublicURL(*c.AvatarKey)
 	}
 	if c.LastAppointmentAt != nil {
 		p.LastAppointmentAt = c.LastAppointmentAt.UTC().Format("2006-01-02T15:04:05Z")

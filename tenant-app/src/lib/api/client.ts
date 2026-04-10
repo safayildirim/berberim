@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { tokenStorage } from '../auth/token-storage';
-import { getDeviceHeaders } from '../device/device-metadata';
-import { apiLogger, redact } from '../logger';
+import { tokenStorage } from '@/src/lib/auth/token-storage';
+import { getDeviceHeaders } from '@/src/lib/device/device-metadata';
+import { apiLogger, redact } from '@/src/lib/logger';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 if (!API_BASE_URL) {

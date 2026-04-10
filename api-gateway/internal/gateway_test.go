@@ -347,6 +347,18 @@ func (s *stubClient) UpdateTenantBranding(_ context.Context, _ *berberimv1.Updat
 func (s *stubClient) GetBookingLimitStatus(_ context.Context, _ *berberimv1.GetBookingLimitStatusRequest, _ ...grpc.CallOption) (*berberimv1.GetBookingLimitStatusResponse, error) {
 	return &berberimv1.GetBookingLimitStatusResponse{}, nil
 }
+func (s *stubClient) GenerateCustomerAvatarUploadURL(_ context.Context, _ *berberimv1.GenerateAvatarUploadURLRequest, _ ...grpc.CallOption) (*berberimv1.GenerateAvatarUploadURLResponse, error) {
+	return &berberimv1.GenerateAvatarUploadURLResponse{}, nil
+}
+func (s *stubClient) ConfirmCustomerAvatarUpload(_ context.Context, _ *berberimv1.ConfirmAvatarUploadRequest, _ ...grpc.CallOption) (*berberimv1.ConfirmAvatarUploadResponse, error) {
+	return &berberimv1.ConfirmAvatarUploadResponse{}, nil
+}
+func (s *stubClient) GenerateStaffAvatarUploadURL(_ context.Context, _ *berberimv1.GenerateAvatarUploadURLRequest, _ ...grpc.CallOption) (*berberimv1.GenerateAvatarUploadURLResponse, error) {
+	return &berberimv1.GenerateAvatarUploadURLResponse{}, nil
+}
+func (s *stubClient) ConfirmStaffAvatarUpload(_ context.Context, _ *berberimv1.ConfirmAvatarUploadRequest, _ ...grpc.CallOption) (*berberimv1.ConfirmAvatarUploadResponse, error) {
+	return &berberimv1.ConfirmAvatarUploadResponse{}, nil
+}
 
 // ── Fake JWT validator ────────────────────────────────────────────────────────
 

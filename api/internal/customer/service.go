@@ -21,7 +21,6 @@ func NewService(repo *Repo) *Service {
 type UpdateProfileRequest struct {
 	FirstName string
 	LastName  string
-	AvatarURL string
 }
 
 func (s *Service) GetProfile(ctx context.Context, tenantID, customerID uuid.UUID) (*Customer, error) {
@@ -77,9 +76,6 @@ func (s *Service) UpdateProfile(ctx context.Context, tenantID, customerID uuid.U
 	}
 	if req.LastName != "" {
 		updates["last_name"] = req.LastName
-	}
-	if req.AvatarURL != "" {
-		updates["avatar_url"] = req.AvatarURL
 	}
 	if len(updates) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "at least one field must be provided")

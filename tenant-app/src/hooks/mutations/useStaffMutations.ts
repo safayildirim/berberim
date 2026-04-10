@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { staffService } from '@/src/services/staff.service';
 import { TimeOff } from '@/src/types';
-import { staffKeys } from '../queries/useStaff';
+import { staffKeys } from '@/src/hooks/queries/useStaff';
 
 export function useStaffMutations() {
   const queryClient = useQueryClient();

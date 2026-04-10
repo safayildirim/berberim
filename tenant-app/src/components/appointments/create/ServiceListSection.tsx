@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { Service } from '@/src/types';
-import { ServiceCard } from './ServiceCard';
+import { ServiceCard } from '@/src/components/appointments/create/ServiceCard';
 
 interface Props {
   services: Service[];

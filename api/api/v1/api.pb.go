@@ -6251,7 +6251,6 @@ type UpdateCustomerProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FirstName     string                 `protobuf:"bytes,1,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
 	LastName      string                 `protobuf:"bytes,2,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	AvatarUrl     string                 `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6296,13 +6295,6 @@ func (x *UpdateCustomerProfileRequest) GetFirstName() string {
 func (x *UpdateCustomerProfileRequest) GetLastName() string {
 	if x != nil {
 		return x.LastName
-	}
-	return ""
-}
-
-func (x *UpdateCustomerProfileRequest) GetAvatarUrl() string {
-	if x != nil {
-		return x.AvatarUrl
 	}
 	return ""
 }
@@ -13883,6 +13875,198 @@ func (x *GetUnreadNotificationCountResponse) GetCount() int32 {
 	return 0
 }
 
+type GenerateAvatarUploadURLRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContentType   string                 `protobuf:"bytes,1,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"` // image/jpeg, image/png, image/webp
+	FileSize      int64                  `protobuf:"varint,2,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`         // bytes
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateAvatarUploadURLRequest) Reset() {
+	*x = GenerateAvatarUploadURLRequest{}
+	mi := &file_v1_api_proto_msgTypes[249]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateAvatarUploadURLRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateAvatarUploadURLRequest) ProtoMessage() {}
+
+func (x *GenerateAvatarUploadURLRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_v1_api_proto_msgTypes[249]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateAvatarUploadURLRequest.ProtoReflect.Descriptor instead.
+func (*GenerateAvatarUploadURLRequest) Descriptor() ([]byte, []int) {
+	return file_v1_api_proto_rawDescGZIP(), []int{249}
+}
+
+func (x *GenerateAvatarUploadURLRequest) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *GenerateAvatarUploadURLRequest) GetFileSize() int64 {
+	if x != nil {
+		return x.FileSize
+	}
+	return 0
+}
+
+type GenerateAvatarUploadURLResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UploadUrl     string                 `protobuf:"bytes,1,opt,name=upload_url,json=uploadUrl,proto3" json:"upload_url,omitempty"` // signed GCS PUT URL
+	ObjectKey     string                 `protobuf:"bytes,2,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"` // e.g. "avatars/{uuid}.jpg"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateAvatarUploadURLResponse) Reset() {
+	*x = GenerateAvatarUploadURLResponse{}
+	mi := &file_v1_api_proto_msgTypes[250]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateAvatarUploadURLResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateAvatarUploadURLResponse) ProtoMessage() {}
+
+func (x *GenerateAvatarUploadURLResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_v1_api_proto_msgTypes[250]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateAvatarUploadURLResponse.ProtoReflect.Descriptor instead.
+func (*GenerateAvatarUploadURLResponse) Descriptor() ([]byte, []int) {
+	return file_v1_api_proto_rawDescGZIP(), []int{250}
+}
+
+func (x *GenerateAvatarUploadURLResponse) GetUploadUrl() string {
+	if x != nil {
+		return x.UploadUrl
+	}
+	return ""
+}
+
+func (x *GenerateAvatarUploadURLResponse) GetObjectKey() string {
+	if x != nil {
+		return x.ObjectKey
+	}
+	return ""
+}
+
+type ConfirmAvatarUploadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ObjectKey     string                 `protobuf:"bytes,1,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfirmAvatarUploadRequest) Reset() {
+	*x = ConfirmAvatarUploadRequest{}
+	mi := &file_v1_api_proto_msgTypes[251]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfirmAvatarUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfirmAvatarUploadRequest) ProtoMessage() {}
+
+func (x *ConfirmAvatarUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_v1_api_proto_msgTypes[251]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfirmAvatarUploadRequest.ProtoReflect.Descriptor instead.
+func (*ConfirmAvatarUploadRequest) Descriptor() ([]byte, []int) {
+	return file_v1_api_proto_rawDescGZIP(), []int{251}
+}
+
+func (x *ConfirmAvatarUploadRequest) GetObjectKey() string {
+	if x != nil {
+		return x.ObjectKey
+	}
+	return ""
+}
+
+type ConfirmAvatarUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AvatarUrl     string                 `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // full public URL
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfirmAvatarUploadResponse) Reset() {
+	*x = ConfirmAvatarUploadResponse{}
+	mi := &file_v1_api_proto_msgTypes[252]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfirmAvatarUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfirmAvatarUploadResponse) ProtoMessage() {}
+
+func (x *ConfirmAvatarUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_v1_api_proto_msgTypes[252]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfirmAvatarUploadResponse.ProtoReflect.Descriptor instead.
+func (*ConfirmAvatarUploadResponse) Descriptor() ([]byte, []int) {
+	return file_v1_api_proto_rawDescGZIP(), []int{252}
+}
+
+func (x *ConfirmAvatarUploadResponse) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
 var File_v1_api_proto protoreflect.FileDescriptor
 
 const file_v1_api_proto_rawDesc = "" +
@@ -14351,13 +14535,11 @@ const file_v1_api_proto_rawDesc = "" +
 	"\x0favailable_dates\x18\x01 \x03(\tR\x0eavailableDates\"\x1b\n" +
 	"\x19GetCustomerProfileRequest\"M\n" +
 	"\x1aGetCustomerProfileResponse\x12/\n" +
-	"\aprofile\x18\x01 \x01(\v2\x15.berberim.v1.CustomerR\aprofile\"y\n" +
+	"\aprofile\x18\x01 \x01(\v2\x15.berberim.v1.CustomerR\aprofile\"Z\n" +
 	"\x1cUpdateCustomerProfileRequest\x12\x1d\n" +
 	"\n" +
 	"first_name\x18\x01 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x02 \x01(\tR\blastName\x12\x1d\n" +
-	"\n" +
-	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\"P\n" +
+	"\tlast_name\x18\x02 \x01(\tR\blastName\"P\n" +
 	"\x1dUpdateCustomerProfileResponse\x12/\n" +
 	"\aprofile\x18\x01 \x01(\v2\x15.berberim.v1.CustomerR\aprofile\"\xd3\x01\n" +
 	"\x12LoyaltyTransaction\x12\x0e\n" +
@@ -14865,7 +15047,21 @@ const file_v1_api_proto_rawDesc = "" +
 	"\rupdated_count\x18\x01 \x01(\x05R\fupdatedCount\"#\n" +
 	"!GetUnreadNotificationCountRequest\":\n" +
 	"\"GetUnreadNotificationCountResponse\x12\x14\n" +
-	"\x05count\x18\x01 \x01(\x05R\x05count2\xe3P\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\"`\n" +
+	"\x1eGenerateAvatarUploadURLRequest\x12!\n" +
+	"\fcontent_type\x18\x01 \x01(\tR\vcontentType\x12\x1b\n" +
+	"\tfile_size\x18\x02 \x01(\x03R\bfileSize\"_\n" +
+	"\x1fGenerateAvatarUploadURLResponse\x12\x1d\n" +
+	"\n" +
+	"upload_url\x18\x01 \x01(\tR\tuploadUrl\x12\x1d\n" +
+	"\n" +
+	"object_key\x18\x02 \x01(\tR\tobjectKey\";\n" +
+	"\x1aConfirmAvatarUploadRequest\x12\x1d\n" +
+	"\n" +
+	"object_key\x18\x01 \x01(\tR\tobjectKey\"<\n" +
+	"\x1bConfirmAvatarUploadResponse\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\x01 \x01(\tR\tavatarUrl2\xbdT\n" +
 	"\vBerberimAPI\x12\\\n" +
 	"\x0fSendCustomerOTP\x12#.berberim.v1.SendCustomerOTPRequest\x1a$.berberim.v1.SendCustomerOTPResponse\x12b\n" +
 	"\x11VerifyCustomerOTP\x12%.berberim.v1.VerifyCustomerOTPRequest\x1a&.berberim.v1.VerifyCustomerOTPResponse\x12z\n" +
@@ -14920,7 +15116,11 @@ const file_v1_api_proto_rawDesc = "" +
 	"\x19ListCustomerNotifications\x12-.berberim.v1.ListCustomerNotificationsRequest\x1a..berberim.v1.ListCustomerNotificationsResponse\x12k\n" +
 	"\x14MarkNotificationRead\x12(.berberim.v1.MarkNotificationReadRequest\x1a).berberim.v1.MarkNotificationReadResponse\x12w\n" +
 	"\x18MarkAllNotificationsRead\x12,.berberim.v1.MarkAllNotificationsReadRequest\x1a-.berberim.v1.MarkAllNotificationsReadResponse\x12}\n" +
-	"\x1aGetUnreadNotificationCount\x12..berberim.v1.GetUnreadNotificationCountRequest\x1a/.berberim.v1.GetUnreadNotificationCountResponse\x12\\\n" +
+	"\x1aGetUnreadNotificationCount\x12..berberim.v1.GetUnreadNotificationCountRequest\x1a/.berberim.v1.GetUnreadNotificationCountResponse\x12|\n" +
+	"\x1fGenerateCustomerAvatarUploadURL\x12+.berberim.v1.GenerateAvatarUploadURLRequest\x1a,.berberim.v1.GenerateAvatarUploadURLResponse\x12p\n" +
+	"\x1bConfirmCustomerAvatarUpload\x12'.berberim.v1.ConfirmAvatarUploadRequest\x1a(.berberim.v1.ConfirmAvatarUploadResponse\x12y\n" +
+	"\x1cGenerateStaffAvatarUploadURL\x12+.berberim.v1.GenerateAvatarUploadURLRequest\x1a,.berberim.v1.GenerateAvatarUploadURLResponse\x12m\n" +
+	"\x18ConfirmStaffAvatarUpload\x12'.berberim.v1.ConfirmAvatarUploadRequest\x1a(.berberim.v1.ConfirmAvatarUploadResponse\x12\\\n" +
 	"\x0fGetStaffProfile\x12#.berberim.v1.GetStaffProfileRequest\x1a$.berberim.v1.GetStaffProfileResponse\x12_\n" +
 	"\x10GetStaffCalendar\x12$.berberim.v1.GetStaffCalendarRequest\x1a%.berberim.v1.GetStaffCalendarResponse\x12b\n" +
 	"\x11GetTenantBranding\x12%.berberim.v1.GetTenantBrandingRequest\x1a&.berberim.v1.GetTenantBrandingResponse\x12k\n" +
@@ -14987,7 +15187,7 @@ func file_v1_api_proto_rawDescGZIP() []byte {
 	return file_v1_api_proto_rawDescData
 }
 
-var file_v1_api_proto_msgTypes = make([]protoimpl.MessageInfo, 249)
+var file_v1_api_proto_msgTypes = make([]protoimpl.MessageInfo, 253)
 var file_v1_api_proto_goTypes = []any{
 	(*SendCustomerOTPRequest)(nil),             // 0: berberim.v1.SendCustomerOTPRequest
 	(*SendCustomerOTPResponse)(nil),            // 1: berberim.v1.SendCustomerOTPResponse
@@ -15238,6 +15438,10 @@ var file_v1_api_proto_goTypes = []any{
 	(*MarkAllNotificationsReadResponse)(nil),   // 246: berberim.v1.MarkAllNotificationsReadResponse
 	(*GetUnreadNotificationCountRequest)(nil),  // 247: berberim.v1.GetUnreadNotificationCountRequest
 	(*GetUnreadNotificationCountResponse)(nil), // 248: berberim.v1.GetUnreadNotificationCountResponse
+	(*GenerateAvatarUploadURLRequest)(nil),     // 249: berberim.v1.GenerateAvatarUploadURLRequest
+	(*GenerateAvatarUploadURLResponse)(nil),    // 250: berberim.v1.GenerateAvatarUploadURLResponse
+	(*ConfirmAvatarUploadRequest)(nil),         // 251: berberim.v1.ConfirmAvatarUploadRequest
+	(*ConfirmAvatarUploadResponse)(nil),        // 252: berberim.v1.ConfirmAvatarUploadResponse
 }
 var file_v1_api_proto_depIdxs = []int32{
 	16,  // 0: berberim.v1.ListSessionsResponse.sessions:type_name -> berberim.v1.Session
@@ -15378,165 +15582,173 @@ var file_v1_api_proto_depIdxs = []int32{
 	243, // 135: berberim.v1.BerberimAPI.MarkNotificationRead:input_type -> berberim.v1.MarkNotificationReadRequest
 	245, // 136: berberim.v1.BerberimAPI.MarkAllNotificationsRead:input_type -> berberim.v1.MarkAllNotificationsReadRequest
 	247, // 137: berberim.v1.BerberimAPI.GetUnreadNotificationCount:input_type -> berberim.v1.GetUnreadNotificationCountRequest
-	113, // 138: berberim.v1.BerberimAPI.GetStaffProfile:input_type -> berberim.v1.GetStaffProfileRequest
-	116, // 139: berberim.v1.BerberimAPI.GetStaffCalendar:input_type -> berberim.v1.GetStaffCalendarRequest
-	205, // 140: berberim.v1.BerberimAPI.GetTenantBranding:input_type -> berberim.v1.GetTenantBrandingRequest
-	207, // 141: berberim.v1.BerberimAPI.UpdateTenantBranding:input_type -> berberim.v1.UpdateTenantBrandingRequest
-	118, // 142: berberim.v1.BerberimAPI.GetService:input_type -> berberim.v1.GetServiceRequest
-	120, // 143: berberim.v1.BerberimAPI.DeleteService:input_type -> berberim.v1.DeleteServiceRequest
-	122, // 144: berberim.v1.BerberimAPI.GetStaffMember:input_type -> berberim.v1.GetStaffMemberRequest
-	124, // 145: berberim.v1.BerberimAPI.UpdateStaffMember:input_type -> berberim.v1.UpdateStaffMemberRequest
-	126, // 146: berberim.v1.BerberimAPI.DeleteStaffMember:input_type -> berberim.v1.DeleteStaffMemberRequest
-	128, // 147: berberim.v1.BerberimAPI.SetStaffStatus:input_type -> berberim.v1.SetStaffStatusRequest
-	131, // 148: berberim.v1.BerberimAPI.GetStaffServices:input_type -> berberim.v1.GetStaffServicesRequest
-	133, // 149: berberim.v1.BerberimAPI.SetStaffServices:input_type -> berberim.v1.SetStaffServicesRequest
-	136, // 150: berberim.v1.BerberimAPI.ListScheduleRules:input_type -> berberim.v1.ListScheduleRulesRequest
-	138, // 151: berberim.v1.BerberimAPI.CreateScheduleRule:input_type -> berberim.v1.CreateScheduleRuleRequest
-	140, // 152: berberim.v1.BerberimAPI.UpdateScheduleRule:input_type -> berberim.v1.UpdateScheduleRuleRequest
-	142, // 153: berberim.v1.BerberimAPI.DeleteScheduleRule:input_type -> berberim.v1.DeleteScheduleRuleRequest
-	145, // 154: berberim.v1.BerberimAPI.ListTimeOffs:input_type -> berberim.v1.ListTimeOffsRequest
-	147, // 155: berberim.v1.BerberimAPI.CreateTimeOff:input_type -> berberim.v1.CreateTimeOffRequest
-	149, // 156: berberim.v1.BerberimAPI.UpdateTimeOff:input_type -> berberim.v1.UpdateTimeOffRequest
-	151, // 157: berberim.v1.BerberimAPI.DeleteTimeOff:input_type -> berberim.v1.DeleteTimeOffRequest
-	154, // 158: berberim.v1.BerberimAPI.ListCustomers:input_type -> berberim.v1.ListCustomersRequest
-	156, // 159: berberim.v1.BerberimAPI.CreateCustomer:input_type -> berberim.v1.CreateCustomerRequest
-	158, // 160: berberim.v1.BerberimAPI.GetAdminCustomer:input_type -> berberim.v1.GetAdminCustomerRequest
-	160, // 161: berberim.v1.BerberimAPI.UpdateCustomer:input_type -> berberim.v1.UpdateCustomerRequest
-	162, // 162: berberim.v1.BerberimAPI.SetCustomerStatus:input_type -> berberim.v1.SetCustomerStatusRequest
-	165, // 163: berberim.v1.BerberimAPI.GetLoyaltySettings:input_type -> berberim.v1.GetLoyaltySettingsRequest
-	167, // 164: berberim.v1.BerberimAPI.UpdateLoyaltySettings:input_type -> berberim.v1.UpdateLoyaltySettingsRequest
-	170, // 165: berberim.v1.BerberimAPI.ListRewards:input_type -> berberim.v1.ListRewardsRequest
-	172, // 166: berberim.v1.BerberimAPI.CreateReward:input_type -> berberim.v1.CreateRewardRequest
-	174, // 167: berberim.v1.BerberimAPI.GetReward:input_type -> berberim.v1.GetRewardRequest
-	176, // 168: berberim.v1.BerberimAPI.UpdateReward:input_type -> berberim.v1.UpdateRewardRequest
-	178, // 169: berberim.v1.BerberimAPI.DeleteReward:input_type -> berberim.v1.DeleteRewardRequest
-	180, // 170: berberim.v1.BerberimAPI.SetRewardStatus:input_type -> berberim.v1.SetRewardStatusRequest
-	184, // 171: berberim.v1.BerberimAPI.GetAnalyticsOverview:input_type -> berberim.v1.GetAnalyticsOverviewRequest
-	186, // 172: berberim.v1.BerberimAPI.GetCohortAnalysis:input_type -> berberim.v1.GetCohortAnalysisRequest
-	190, // 173: berberim.v1.BerberimAPI.GetRetentionAnalysis:input_type -> berberim.v1.GetRetentionAnalysisRequest
-	194, // 174: berberim.v1.BerberimAPI.GetCustomerLTV:input_type -> berberim.v1.GetCustomerLTVRequest
-	198, // 175: berberim.v1.BerberimAPI.GetNoShowAnalysis:input_type -> berberim.v1.GetNoShowAnalysisRequest
-	28,  // 176: berberim.v1.BerberimAPI.CreateTenant:input_type -> berberim.v1.CreateTenantRequest
-	30,  // 177: berberim.v1.BerberimAPI.ListTenants:input_type -> berberim.v1.ListTenantsRequest
-	32,  // 178: berberim.v1.BerberimAPI.GetTenant:input_type -> berberim.v1.GetTenantRequest
-	34,  // 179: berberim.v1.BerberimAPI.SetTenantStatus:input_type -> berberim.v1.SetTenantStatusRequest
-	204, // 180: berberim.v1.BerberimAPI.UpdateTenant:input_type -> berberim.v1.UpdateTenantRequest
-	210, // 181: berberim.v1.BerberimAPI.FreezeTenant:input_type -> berberim.v1.FreezeTenantRequest
-	212, // 182: berberim.v1.BerberimAPI.ReactivateTenant:input_type -> berberim.v1.ReactivateTenantRequest
-	214, // 183: berberim.v1.BerberimAPI.CancelTenantSubscription:input_type -> berberim.v1.CancelTenantSubscriptionRequest
-	216, // 184: berberim.v1.BerberimAPI.ExtendTenantSubscription:input_type -> berberim.v1.ExtendTenantSubscriptionRequest
-	219, // 185: berberim.v1.BerberimAPI.ListPlatformUsers:input_type -> berberim.v1.ListPlatformUsersRequest
-	221, // 186: berberim.v1.BerberimAPI.CreatePlatformUser:input_type -> berberim.v1.CreatePlatformUserRequest
-	223, // 187: berberim.v1.BerberimAPI.GetPlatformUser:input_type -> berberim.v1.GetPlatformUserRequest
-	225, // 188: berberim.v1.BerberimAPI.UpdatePlatformUser:input_type -> berberim.v1.UpdatePlatformUserRequest
-	227, // 189: berberim.v1.BerberimAPI.DeletePlatformUser:input_type -> berberim.v1.DeletePlatformUserRequest
-	1,   // 190: berberim.v1.BerberimAPI.SendCustomerOTP:output_type -> berberim.v1.SendCustomerOTPResponse
-	3,   // 191: berberim.v1.BerberimAPI.VerifyCustomerOTP:output_type -> berberim.v1.VerifyCustomerOTPResponse
-	5,   // 192: berberim.v1.BerberimAPI.VerifyCustomerSocialLogin:output_type -> berberim.v1.VerifyCustomerSocialLoginResponse
-	7,   // 193: berberim.v1.BerberimAPI.LoginTenantUser:output_type -> berberim.v1.LoginTenantUserResponse
-	9,   // 194: berberim.v1.BerberimAPI.LoginPlatformUser:output_type -> berberim.v1.LoginPlatformUserResponse
-	11,  // 195: berberim.v1.BerberimAPI.RefreshToken:output_type -> berberim.v1.RefreshTokenResponse
-	13,  // 196: berberim.v1.BerberimAPI.Logout:output_type -> berberim.v1.LogoutResponse
-	15,  // 197: berberim.v1.BerberimAPI.LogoutAll:output_type -> berberim.v1.LogoutAllResponse
-	18,  // 198: berberim.v1.BerberimAPI.ListSessions:output_type -> berberim.v1.ListSessionsResponse
-	20,  // 199: berberim.v1.BerberimAPI.RevokeSession:output_type -> berberim.v1.RevokeSessionResponse
-	22,  // 200: berberim.v1.BerberimAPI.RegisterPushDevice:output_type -> berberim.v1.RegisterPushDeviceResponse
-	24,  // 201: berberim.v1.BerberimAPI.DeletePushDevice:output_type -> berberim.v1.DeletePushDeviceResponse
-	38,  // 202: berberim.v1.BerberimAPI.CreateTenantUser:output_type -> berberim.v1.CreateTenantUserResponse
-	40,  // 203: berberim.v1.BerberimAPI.ListTenantUsers:output_type -> berberim.v1.ListTenantUsersResponse
-	42,  // 204: berberim.v1.BerberimAPI.DisableTenantUser:output_type -> berberim.v1.DisableTenantUserResponse
-	44,  // 205: berberim.v1.BerberimAPI.EnableTenantUser:output_type -> berberim.v1.EnableTenantUserResponse
-	47,  // 206: berberim.v1.BerberimAPI.GetTenantSettings:output_type -> berberim.v1.GetTenantSettingsResponse
-	49,  // 207: berberim.v1.BerberimAPI.UpdateTenantSettings:output_type -> berberim.v1.UpdateTenantSettingsResponse
-	52,  // 208: berberim.v1.BerberimAPI.GetNotificationSettings:output_type -> berberim.v1.GetNotificationSettingsResponse
-	54,  // 209: berberim.v1.BerberimAPI.UpdateNotificationSettings:output_type -> berberim.v1.UpdateNotificationSettingsResponse
-	57,  // 210: berberim.v1.BerberimAPI.ListServices:output_type -> berberim.v1.ListServicesResponse
-	59,  // 211: berberim.v1.BerberimAPI.CreateService:output_type -> berberim.v1.CreateServiceResponse
-	61,  // 212: berberim.v1.BerberimAPI.UpdateService:output_type -> berberim.v1.UpdateServiceResponse
-	66,  // 213: berberim.v1.BerberimAPI.SearchAvailability:output_type -> berberim.v1.SearchAvailabilityResponse
-	69,  // 214: berberim.v1.BerberimAPI.GetSlotRecommendations:output_type -> berberim.v1.GetSlotRecommendationsResponse
-	71,  // 215: berberim.v1.BerberimAPI.GetBookingLimitStatus:output_type -> berberim.v1.GetBookingLimitStatusResponse
-	75,  // 216: berberim.v1.BerberimAPI.CreateAppointment:output_type -> berberim.v1.CreateAppointmentResponse
-	77,  // 217: berberim.v1.BerberimAPI.GetAppointment:output_type -> berberim.v1.GetAppointmentResponse
-	79,  // 218: berberim.v1.BerberimAPI.ListAppointments:output_type -> berberim.v1.ListAppointmentsResponse
-	81,  // 219: berberim.v1.BerberimAPI.CancelAppointment:output_type -> berberim.v1.CancelAppointmentResponse
-	83,  // 220: berberim.v1.BerberimAPI.RescheduleAppointment:output_type -> berberim.v1.RescheduleAppointmentResponse
-	85,  // 221: berberim.v1.BerberimAPI.CompleteAppointment:output_type -> berberim.v1.CompleteAppointmentResponse
-	87,  // 222: berberim.v1.BerberimAPI.MarkNoShow:output_type -> berberim.v1.MarkNoShowResponse
-	89,  // 223: berberim.v1.BerberimAPI.MarkPaymentReceived:output_type -> berberim.v1.MarkPaymentReceivedResponse
-	91,  // 224: berberim.v1.BerberimAPI.GetLoyaltyBalance:output_type -> berberim.v1.GetLoyaltyBalanceResponse
-	93,  // 225: berberim.v1.BerberimAPI.GetPublicBootstrap:output_type -> berberim.v1.GetPublicBootstrapResponse
-	95,  // 226: berberim.v1.BerberimAPI.GetPublicService:output_type -> berberim.v1.GetPublicServiceResponse
-	98,  // 227: berberim.v1.BerberimAPI.ListPublicStaff:output_type -> berberim.v1.ListPublicStaffResponse
-	100, // 228: berberim.v1.BerberimAPI.GetPublicStaff:output_type -> berberim.v1.GetPublicStaffResponse
-	102, // 229: berberim.v1.BerberimAPI.ListPublicStaffServices:output_type -> berberim.v1.ListPublicStaffServicesResponse
-	104, // 230: berberim.v1.BerberimAPI.GetAvailabilityDays:output_type -> berberim.v1.GetAvailabilityDaysResponse
-	106, // 231: berberim.v1.BerberimAPI.GetCustomerProfile:output_type -> berberim.v1.GetCustomerProfileResponse
-	108, // 232: berberim.v1.BerberimAPI.UpdateCustomerProfile:output_type -> berberim.v1.UpdateCustomerProfileResponse
-	111, // 233: berberim.v1.BerberimAPI.GetLoyaltyTransactions:output_type -> berberim.v1.GetLoyaltyTransactionsResponse
-	231, // 234: berberim.v1.BerberimAPI.CreateStaffReview:output_type -> berberim.v1.CreateStaffReviewResponse
-	233, // 235: berberim.v1.BerberimAPI.UpdateStaffReview:output_type -> berberim.v1.UpdateStaffReviewResponse
-	235, // 236: berberim.v1.BerberimAPI.DeleteStaffReview:output_type -> berberim.v1.DeleteStaffReviewResponse
-	237, // 237: berberim.v1.BerberimAPI.ListStaffReviews:output_type -> berberim.v1.ListStaffReviewsResponse
-	239, // 238: berberim.v1.BerberimAPI.GetMyReviewForAppointment:output_type -> berberim.v1.GetMyReviewForAppointmentResponse
-	242, // 239: berberim.v1.BerberimAPI.ListCustomerNotifications:output_type -> berberim.v1.ListCustomerNotificationsResponse
-	244, // 240: berberim.v1.BerberimAPI.MarkNotificationRead:output_type -> berberim.v1.MarkNotificationReadResponse
-	246, // 241: berberim.v1.BerberimAPI.MarkAllNotificationsRead:output_type -> berberim.v1.MarkAllNotificationsReadResponse
-	248, // 242: berberim.v1.BerberimAPI.GetUnreadNotificationCount:output_type -> berberim.v1.GetUnreadNotificationCountResponse
-	114, // 243: berberim.v1.BerberimAPI.GetStaffProfile:output_type -> berberim.v1.GetStaffProfileResponse
-	117, // 244: berberim.v1.BerberimAPI.GetStaffCalendar:output_type -> berberim.v1.GetStaffCalendarResponse
-	206, // 245: berberim.v1.BerberimAPI.GetTenantBranding:output_type -> berberim.v1.GetTenantBrandingResponse
-	208, // 246: berberim.v1.BerberimAPI.UpdateTenantBranding:output_type -> berberim.v1.UpdateTenantBrandingResponse
-	119, // 247: berberim.v1.BerberimAPI.GetService:output_type -> berberim.v1.GetServiceResponse
-	121, // 248: berberim.v1.BerberimAPI.DeleteService:output_type -> berberim.v1.DeleteServiceResponse
-	123, // 249: berberim.v1.BerberimAPI.GetStaffMember:output_type -> berberim.v1.GetStaffMemberResponse
-	125, // 250: berberim.v1.BerberimAPI.UpdateStaffMember:output_type -> berberim.v1.UpdateStaffMemberResponse
-	127, // 251: berberim.v1.BerberimAPI.DeleteStaffMember:output_type -> berberim.v1.DeleteStaffMemberResponse
-	129, // 252: berberim.v1.BerberimAPI.SetStaffStatus:output_type -> berberim.v1.SetStaffStatusResponse
-	132, // 253: berberim.v1.BerberimAPI.GetStaffServices:output_type -> berberim.v1.GetStaffServicesResponse
-	134, // 254: berberim.v1.BerberimAPI.SetStaffServices:output_type -> berberim.v1.SetStaffServicesResponse
-	137, // 255: berberim.v1.BerberimAPI.ListScheduleRules:output_type -> berberim.v1.ListScheduleRulesResponse
-	139, // 256: berberim.v1.BerberimAPI.CreateScheduleRule:output_type -> berberim.v1.CreateScheduleRuleResponse
-	141, // 257: berberim.v1.BerberimAPI.UpdateScheduleRule:output_type -> berberim.v1.UpdateScheduleRuleResponse
-	143, // 258: berberim.v1.BerberimAPI.DeleteScheduleRule:output_type -> berberim.v1.DeleteScheduleRuleResponse
-	146, // 259: berberim.v1.BerberimAPI.ListTimeOffs:output_type -> berberim.v1.ListTimeOffsResponse
-	148, // 260: berberim.v1.BerberimAPI.CreateTimeOff:output_type -> berberim.v1.CreateTimeOffResponse
-	150, // 261: berberim.v1.BerberimAPI.UpdateTimeOff:output_type -> berberim.v1.UpdateTimeOffResponse
-	152, // 262: berberim.v1.BerberimAPI.DeleteTimeOff:output_type -> berberim.v1.DeleteTimeOffResponse
-	155, // 263: berberim.v1.BerberimAPI.ListCustomers:output_type -> berberim.v1.ListCustomersResponse
-	157, // 264: berberim.v1.BerberimAPI.CreateCustomer:output_type -> berberim.v1.CreateCustomerResponse
-	159, // 265: berberim.v1.BerberimAPI.GetAdminCustomer:output_type -> berberim.v1.GetAdminCustomerResponse
-	161, // 266: berberim.v1.BerberimAPI.UpdateCustomer:output_type -> berberim.v1.UpdateCustomerResponse
-	163, // 267: berberim.v1.BerberimAPI.SetCustomerStatus:output_type -> berberim.v1.SetCustomerStatusResponse
-	166, // 268: berberim.v1.BerberimAPI.GetLoyaltySettings:output_type -> berberim.v1.GetLoyaltySettingsResponse
-	168, // 269: berberim.v1.BerberimAPI.UpdateLoyaltySettings:output_type -> berberim.v1.UpdateLoyaltySettingsResponse
-	171, // 270: berberim.v1.BerberimAPI.ListRewards:output_type -> berberim.v1.ListRewardsResponse
-	173, // 271: berberim.v1.BerberimAPI.CreateReward:output_type -> berberim.v1.CreateRewardResponse
-	175, // 272: berberim.v1.BerberimAPI.GetReward:output_type -> berberim.v1.GetRewardResponse
-	177, // 273: berberim.v1.BerberimAPI.UpdateReward:output_type -> berberim.v1.UpdateRewardResponse
-	179, // 274: berberim.v1.BerberimAPI.DeleteReward:output_type -> berberim.v1.DeleteRewardResponse
-	181, // 275: berberim.v1.BerberimAPI.SetRewardStatus:output_type -> berberim.v1.SetRewardStatusResponse
-	185, // 276: berberim.v1.BerberimAPI.GetAnalyticsOverview:output_type -> berberim.v1.GetAnalyticsOverviewResponse
-	189, // 277: berberim.v1.BerberimAPI.GetCohortAnalysis:output_type -> berberim.v1.GetCohortAnalysisResponse
-	193, // 278: berberim.v1.BerberimAPI.GetRetentionAnalysis:output_type -> berberim.v1.GetRetentionAnalysisResponse
-	197, // 279: berberim.v1.BerberimAPI.GetCustomerLTV:output_type -> berberim.v1.GetCustomerLTVResponse
-	203, // 280: berberim.v1.BerberimAPI.GetNoShowAnalysis:output_type -> berberim.v1.GetNoShowAnalysisResponse
-	29,  // 281: berberim.v1.BerberimAPI.CreateTenant:output_type -> berberim.v1.CreateTenantResponse
-	31,  // 282: berberim.v1.BerberimAPI.ListTenants:output_type -> berberim.v1.ListTenantsResponse
-	33,  // 283: berberim.v1.BerberimAPI.GetTenant:output_type -> berberim.v1.GetTenantResponse
-	35,  // 284: berberim.v1.BerberimAPI.SetTenantStatus:output_type -> berberim.v1.SetTenantStatusResponse
-	209, // 285: berberim.v1.BerberimAPI.UpdateTenant:output_type -> berberim.v1.UpdateTenantResponse
-	211, // 286: berberim.v1.BerberimAPI.FreezeTenant:output_type -> berberim.v1.FreezeTenantResponse
-	213, // 287: berberim.v1.BerberimAPI.ReactivateTenant:output_type -> berberim.v1.ReactivateTenantResponse
-	215, // 288: berberim.v1.BerberimAPI.CancelTenantSubscription:output_type -> berberim.v1.CancelTenantSubscriptionResponse
-	217, // 289: berberim.v1.BerberimAPI.ExtendTenantSubscription:output_type -> berberim.v1.ExtendTenantSubscriptionResponse
-	220, // 290: berberim.v1.BerberimAPI.ListPlatformUsers:output_type -> berberim.v1.ListPlatformUsersResponse
-	222, // 291: berberim.v1.BerberimAPI.CreatePlatformUser:output_type -> berberim.v1.CreatePlatformUserResponse
-	224, // 292: berberim.v1.BerberimAPI.GetPlatformUser:output_type -> berberim.v1.GetPlatformUserResponse
-	226, // 293: berberim.v1.BerberimAPI.UpdatePlatformUser:output_type -> berberim.v1.UpdatePlatformUserResponse
-	228, // 294: berberim.v1.BerberimAPI.DeletePlatformUser:output_type -> berberim.v1.DeletePlatformUserResponse
-	190, // [190:295] is the sub-list for method output_type
-	85,  // [85:190] is the sub-list for method input_type
+	249, // 138: berberim.v1.BerberimAPI.GenerateCustomerAvatarUploadURL:input_type -> berberim.v1.GenerateAvatarUploadURLRequest
+	251, // 139: berberim.v1.BerberimAPI.ConfirmCustomerAvatarUpload:input_type -> berberim.v1.ConfirmAvatarUploadRequest
+	249, // 140: berberim.v1.BerberimAPI.GenerateStaffAvatarUploadURL:input_type -> berberim.v1.GenerateAvatarUploadURLRequest
+	251, // 141: berberim.v1.BerberimAPI.ConfirmStaffAvatarUpload:input_type -> berberim.v1.ConfirmAvatarUploadRequest
+	113, // 142: berberim.v1.BerberimAPI.GetStaffProfile:input_type -> berberim.v1.GetStaffProfileRequest
+	116, // 143: berberim.v1.BerberimAPI.GetStaffCalendar:input_type -> berberim.v1.GetStaffCalendarRequest
+	205, // 144: berberim.v1.BerberimAPI.GetTenantBranding:input_type -> berberim.v1.GetTenantBrandingRequest
+	207, // 145: berberim.v1.BerberimAPI.UpdateTenantBranding:input_type -> berberim.v1.UpdateTenantBrandingRequest
+	118, // 146: berberim.v1.BerberimAPI.GetService:input_type -> berberim.v1.GetServiceRequest
+	120, // 147: berberim.v1.BerberimAPI.DeleteService:input_type -> berberim.v1.DeleteServiceRequest
+	122, // 148: berberim.v1.BerberimAPI.GetStaffMember:input_type -> berberim.v1.GetStaffMemberRequest
+	124, // 149: berberim.v1.BerberimAPI.UpdateStaffMember:input_type -> berberim.v1.UpdateStaffMemberRequest
+	126, // 150: berberim.v1.BerberimAPI.DeleteStaffMember:input_type -> berberim.v1.DeleteStaffMemberRequest
+	128, // 151: berberim.v1.BerberimAPI.SetStaffStatus:input_type -> berberim.v1.SetStaffStatusRequest
+	131, // 152: berberim.v1.BerberimAPI.GetStaffServices:input_type -> berberim.v1.GetStaffServicesRequest
+	133, // 153: berberim.v1.BerberimAPI.SetStaffServices:input_type -> berberim.v1.SetStaffServicesRequest
+	136, // 154: berberim.v1.BerberimAPI.ListScheduleRules:input_type -> berberim.v1.ListScheduleRulesRequest
+	138, // 155: berberim.v1.BerberimAPI.CreateScheduleRule:input_type -> berberim.v1.CreateScheduleRuleRequest
+	140, // 156: berberim.v1.BerberimAPI.UpdateScheduleRule:input_type -> berberim.v1.UpdateScheduleRuleRequest
+	142, // 157: berberim.v1.BerberimAPI.DeleteScheduleRule:input_type -> berberim.v1.DeleteScheduleRuleRequest
+	145, // 158: berberim.v1.BerberimAPI.ListTimeOffs:input_type -> berberim.v1.ListTimeOffsRequest
+	147, // 159: berberim.v1.BerberimAPI.CreateTimeOff:input_type -> berberim.v1.CreateTimeOffRequest
+	149, // 160: berberim.v1.BerberimAPI.UpdateTimeOff:input_type -> berberim.v1.UpdateTimeOffRequest
+	151, // 161: berberim.v1.BerberimAPI.DeleteTimeOff:input_type -> berberim.v1.DeleteTimeOffRequest
+	154, // 162: berberim.v1.BerberimAPI.ListCustomers:input_type -> berberim.v1.ListCustomersRequest
+	156, // 163: berberim.v1.BerberimAPI.CreateCustomer:input_type -> berberim.v1.CreateCustomerRequest
+	158, // 164: berberim.v1.BerberimAPI.GetAdminCustomer:input_type -> berberim.v1.GetAdminCustomerRequest
+	160, // 165: berberim.v1.BerberimAPI.UpdateCustomer:input_type -> berberim.v1.UpdateCustomerRequest
+	162, // 166: berberim.v1.BerberimAPI.SetCustomerStatus:input_type -> berberim.v1.SetCustomerStatusRequest
+	165, // 167: berberim.v1.BerberimAPI.GetLoyaltySettings:input_type -> berberim.v1.GetLoyaltySettingsRequest
+	167, // 168: berberim.v1.BerberimAPI.UpdateLoyaltySettings:input_type -> berberim.v1.UpdateLoyaltySettingsRequest
+	170, // 169: berberim.v1.BerberimAPI.ListRewards:input_type -> berberim.v1.ListRewardsRequest
+	172, // 170: berberim.v1.BerberimAPI.CreateReward:input_type -> berberim.v1.CreateRewardRequest
+	174, // 171: berberim.v1.BerberimAPI.GetReward:input_type -> berberim.v1.GetRewardRequest
+	176, // 172: berberim.v1.BerberimAPI.UpdateReward:input_type -> berberim.v1.UpdateRewardRequest
+	178, // 173: berberim.v1.BerberimAPI.DeleteReward:input_type -> berberim.v1.DeleteRewardRequest
+	180, // 174: berberim.v1.BerberimAPI.SetRewardStatus:input_type -> berberim.v1.SetRewardStatusRequest
+	184, // 175: berberim.v1.BerberimAPI.GetAnalyticsOverview:input_type -> berberim.v1.GetAnalyticsOverviewRequest
+	186, // 176: berberim.v1.BerberimAPI.GetCohortAnalysis:input_type -> berberim.v1.GetCohortAnalysisRequest
+	190, // 177: berberim.v1.BerberimAPI.GetRetentionAnalysis:input_type -> berberim.v1.GetRetentionAnalysisRequest
+	194, // 178: berberim.v1.BerberimAPI.GetCustomerLTV:input_type -> berberim.v1.GetCustomerLTVRequest
+	198, // 179: berberim.v1.BerberimAPI.GetNoShowAnalysis:input_type -> berberim.v1.GetNoShowAnalysisRequest
+	28,  // 180: berberim.v1.BerberimAPI.CreateTenant:input_type -> berberim.v1.CreateTenantRequest
+	30,  // 181: berberim.v1.BerberimAPI.ListTenants:input_type -> berberim.v1.ListTenantsRequest
+	32,  // 182: berberim.v1.BerberimAPI.GetTenant:input_type -> berberim.v1.GetTenantRequest
+	34,  // 183: berberim.v1.BerberimAPI.SetTenantStatus:input_type -> berberim.v1.SetTenantStatusRequest
+	204, // 184: berberim.v1.BerberimAPI.UpdateTenant:input_type -> berberim.v1.UpdateTenantRequest
+	210, // 185: berberim.v1.BerberimAPI.FreezeTenant:input_type -> berberim.v1.FreezeTenantRequest
+	212, // 186: berberim.v1.BerberimAPI.ReactivateTenant:input_type -> berberim.v1.ReactivateTenantRequest
+	214, // 187: berberim.v1.BerberimAPI.CancelTenantSubscription:input_type -> berberim.v1.CancelTenantSubscriptionRequest
+	216, // 188: berberim.v1.BerberimAPI.ExtendTenantSubscription:input_type -> berberim.v1.ExtendTenantSubscriptionRequest
+	219, // 189: berberim.v1.BerberimAPI.ListPlatformUsers:input_type -> berberim.v1.ListPlatformUsersRequest
+	221, // 190: berberim.v1.BerberimAPI.CreatePlatformUser:input_type -> berberim.v1.CreatePlatformUserRequest
+	223, // 191: berberim.v1.BerberimAPI.GetPlatformUser:input_type -> berberim.v1.GetPlatformUserRequest
+	225, // 192: berberim.v1.BerberimAPI.UpdatePlatformUser:input_type -> berberim.v1.UpdatePlatformUserRequest
+	227, // 193: berberim.v1.BerberimAPI.DeletePlatformUser:input_type -> berberim.v1.DeletePlatformUserRequest
+	1,   // 194: berberim.v1.BerberimAPI.SendCustomerOTP:output_type -> berberim.v1.SendCustomerOTPResponse
+	3,   // 195: berberim.v1.BerberimAPI.VerifyCustomerOTP:output_type -> berberim.v1.VerifyCustomerOTPResponse
+	5,   // 196: berberim.v1.BerberimAPI.VerifyCustomerSocialLogin:output_type -> berberim.v1.VerifyCustomerSocialLoginResponse
+	7,   // 197: berberim.v1.BerberimAPI.LoginTenantUser:output_type -> berberim.v1.LoginTenantUserResponse
+	9,   // 198: berberim.v1.BerberimAPI.LoginPlatformUser:output_type -> berberim.v1.LoginPlatformUserResponse
+	11,  // 199: berberim.v1.BerberimAPI.RefreshToken:output_type -> berberim.v1.RefreshTokenResponse
+	13,  // 200: berberim.v1.BerberimAPI.Logout:output_type -> berberim.v1.LogoutResponse
+	15,  // 201: berberim.v1.BerberimAPI.LogoutAll:output_type -> berberim.v1.LogoutAllResponse
+	18,  // 202: berberim.v1.BerberimAPI.ListSessions:output_type -> berberim.v1.ListSessionsResponse
+	20,  // 203: berberim.v1.BerberimAPI.RevokeSession:output_type -> berberim.v1.RevokeSessionResponse
+	22,  // 204: berberim.v1.BerberimAPI.RegisterPushDevice:output_type -> berberim.v1.RegisterPushDeviceResponse
+	24,  // 205: berberim.v1.BerberimAPI.DeletePushDevice:output_type -> berberim.v1.DeletePushDeviceResponse
+	38,  // 206: berberim.v1.BerberimAPI.CreateTenantUser:output_type -> berberim.v1.CreateTenantUserResponse
+	40,  // 207: berberim.v1.BerberimAPI.ListTenantUsers:output_type -> berberim.v1.ListTenantUsersResponse
+	42,  // 208: berberim.v1.BerberimAPI.DisableTenantUser:output_type -> berberim.v1.DisableTenantUserResponse
+	44,  // 209: berberim.v1.BerberimAPI.EnableTenantUser:output_type -> berberim.v1.EnableTenantUserResponse
+	47,  // 210: berberim.v1.BerberimAPI.GetTenantSettings:output_type -> berberim.v1.GetTenantSettingsResponse
+	49,  // 211: berberim.v1.BerberimAPI.UpdateTenantSettings:output_type -> berberim.v1.UpdateTenantSettingsResponse
+	52,  // 212: berberim.v1.BerberimAPI.GetNotificationSettings:output_type -> berberim.v1.GetNotificationSettingsResponse
+	54,  // 213: berberim.v1.BerberimAPI.UpdateNotificationSettings:output_type -> berberim.v1.UpdateNotificationSettingsResponse
+	57,  // 214: berberim.v1.BerberimAPI.ListServices:output_type -> berberim.v1.ListServicesResponse
+	59,  // 215: berberim.v1.BerberimAPI.CreateService:output_type -> berberim.v1.CreateServiceResponse
+	61,  // 216: berberim.v1.BerberimAPI.UpdateService:output_type -> berberim.v1.UpdateServiceResponse
+	66,  // 217: berberim.v1.BerberimAPI.SearchAvailability:output_type -> berberim.v1.SearchAvailabilityResponse
+	69,  // 218: berberim.v1.BerberimAPI.GetSlotRecommendations:output_type -> berberim.v1.GetSlotRecommendationsResponse
+	71,  // 219: berberim.v1.BerberimAPI.GetBookingLimitStatus:output_type -> berberim.v1.GetBookingLimitStatusResponse
+	75,  // 220: berberim.v1.BerberimAPI.CreateAppointment:output_type -> berberim.v1.CreateAppointmentResponse
+	77,  // 221: berberim.v1.BerberimAPI.GetAppointment:output_type -> berberim.v1.GetAppointmentResponse
+	79,  // 222: berberim.v1.BerberimAPI.ListAppointments:output_type -> berberim.v1.ListAppointmentsResponse
+	81,  // 223: berberim.v1.BerberimAPI.CancelAppointment:output_type -> berberim.v1.CancelAppointmentResponse
+	83,  // 224: berberim.v1.BerberimAPI.RescheduleAppointment:output_type -> berberim.v1.RescheduleAppointmentResponse
+	85,  // 225: berberim.v1.BerberimAPI.CompleteAppointment:output_type -> berberim.v1.CompleteAppointmentResponse
+	87,  // 226: berberim.v1.BerberimAPI.MarkNoShow:output_type -> berberim.v1.MarkNoShowResponse
+	89,  // 227: berberim.v1.BerberimAPI.MarkPaymentReceived:output_type -> berberim.v1.MarkPaymentReceivedResponse
+	91,  // 228: berberim.v1.BerberimAPI.GetLoyaltyBalance:output_type -> berberim.v1.GetLoyaltyBalanceResponse
+	93,  // 229: berberim.v1.BerberimAPI.GetPublicBootstrap:output_type -> berberim.v1.GetPublicBootstrapResponse
+	95,  // 230: berberim.v1.BerberimAPI.GetPublicService:output_type -> berberim.v1.GetPublicServiceResponse
+	98,  // 231: berberim.v1.BerberimAPI.ListPublicStaff:output_type -> berberim.v1.ListPublicStaffResponse
+	100, // 232: berberim.v1.BerberimAPI.GetPublicStaff:output_type -> berberim.v1.GetPublicStaffResponse
+	102, // 233: berberim.v1.BerberimAPI.ListPublicStaffServices:output_type -> berberim.v1.ListPublicStaffServicesResponse
+	104, // 234: berberim.v1.BerberimAPI.GetAvailabilityDays:output_type -> berberim.v1.GetAvailabilityDaysResponse
+	106, // 235: berberim.v1.BerberimAPI.GetCustomerProfile:output_type -> berberim.v1.GetCustomerProfileResponse
+	108, // 236: berberim.v1.BerberimAPI.UpdateCustomerProfile:output_type -> berberim.v1.UpdateCustomerProfileResponse
+	111, // 237: berberim.v1.BerberimAPI.GetLoyaltyTransactions:output_type -> berberim.v1.GetLoyaltyTransactionsResponse
+	231, // 238: berberim.v1.BerberimAPI.CreateStaffReview:output_type -> berberim.v1.CreateStaffReviewResponse
+	233, // 239: berberim.v1.BerberimAPI.UpdateStaffReview:output_type -> berberim.v1.UpdateStaffReviewResponse
+	235, // 240: berberim.v1.BerberimAPI.DeleteStaffReview:output_type -> berberim.v1.DeleteStaffReviewResponse
+	237, // 241: berberim.v1.BerberimAPI.ListStaffReviews:output_type -> berberim.v1.ListStaffReviewsResponse
+	239, // 242: berberim.v1.BerberimAPI.GetMyReviewForAppointment:output_type -> berberim.v1.GetMyReviewForAppointmentResponse
+	242, // 243: berberim.v1.BerberimAPI.ListCustomerNotifications:output_type -> berberim.v1.ListCustomerNotificationsResponse
+	244, // 244: berberim.v1.BerberimAPI.MarkNotificationRead:output_type -> berberim.v1.MarkNotificationReadResponse
+	246, // 245: berberim.v1.BerberimAPI.MarkAllNotificationsRead:output_type -> berberim.v1.MarkAllNotificationsReadResponse
+	248, // 246: berberim.v1.BerberimAPI.GetUnreadNotificationCount:output_type -> berberim.v1.GetUnreadNotificationCountResponse
+	250, // 247: berberim.v1.BerberimAPI.GenerateCustomerAvatarUploadURL:output_type -> berberim.v1.GenerateAvatarUploadURLResponse
+	252, // 248: berberim.v1.BerberimAPI.ConfirmCustomerAvatarUpload:output_type -> berberim.v1.ConfirmAvatarUploadResponse
+	250, // 249: berberim.v1.BerberimAPI.GenerateStaffAvatarUploadURL:output_type -> berberim.v1.GenerateAvatarUploadURLResponse
+	252, // 250: berberim.v1.BerberimAPI.ConfirmStaffAvatarUpload:output_type -> berberim.v1.ConfirmAvatarUploadResponse
+	114, // 251: berberim.v1.BerberimAPI.GetStaffProfile:output_type -> berberim.v1.GetStaffProfileResponse
+	117, // 252: berberim.v1.BerberimAPI.GetStaffCalendar:output_type -> berberim.v1.GetStaffCalendarResponse
+	206, // 253: berberim.v1.BerberimAPI.GetTenantBranding:output_type -> berberim.v1.GetTenantBrandingResponse
+	208, // 254: berberim.v1.BerberimAPI.UpdateTenantBranding:output_type -> berberim.v1.UpdateTenantBrandingResponse
+	119, // 255: berberim.v1.BerberimAPI.GetService:output_type -> berberim.v1.GetServiceResponse
+	121, // 256: berberim.v1.BerberimAPI.DeleteService:output_type -> berberim.v1.DeleteServiceResponse
+	123, // 257: berberim.v1.BerberimAPI.GetStaffMember:output_type -> berberim.v1.GetStaffMemberResponse
+	125, // 258: berberim.v1.BerberimAPI.UpdateStaffMember:output_type -> berberim.v1.UpdateStaffMemberResponse
+	127, // 259: berberim.v1.BerberimAPI.DeleteStaffMember:output_type -> berberim.v1.DeleteStaffMemberResponse
+	129, // 260: berberim.v1.BerberimAPI.SetStaffStatus:output_type -> berberim.v1.SetStaffStatusResponse
+	132, // 261: berberim.v1.BerberimAPI.GetStaffServices:output_type -> berberim.v1.GetStaffServicesResponse
+	134, // 262: berberim.v1.BerberimAPI.SetStaffServices:output_type -> berberim.v1.SetStaffServicesResponse
+	137, // 263: berberim.v1.BerberimAPI.ListScheduleRules:output_type -> berberim.v1.ListScheduleRulesResponse
+	139, // 264: berberim.v1.BerberimAPI.CreateScheduleRule:output_type -> berberim.v1.CreateScheduleRuleResponse
+	141, // 265: berberim.v1.BerberimAPI.UpdateScheduleRule:output_type -> berberim.v1.UpdateScheduleRuleResponse
+	143, // 266: berberim.v1.BerberimAPI.DeleteScheduleRule:output_type -> berberim.v1.DeleteScheduleRuleResponse
+	146, // 267: berberim.v1.BerberimAPI.ListTimeOffs:output_type -> berberim.v1.ListTimeOffsResponse
+	148, // 268: berberim.v1.BerberimAPI.CreateTimeOff:output_type -> berberim.v1.CreateTimeOffResponse
+	150, // 269: berberim.v1.BerberimAPI.UpdateTimeOff:output_type -> berberim.v1.UpdateTimeOffResponse
+	152, // 270: berberim.v1.BerberimAPI.DeleteTimeOff:output_type -> berberim.v1.DeleteTimeOffResponse
+	155, // 271: berberim.v1.BerberimAPI.ListCustomers:output_type -> berberim.v1.ListCustomersResponse
+	157, // 272: berberim.v1.BerberimAPI.CreateCustomer:output_type -> berberim.v1.CreateCustomerResponse
+	159, // 273: berberim.v1.BerberimAPI.GetAdminCustomer:output_type -> berberim.v1.GetAdminCustomerResponse
+	161, // 274: berberim.v1.BerberimAPI.UpdateCustomer:output_type -> berberim.v1.UpdateCustomerResponse
+	163, // 275: berberim.v1.BerberimAPI.SetCustomerStatus:output_type -> berberim.v1.SetCustomerStatusResponse
+	166, // 276: berberim.v1.BerberimAPI.GetLoyaltySettings:output_type -> berberim.v1.GetLoyaltySettingsResponse
+	168, // 277: berberim.v1.BerberimAPI.UpdateLoyaltySettings:output_type -> berberim.v1.UpdateLoyaltySettingsResponse
+	171, // 278: berberim.v1.BerberimAPI.ListRewards:output_type -> berberim.v1.ListRewardsResponse
+	173, // 279: berberim.v1.BerberimAPI.CreateReward:output_type -> berberim.v1.CreateRewardResponse
+	175, // 280: berberim.v1.BerberimAPI.GetReward:output_type -> berberim.v1.GetRewardResponse
+	177, // 281: berberim.v1.BerberimAPI.UpdateReward:output_type -> berberim.v1.UpdateRewardResponse
+	179, // 282: berberim.v1.BerberimAPI.DeleteReward:output_type -> berberim.v1.DeleteRewardResponse
+	181, // 283: berberim.v1.BerberimAPI.SetRewardStatus:output_type -> berberim.v1.SetRewardStatusResponse
+	185, // 284: berberim.v1.BerberimAPI.GetAnalyticsOverview:output_type -> berberim.v1.GetAnalyticsOverviewResponse
+	189, // 285: berberim.v1.BerberimAPI.GetCohortAnalysis:output_type -> berberim.v1.GetCohortAnalysisResponse
+	193, // 286: berberim.v1.BerberimAPI.GetRetentionAnalysis:output_type -> berberim.v1.GetRetentionAnalysisResponse
+	197, // 287: berberim.v1.BerberimAPI.GetCustomerLTV:output_type -> berberim.v1.GetCustomerLTVResponse
+	203, // 288: berberim.v1.BerberimAPI.GetNoShowAnalysis:output_type -> berberim.v1.GetNoShowAnalysisResponse
+	29,  // 289: berberim.v1.BerberimAPI.CreateTenant:output_type -> berberim.v1.CreateTenantResponse
+	31,  // 290: berberim.v1.BerberimAPI.ListTenants:output_type -> berberim.v1.ListTenantsResponse
+	33,  // 291: berberim.v1.BerberimAPI.GetTenant:output_type -> berberim.v1.GetTenantResponse
+	35,  // 292: berberim.v1.BerberimAPI.SetTenantStatus:output_type -> berberim.v1.SetTenantStatusResponse
+	209, // 293: berberim.v1.BerberimAPI.UpdateTenant:output_type -> berberim.v1.UpdateTenantResponse
+	211, // 294: berberim.v1.BerberimAPI.FreezeTenant:output_type -> berberim.v1.FreezeTenantResponse
+	213, // 295: berberim.v1.BerberimAPI.ReactivateTenant:output_type -> berberim.v1.ReactivateTenantResponse
+	215, // 296: berberim.v1.BerberimAPI.CancelTenantSubscription:output_type -> berberim.v1.CancelTenantSubscriptionResponse
+	217, // 297: berberim.v1.BerberimAPI.ExtendTenantSubscription:output_type -> berberim.v1.ExtendTenantSubscriptionResponse
+	220, // 298: berberim.v1.BerberimAPI.ListPlatformUsers:output_type -> berberim.v1.ListPlatformUsersResponse
+	222, // 299: berberim.v1.BerberimAPI.CreatePlatformUser:output_type -> berberim.v1.CreatePlatformUserResponse
+	224, // 300: berberim.v1.BerberimAPI.GetPlatformUser:output_type -> berberim.v1.GetPlatformUserResponse
+	226, // 301: berberim.v1.BerberimAPI.UpdatePlatformUser:output_type -> berberim.v1.UpdatePlatformUserResponse
+	228, // 302: berberim.v1.BerberimAPI.DeletePlatformUser:output_type -> berberim.v1.DeletePlatformUserResponse
+	194, // [194:303] is the sub-list for method output_type
+	85,  // [85:194] is the sub-list for method input_type
 	85,  // [85:85] is the sub-list for extension type_name
 	85,  // [85:85] is the sub-list for extension extendee
 	0,   // [0:85] is the sub-list for field type_name
@@ -15556,7 +15768,7 @@ func file_v1_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_v1_api_proto_rawDesc), len(file_v1_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   249,
+			NumMessages:   253,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

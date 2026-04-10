@@ -12,7 +12,7 @@ type Customer struct {
 	PhoneNumber                string     `gorm:"column:phone_number"`
 	FirstName                  *string    `gorm:"column:first_name"`
 	LastName                   *string    `gorm:"column:last_name"`
-	AvatarURL                  *string    `gorm:"column:avatar_url"`
+	AvatarKey                  *string    `gorm:"column:avatar_key"`
 	Status                     string     `gorm:"column:status"`
 	CreatedAt                  time.Time  `gorm:"column:created_at"`
 	UpdatedAt                  time.Time  `gorm:"column:updated_at"`

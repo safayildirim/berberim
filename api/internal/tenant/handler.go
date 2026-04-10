@@ -4,6 +4,7 @@ import (
 	"context"
 
 	berberimv1 "github.com/berberim/api/api/v1"
+	"github.com/berberim/api/internal/config"
 	"github.com/berberim/api/internal/identity"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -13,12 +14,13 @@ import (
 
 // Handler is a thin gRPC bridge — parse → call service → marshal.
 type Handler struct {
-	log     *zap.Logger
-	service *Service
+	log       *zap.Logger
+	service   *Service
+	avatarCfg *config.AvatarConfig
 }
 
-func NewHandler(log *zap.Logger, service *Service) *Handler {
-	return &Handler{log: log, service: service}
+func NewHandler(log *zap.Logger, service *Service, avatarCfg *config.AvatarConfig) *Handler {
+	return &Handler{log: log, service: service, avatarCfg: avatarCfg}
 }
 
 // ── Tenant CRUD ───────────────────────────────────────────────────────────────
@@ -140,7 +142,7 @@ func (h *Handler) ListTenantUsers(ctx context.Context, req *berberimv1.ListTenan
 	}
 	out := make([]*berberimv1.TenantUser, 0, len(users))
 	for _, u := range users {
-		out = append(out, tenantUserToProto(u))
+		out = append(out, h.tenantUserToProto(u))
 	}
 	return &berberimv1.ListTenantUsersResponse{
 		Users:      out,
@@ -418,7 +420,7 @@ func (h *Handler) GetStaffMember(ctx context.Context, req *berberimv1.GetStaffMe
 	if err != nil {
 		return nil, err
 	}
-	return &berberimv1.GetStaffMemberResponse{Staff: tenantUserToProto(u)}, nil
+	return &berberimv1.GetStaffMemberResponse{Staff: h.tenantUserToProto(u)}, nil
 }
 
 func (h *Handler) UpdateStaffMember(ctx context.Context, req *berberimv1.UpdateStaffMemberRequest) (*berberimv1.UpdateStaffMemberResponse, error) {
@@ -444,7 +446,7 @@ func (h *Handler) UpdateStaffMember(ctx context.Context, req *berberimv1.UpdateS
 	if err != nil {
 		return nil, err
 	}
-	return &berberimv1.UpdateStaffMemberResponse{Staff: tenantUserToProto(u)}, nil
+	return &berberimv1.UpdateStaffMemberResponse{Staff: h.tenantUserToProto(u)}, nil
 }
 
 func (h *Handler) DeleteStaffMember(ctx context.Context, req *berberimv1.DeleteStaffMemberRequest) (*berberimv1.DeleteStaffMemberResponse, error) {
@@ -872,7 +874,7 @@ func brandingToProto(b *TenantBranding) *berberimv1.TenantBranding {
 	return p
 }
 
-func tenantUserToProto(u *TenantUser) *berberimv1.TenantUser {
+func (h *Handler) tenantUserToProto(u *TenantUser) *berberimv1.TenantUser {
 	p := &berberimv1.TenantUser{
 		Id:        u.ID.String(),
 		TenantId:  u.TenantID.String(),
@@ -884,7 +886,10 @@ func tenantUserToProto(u *TenantUser) *berberimv1.TenantUser {
 		CreatedAt: formatTime(u.CreatedAt),
 		UpdatedAt: formatTime(u.UpdatedAt),
 	}
-	p.AvatarUrl = u.AvatarURL
+	if u.AvatarKey != nil {
+		avatarURL := h.avatarCfg.PublicURL(*u.AvatarKey)
+		p.AvatarUrl = &avatarURL
+	}
 	p.Specialty = u.Specialty
 	p.Bio = u.Bio
 	p.AvgRating = u.AvgRating

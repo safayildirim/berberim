@@ -53,6 +53,7 @@ export default function AnalyticsScreen() {
       scrollable={false}
       withPadding={false}
       headerTitle={branding?.name}
+      showHeaderBack={true}
       headerSubtitle={t('nav.analytics')}
     >
       <ScrollView

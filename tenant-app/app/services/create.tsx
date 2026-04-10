@@ -1,27 +1,27 @@
-import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Screen } from '../../src/components/common/Screen';
-import { ServiceFormActionBar } from '../../src/components/services/form/ServiceFormActionBar';
-import { ServiceFormGeneralSection } from '../../src/components/services/form/ServiceFormGeneralSection';
-import { ServiceFormHeader } from '../../src/components/services/form/ServiceFormHeader';
-import { ServiceFormPricingSection } from '../../src/components/services/form/ServiceFormPricingSection';
-import { ServiceFormStatusSection } from '../../src/components/services/form/ServiceFormStatusSection';
-import { useServiceForm } from '../../src/hooks/services/useServiceForm';
+import { Screen } from '@/src/components/common/Screen';
+import { ServiceFormActionBar } from '@/src/components/services/form/ServiceFormActionBar';
+import { ServiceFormGeneralSection } from '@/src/components/services/form/ServiceFormGeneralSection';
+import { ServiceFormPricingSection } from '@/src/components/services/form/ServiceFormPricingSection';
+import { ServiceFormStatusSection } from '@/src/components/services/form/ServiceFormStatusSection';
+import { useServiceForm } from '@/src/hooks/services/useServiceForm';
 
 export default function CreateServiceScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const isEdit = !!id;
   const { t } = useTranslation();
 
-  const { formData, updateField, handleSubmit, isSubmitting, onBack } =
+  const { formData, updateField, handleSubmit, isSubmitting } =
     useServiceForm();
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      <ServiceFormHeader isEdit={isEdit} onBack={onBack} />
-
+    <Screen
+      style={styles.container}
+      withPadding={false}
+      transparentStatusBar
+      headerTitle={t('settings.items.createService')}
+      showHeaderBack={true}
+    >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f9fb',
   },
   scrollContent: {
-    paddingBottom: 140,
+    paddingBottom: 24,
   },
   visualContainer: {
     height: 100,

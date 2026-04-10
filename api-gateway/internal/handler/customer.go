@@ -329,3 +329,31 @@ func (h *CustomerHandler) GetUnreadNotificationCount(c *echo.Context) error {
 	}
 	return writeProto(c, resp)
 }
+
+// POST /api/v1/customer/avatar/upload-url
+func (h *CustomerHandler) GenerateAvatarUploadURL(c *echo.Context) error {
+	var req berberimv1.GenerateAvatarUploadURLRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.GenerateCustomerAvatarUploadURL(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// PUT /api/v1/customer/avatar/confirm
+func (h *CustomerHandler) ConfirmAvatarUpload(c *echo.Context) error {
+	var req berberimv1.ConfirmAvatarUploadRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ConfirmCustomerAvatarUpload(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { COLORS } from '../constants/theme';
-import { TenantConfig } from '../types';
+import { COLORS } from '@/src/constants/theme';
+import { TenantConfig } from '@/src/types';
 
 interface TenantState {
   config: TenantConfig | null;

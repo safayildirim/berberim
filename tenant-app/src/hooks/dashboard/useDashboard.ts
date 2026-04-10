@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { adminService } from '@/src/services/admin.service';
-import { useAppointments } from '../queries/useAppointments';
+import { useAppointments } from '@/src/hooks/queries/useAppointments';
 
 export function useDashboard() {
   const today = format(new Date(), 'yyyy-MM-dd');

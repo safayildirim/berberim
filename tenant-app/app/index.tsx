@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 import React from 'react';
-import { useSessionStore } from '../src/store/useSessionStore';
+import { useSessionStore } from '@/src/store/useSessionStore';
 
 export default function Index() {
   const { isAuthenticated, isBootstrapped } = useSessionStore();

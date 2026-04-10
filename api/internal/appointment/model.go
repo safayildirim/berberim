@@ -72,7 +72,7 @@ type StaffMember struct {
 	TenantID    uuid.UUID `gorm:"type:uuid;not null"`
 	FirstName   string    `gorm:"size:100;not null"`
 	LastName    string    `gorm:"size:100;not null"`
-	AvatarURL   *string   `gorm:"column:avatar_url"`
+	AvatarKey   *string   `gorm:"column:avatar_key"`
 	Specialty   *string
 	Bio         *string
 	AvgRating   float64 `gorm:"column:avg_rating"`
@@ -130,7 +130,7 @@ type StaffOption struct {
 	ID          uuid.UUID `json:"id"`
 	FirstName   string    `json:"first_name"`
 	LastName    string    `json:"last_name"`
-	AvatarURL   *string   `json:"avatar_url"`
+	AvatarKey   *string   `json:"avatar_key"`
 	Specialty   *string   `json:"specialty"`
 	Bio         *string   `json:"bio"`
 	AvgRating   float64   `json:"avg_rating"`

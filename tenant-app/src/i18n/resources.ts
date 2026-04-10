@@ -95,7 +95,6 @@ export const resources = {
         professionalSelected: 'Uzman Seçildi',
       },
       reviews: {
-        title: 'The Atelier Pro',
         staff_reviews: 'Personel Değerlendirmeleri',
         total_reviews: 'değerlendirme',
         recent_reviews: 'SON DEĞERLENDİRMELER',
@@ -108,6 +107,14 @@ export const resources = {
         emptyTitle: 'Henüz değerlendirme yok',
         emptyDescription:
           'Müşteriler geri bildirim bıraktığında, burada kronolojik sırayla görünecektir.',
+      },
+      profile: {
+        changePhoto: 'Fotoğrafı Değiştir',
+        camera: 'Kamera',
+        gallery: 'Galeri',
+        permissionDenied: 'İzin Reddedildi',
+        cameraPermissionMsg: 'Fotoğraf çekmek için kamera erişimi gereklidir.',
+        galleryPermissionMsg: 'Fotoğraf seçmek için galeri erişimi gereklidir.',
       },
       auth: {
         login: 'Giriş Yap',
@@ -141,6 +148,8 @@ export const resources = {
           vacation: 'İzin ve Tatil',
           staff: 'Personel Yönetimi',
           catalog: 'Hizmet Kataloğu',
+          services: 'Hizmetler',
+          createService: 'Hizmet Oluştur',
           loyalty: 'Sadakat ve Ödüller',
           analytics: 'Mağaza Analizleri',
           notifications: 'Bildirim Ayarları',
@@ -256,7 +265,6 @@ export const resources = {
         noUpcoming: 'Bekleyen Randevu Yok',
         emptyUpcoming: 'Mola verin! Şimdilik başka randevu yok.',
         returningClient: 'Geri Gelen Müşteri ({{count}})',
-        checkIn: 'Giriş Yap',
         quickActions: {
           title: 'Hızlı İşlemler',
           calendar: {
@@ -303,8 +311,6 @@ export const resources = {
         },
       },
       serviceForm: {
-        addTitle: 'Yeni Hizmet Ekle',
-        editTitle: 'Hizmeti Düzenle',
         generalInfo: 'GENEL BİLGİLER',
         serviceName: 'Hizmet Adı',
         category: 'Kategori',
@@ -507,7 +513,6 @@ export const resources = {
         professionalSelected: 'Professional Selected',
       },
       reviews: {
-        title: 'The Atelier Pro',
         staff_reviews: 'Staff Reviews',
         total_reviews: 'reviews',
         recent_reviews: 'RECENT REVIEWS',
@@ -520,6 +525,14 @@ export const resources = {
         emptyTitle: 'No reviews yet',
         emptyDescription:
           'Once customers start leaving feedback, they will appear here in chronological order.',
+      },
+      profile: {
+        changePhoto: 'Change Photo',
+        camera: 'Camera',
+        gallery: 'Gallery',
+        permissionDenied: 'Permission Denied',
+        cameraPermissionMsg: 'Camera access is required to take a photo.',
+        galleryPermissionMsg: 'Gallery access is required to choose a photo.',
       },
       auth: {
         login: 'Login',
@@ -553,6 +566,8 @@ export const resources = {
           vacation: 'Vacation & Time Off',
           staff: 'Staff Management',
           catalog: 'Service Catalog',
+          services: 'Services',
+          createService: 'Create Service',
           loyalty: 'Loyalty & Rewards',
           analytics: 'Shop Analytics',
           notifications: 'Notification Settings',
@@ -669,7 +684,6 @@ export const resources = {
         noUpcoming: 'No Upcoming Sessions',
         emptyUpcoming: 'Enjoy the break! No more appointments for now.',
         returningClient: 'Returning Client ({{count}})',
-        checkIn: 'Check-in',
         quickActions: {
           title: 'Quick Actions',
           calendar: {
@@ -716,8 +730,6 @@ export const resources = {
         },
       },
       serviceForm: {
-        addTitle: 'Add New Service',
-        editTitle: 'Edit Service',
         generalInfo: 'GENERAL INFORMATION',
         serviceName: 'Service Name',
         category: 'Category',

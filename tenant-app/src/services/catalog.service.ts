@@ -1,5 +1,5 @@
-import { api } from '../lib/api/client';
-import { Service } from '../types';
+import { api } from '@/src/lib/api/client';
+import { Service } from '@/src/types';
 
 export interface CreateServiceRequest {
   name: string;

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	berberimv1 "github.com/berberim/api/api/v1"
+	"github.com/berberim/api/internal/config"
 	"github.com/berberim/api/internal/identity"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -16,12 +17,13 @@ import (
 )
 
 type Handler struct {
-	svc *Service
-	log *zap.Logger
+	svc       *Service
+	log       *zap.Logger
+	avatarCfg *config.AvatarConfig
 }
 
-func NewHandler(svc *Service, log *zap.Logger) *Handler {
-	return &Handler{svc: svc, log: log}
+func NewHandler(svc *Service, log *zap.Logger, avatarCfg *config.AvatarConfig) *Handler {
+	return &Handler{svc: svc, log: log, avatarCfg: avatarCfg}
 }
 
 // ── SearchAvailability ────────────────────────────────────────────────────────
@@ -73,7 +75,10 @@ func (h *Handler) SearchAvailability(ctx context.Context, req *berberimv1.Search
 				AvgRating:   s.AvgRating,
 				ReviewCount: int32(s.ReviewCount),
 			}
-			opt.AvatarUrl = s.AvatarURL
+			if s.AvatarKey != nil {
+				url := h.avatarCfg.PublicURL(*s.AvatarKey)
+				opt.AvatarUrl = &url
+			}
 			opt.Specialty = s.Specialty
 			opt.Bio = s.Bio
 			staffOptions = append(staffOptions, opt)
@@ -155,7 +160,10 @@ func (h *Handler) GetSlotRecommendations(ctx context.Context, req *berberimv1.Ge
 				AvgRating:   s.AvgRating,
 				ReviewCount: int32(s.ReviewCount),
 			}
-			opt.AvatarUrl = s.AvatarURL
+			if s.AvatarKey != nil {
+				url := h.avatarCfg.PublicURL(*s.AvatarKey)
+				opt.AvatarUrl = &url
+			}
 			opt.Specialty = s.Specialty
 			opt.Bio = s.Bio
 			staffOptions = append(staffOptions, opt)
@@ -263,7 +271,7 @@ func (h *Handler) CreateAppointment(ctx context.Context, req *berberimv1.CreateA
 	if err != nil {
 		return nil, mapErr(err)
 	}
-	return &berberimv1.CreateAppointmentResponse{Appointment: apptToProto(appt, nil, staff, nil)}, nil
+	return &berberimv1.CreateAppointmentResponse{Appointment: h.apptToProto(appt, nil, staff, nil)}, nil
 }
 
 // ── GetAppointment ────────────────────────────────────────────────────────────
@@ -288,7 +296,7 @@ func (h *Handler) GetAppointment(ctx context.Context, req *berberimv1.GetAppoint
 		return nil, mapErr(err)
 	}
 
-	return &berberimv1.GetAppointmentResponse{Appointment: apptToProto(res.Appointment, res.Services, res.Staff, res.Customer)}, nil
+	return &berberimv1.GetAppointmentResponse{Appointment: h.apptToProto(res.Appointment, res.Services, res.Staff, res.Customer)}, nil
 }
 
 // ── ListAppointments ──────────────────────────────────────────────────────────
@@ -346,7 +354,7 @@ func (h *Handler) ListAppointments(ctx context.Context, req *berberimv1.ListAppo
 
 	out := make([]*berberimv1.Appointment, 0, len(res.Appointments))
 	for i := range res.Appointments {
-		out = append(out, apptToProto(&res.Appointments[i], res.Services[i], res.Staff[i], res.Customers[i], res.Reviews[i]))
+		out = append(out, h.apptToProto(&res.Appointments[i], res.Services[i], res.Staff[i], res.Customers[i], res.Reviews[i]))
 	}
 
 	return &berberimv1.ListAppointmentsResponse{
@@ -429,7 +437,7 @@ func (h *Handler) RescheduleAppointment(ctx context.Context, req *berberimv1.Res
 	}
 	// Fetch staff for the new appointment if possible
 	staff, _ := h.svc.repo.GetStaffMember(ctx, rc.TenantID, newAppt.StaffUserID)
-	return &berberimv1.RescheduleAppointmentResponse{NewAppointment: apptToProto(newAppt, nil, staff, nil)}, nil
+	return &berberimv1.RescheduleAppointmentResponse{NewAppointment: h.apptToProto(newAppt, nil, staff, nil)}, nil
 }
 
 // ── CompleteAppointment ───────────────────────────────────────────────────────
@@ -538,7 +546,7 @@ func mapErr(err error) error {
 	}
 }
 
-func apptToProto(a *Appointment, svcs []AppointmentService, staff *StaffMember, cust *CustomerInfo, rev ...*ReviewInfo) *berberimv1.Appointment {
+func (h *Handler) apptToProto(a *Appointment, svcs []AppointmentService, staff *StaffMember, cust *CustomerInfo, rev ...*ReviewInfo) *berberimv1.Appointment {
 	p := &berberimv1.Appointment{
 		Id:          a.ID.String(),
 		TenantId:    a.TenantID.String(),
@@ -559,7 +567,10 @@ func apptToProto(a *Appointment, svcs []AppointmentService, staff *StaffMember, 
 			AvgRating:   staff.AvgRating,
 			ReviewCount: int32(staff.ReviewCount),
 		}
-		p.Staff.AvatarUrl = staff.AvatarURL
+		if staff.AvatarKey != nil {
+			url := h.avatarCfg.PublicURL(*staff.AvatarKey)
+			p.Staff.AvatarUrl = &url
+		}
 		p.Staff.Specialty = staff.Specialty
 		p.Staff.Bio = staff.Bio
 	}

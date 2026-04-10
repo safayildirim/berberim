@@ -24,7 +24,9 @@ export const ServiceFormActionBar: React.FC<Props> = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.actionBar, { paddingBottom: 20 + insets.bottom }]}>
+    <View
+      style={[styles.actionBar, { paddingBottom: Math.max(insets.bottom, 20) }]}
+    >
       <TouchableOpacity
         style={styles.saveBtn}
         onPress={onSave}
@@ -48,13 +50,11 @@ export const ServiceFormActionBar: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   actionBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     paddingHorizontal: 16,
     paddingTop: 16,
-    backgroundColor: 'transparent',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: '#f7f9fb',
   },
   saveBtn: {
     backgroundColor: '#051125',

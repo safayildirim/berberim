@@ -242,6 +242,24 @@ func (r *Repo) UpsertTenantBranding(ctx context.Context, tenantID uuid.UUID, upd
 	return r.GetTenantBranding(ctx, tenantID)
 }
 
+// ── Avatar repo interface ────────────────────────────────────────────────────
+
+func (r *Repo) GetAvatarKey(ctx context.Context, tenantID, userID uuid.UUID) (string, error) {
+	u, err := r.GetTenantUserByID(ctx, tenantID, userID)
+	if err != nil {
+		return "", err
+	}
+	if u.AvatarKey != nil {
+		return *u.AvatarKey, nil
+	}
+	return "", nil
+}
+
+func (r *Repo) SetAvatarKey(ctx context.Context, tenantID, userID uuid.UUID, avatarKey string) error {
+	_, err := r.UpdateTenantUser(ctx, tenantID, userID, map[string]interface{}{"avatar_key": avatarKey})
+	return err
+}
+
 // ── Tenant Users (existing, continued) ───────────────────────────────────────
 
 func (r *Repo) UpdateTenantUser(ctx context.Context, tenantID, userID uuid.UUID, updates map[string]interface{}) (*TenantUser, error) {

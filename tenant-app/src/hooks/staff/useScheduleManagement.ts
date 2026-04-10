@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useStaffTimeOff } from '../queries/useStaff';
+import { useStaffTimeOff } from '@/src/hooks/queries/useStaff';
 
 export const useScheduleManagement = (staffId: string) => {
   const { data: timeOffEntries, isLoading, refetch } = useStaffTimeOff(staffId);

@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SHADOWS } from '@/src/constants/theme';
 import { Appointment } from '@/src/types';
 
@@ -37,9 +38,12 @@ export const AppointmentActionHub: React.FC<Props> = ({
   isCancelling,
 }) => {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.actionHub}>
+    <View
+      style={[styles.actionHub, { paddingBottom: Math.max(insets.bottom, 20) }]}
+    >
       <Text style={styles.label}>{t('appointmentDetail.actionHub')}</Text>
       <View style={styles.primaryActionRow}>
         <TouchableOpacity
@@ -113,7 +117,11 @@ export const AppointmentActionHub: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   actionHub: {
-    marginTop: 16,
+    paddingTop: 16,
+    paddingHorizontal: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: '#f7f9fb',
   },
   label: {
     fontSize: 10,

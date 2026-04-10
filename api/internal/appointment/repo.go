@@ -94,7 +94,7 @@ func (r *Repo) ListStaffByService(ctx context.Context, tenantID, serviceID uuid.
 func (r *Repo) GetStaffMember(ctx context.Context, tenantID, staffUserID uuid.UUID) (*StaffMember, error) {
 	var s StaffMember
 	err := r.dbForCtx(ctx).Raw(`
-		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_url, tu.specialty, tu.bio,
+		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_key, tu.specialty, tu.bio,
 			COALESCE(AVG(sr.rating), 0) AS avg_rating,
 			COUNT(DISTINCT sr.id) AS review_count
 		FROM tenant_users tu
@@ -134,7 +134,7 @@ func (r *Repo) GetCustomerInfo(ctx context.Context, tenantID, customerID uuid.UU
 func (r *Repo) ListStaffByServices(ctx context.Context, tenantID uuid.UUID, serviceIDs []uuid.UUID) ([]StaffMember, error) {
 	var staff []StaffMember
 	err := r.db.WithContext(ctx).Raw(`
-		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_url, tu.specialty, tu.bio,
+		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_key, tu.specialty, tu.bio,
 			COALESCE(AVG(sr.rating), 0) AS avg_rating,
 			COUNT(DISTINCT sr.id) AS review_count
 		FROM tenant_users tu

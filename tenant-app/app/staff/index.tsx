@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 import {
-  ArrowLeft,
   Filter,
   MoreHorizontal,
   Search,
@@ -20,10 +19,10 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen } from '../../src/components/common/Screen';
-import { COLORS, SHADOWS } from '../../src/constants/theme';
-import { useStaff } from '../../src/hooks/queries/useStaff';
-import { useSessionStore } from '../../src/store/useSessionStore';
+import { Screen } from '@/src/components/common/Screen';
+import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { useStaff } from '@/src/hooks/queries/useStaff';
+import { useSessionStore } from '@/src/store/useSessionStore';
 
 export default function StaffManagementScreen() {
   const { t } = useTranslation();
@@ -58,20 +57,13 @@ export default function StaffManagementScreen() {
   }
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          { paddingTop: insets.top, height: 64 + insets.top },
-        ]}
-      >
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={24} color={COLORS.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings.items.staff')}</Text>
-      </View>
-
+    <Screen
+      style={styles.container}
+      withPadding={false}
+      transparentStatusBar
+      headerTitle={t('settings.items.staff')}
+      showHeaderBack={true}
+    >
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -247,27 +239,6 @@ export default function StaffManagementScreen() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.primary,
-    letterSpacing: -0.5,
   },
   scrollContent: {
     paddingTop: 16,

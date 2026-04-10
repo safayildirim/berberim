@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
-import { ReviewsSummaryCard } from '../../src/components/reviews/ReviewsSummaryCard';
-import { ReviewsFilterSection } from '../../src/components/reviews/ReviewsFilterSection';
-import { ReviewListSection } from '../../src/components/reviews/ReviewListSection';
-import { EmptyReviewsState } from '../../src/components/reviews/EmptyReviewsState';
-import { useReviews } from '../../src/hooks/reviews/useReviews';
-import { COLORS } from '../../src/constants/theme';
+import { ReviewsSummaryCard } from '@/src/components/reviews/ReviewsSummaryCard';
+import { ReviewsFilterSection } from '@/src/components/reviews/ReviewsFilterSection';
+import { ReviewListSection } from '@/src/components/reviews/ReviewListSection';
+import { EmptyReviewsState } from '@/src/components/reviews/EmptyReviewsState';
+import { useReviews } from '@/src/hooks/reviews/useReviews';
+import { COLORS } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useTenantStore } from '@/src/store/useTenantStore';
 

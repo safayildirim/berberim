@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '@/src/constants/theme';
-import { Header } from './Header';
+import { Header } from '@/src/components/common/Header';
 
 interface ScreenProps extends ViewProps {
   children: React.ReactNode;

@@ -46,6 +46,7 @@ services:
       DB_URL: "postgres://postgres:postgres@postgres:5432/berberim?sslmode=disable"
       JWT_ISSUER: "https://berberim.com"
       JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+      GOOGLE_APPLICATION_CREDENTIALS: /app/keys/gcp-sa.json
     ports:
       - "8081:8081"
       - "9091:9091"
@@ -73,6 +74,7 @@ services:
       DB_URL: "postgres://postgres:postgres@postgres:5432/berberim?sslmode=disable"
       JWT_ISSUER: "https://berberim.com"
       JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+      GOOGLE_APPLICATION_CREDENTIALS: /app/keys/gcp-sa.json
     volumes:
       - ./api/keys:/app/keys:ro
 

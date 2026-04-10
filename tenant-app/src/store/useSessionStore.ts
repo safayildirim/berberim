@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { tokenStorage } from '../lib/auth/token-storage';
-import { TenantConfig, User } from '../types';
+import { tokenStorage } from '@/src/lib/auth/token-storage';
+import { TenantConfig, User } from '@/src/types';
 
 interface AuthState {
   isAuthenticated: boolean;

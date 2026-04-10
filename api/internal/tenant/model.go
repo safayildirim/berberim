@@ -59,7 +59,7 @@ type TenantUser struct {
 	LastName     string    `gorm:"size:100;not null"`
 	Role         string    `gorm:"size:30;not null"`
 	Status       string    `gorm:"size:30;not null;default:active"`
-	AvatarURL    *string   `gorm:"column:avatar_url;type:text"`
+	AvatarKey    *string   `gorm:"column:avatar_key;type:text"`
 	Specialty    *string   `gorm:"size:100"`
 	Bio          *string   `gorm:"type:text"`
 	CreatedAt    time.Time

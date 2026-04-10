@@ -19,111 +19,115 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BerberimAPI_SendCustomerOTP_FullMethodName            = "/berberim.v1.BerberimAPI/SendCustomerOTP"
-	BerberimAPI_VerifyCustomerOTP_FullMethodName          = "/berberim.v1.BerberimAPI/VerifyCustomerOTP"
-	BerberimAPI_VerifyCustomerSocialLogin_FullMethodName  = "/berberim.v1.BerberimAPI/VerifyCustomerSocialLogin"
-	BerberimAPI_LoginTenantUser_FullMethodName            = "/berberim.v1.BerberimAPI/LoginTenantUser"
-	BerberimAPI_LoginPlatformUser_FullMethodName          = "/berberim.v1.BerberimAPI/LoginPlatformUser"
-	BerberimAPI_RefreshToken_FullMethodName               = "/berberim.v1.BerberimAPI/RefreshToken"
-	BerberimAPI_Logout_FullMethodName                     = "/berberim.v1.BerberimAPI/Logout"
-	BerberimAPI_LogoutAll_FullMethodName                  = "/berberim.v1.BerberimAPI/LogoutAll"
-	BerberimAPI_ListSessions_FullMethodName               = "/berberim.v1.BerberimAPI/ListSessions"
-	BerberimAPI_RevokeSession_FullMethodName              = "/berberim.v1.BerberimAPI/RevokeSession"
-	BerberimAPI_RegisterPushDevice_FullMethodName         = "/berberim.v1.BerberimAPI/RegisterPushDevice"
-	BerberimAPI_DeletePushDevice_FullMethodName           = "/berberim.v1.BerberimAPI/DeletePushDevice"
-	BerberimAPI_CreateTenantUser_FullMethodName           = "/berberim.v1.BerberimAPI/CreateTenantUser"
-	BerberimAPI_ListTenantUsers_FullMethodName            = "/berberim.v1.BerberimAPI/ListTenantUsers"
-	BerberimAPI_DisableTenantUser_FullMethodName          = "/berberim.v1.BerberimAPI/DisableTenantUser"
-	BerberimAPI_EnableTenantUser_FullMethodName           = "/berberim.v1.BerberimAPI/EnableTenantUser"
-	BerberimAPI_GetTenantSettings_FullMethodName          = "/berberim.v1.BerberimAPI/GetTenantSettings"
-	BerberimAPI_UpdateTenantSettings_FullMethodName       = "/berberim.v1.BerberimAPI/UpdateTenantSettings"
-	BerberimAPI_GetNotificationSettings_FullMethodName    = "/berberim.v1.BerberimAPI/GetNotificationSettings"
-	BerberimAPI_UpdateNotificationSettings_FullMethodName = "/berberim.v1.BerberimAPI/UpdateNotificationSettings"
-	BerberimAPI_ListServices_FullMethodName               = "/berberim.v1.BerberimAPI/ListServices"
-	BerberimAPI_CreateService_FullMethodName              = "/berberim.v1.BerberimAPI/CreateService"
-	BerberimAPI_UpdateService_FullMethodName              = "/berberim.v1.BerberimAPI/UpdateService"
-	BerberimAPI_SearchAvailability_FullMethodName         = "/berberim.v1.BerberimAPI/SearchAvailability"
-	BerberimAPI_GetSlotRecommendations_FullMethodName     = "/berberim.v1.BerberimAPI/GetSlotRecommendations"
-	BerberimAPI_GetBookingLimitStatus_FullMethodName      = "/berberim.v1.BerberimAPI/GetBookingLimitStatus"
-	BerberimAPI_CreateAppointment_FullMethodName          = "/berberim.v1.BerberimAPI/CreateAppointment"
-	BerberimAPI_GetAppointment_FullMethodName             = "/berberim.v1.BerberimAPI/GetAppointment"
-	BerberimAPI_ListAppointments_FullMethodName           = "/berberim.v1.BerberimAPI/ListAppointments"
-	BerberimAPI_CancelAppointment_FullMethodName          = "/berberim.v1.BerberimAPI/CancelAppointment"
-	BerberimAPI_RescheduleAppointment_FullMethodName      = "/berberim.v1.BerberimAPI/RescheduleAppointment"
-	BerberimAPI_CompleteAppointment_FullMethodName        = "/berberim.v1.BerberimAPI/CompleteAppointment"
-	BerberimAPI_MarkNoShow_FullMethodName                 = "/berberim.v1.BerberimAPI/MarkNoShow"
-	BerberimAPI_MarkPaymentReceived_FullMethodName        = "/berberim.v1.BerberimAPI/MarkPaymentReceived"
-	BerberimAPI_GetLoyaltyBalance_FullMethodName          = "/berberim.v1.BerberimAPI/GetLoyaltyBalance"
-	BerberimAPI_GetPublicBootstrap_FullMethodName         = "/berberim.v1.BerberimAPI/GetPublicBootstrap"
-	BerberimAPI_GetPublicService_FullMethodName           = "/berberim.v1.BerberimAPI/GetPublicService"
-	BerberimAPI_ListPublicStaff_FullMethodName            = "/berberim.v1.BerberimAPI/ListPublicStaff"
-	BerberimAPI_GetPublicStaff_FullMethodName             = "/berberim.v1.BerberimAPI/GetPublicStaff"
-	BerberimAPI_ListPublicStaffServices_FullMethodName    = "/berberim.v1.BerberimAPI/ListPublicStaffServices"
-	BerberimAPI_GetAvailabilityDays_FullMethodName        = "/berberim.v1.BerberimAPI/GetAvailabilityDays"
-	BerberimAPI_GetCustomerProfile_FullMethodName         = "/berberim.v1.BerberimAPI/GetCustomerProfile"
-	BerberimAPI_UpdateCustomerProfile_FullMethodName      = "/berberim.v1.BerberimAPI/UpdateCustomerProfile"
-	BerberimAPI_GetLoyaltyTransactions_FullMethodName     = "/berberim.v1.BerberimAPI/GetLoyaltyTransactions"
-	BerberimAPI_CreateStaffReview_FullMethodName          = "/berberim.v1.BerberimAPI/CreateStaffReview"
-	BerberimAPI_UpdateStaffReview_FullMethodName          = "/berberim.v1.BerberimAPI/UpdateStaffReview"
-	BerberimAPI_DeleteStaffReview_FullMethodName          = "/berberim.v1.BerberimAPI/DeleteStaffReview"
-	BerberimAPI_ListStaffReviews_FullMethodName           = "/berberim.v1.BerberimAPI/ListStaffReviews"
-	BerberimAPI_GetMyReviewForAppointment_FullMethodName  = "/berberim.v1.BerberimAPI/GetMyReviewForAppointment"
-	BerberimAPI_ListCustomerNotifications_FullMethodName  = "/berberim.v1.BerberimAPI/ListCustomerNotifications"
-	BerberimAPI_MarkNotificationRead_FullMethodName       = "/berberim.v1.BerberimAPI/MarkNotificationRead"
-	BerberimAPI_MarkAllNotificationsRead_FullMethodName   = "/berberim.v1.BerberimAPI/MarkAllNotificationsRead"
-	BerberimAPI_GetUnreadNotificationCount_FullMethodName = "/berberim.v1.BerberimAPI/GetUnreadNotificationCount"
-	BerberimAPI_GetStaffProfile_FullMethodName            = "/berberim.v1.BerberimAPI/GetStaffProfile"
-	BerberimAPI_GetStaffCalendar_FullMethodName           = "/berberim.v1.BerberimAPI/GetStaffCalendar"
-	BerberimAPI_GetTenantBranding_FullMethodName          = "/berberim.v1.BerberimAPI/GetTenantBranding"
-	BerberimAPI_UpdateTenantBranding_FullMethodName       = "/berberim.v1.BerberimAPI/UpdateTenantBranding"
-	BerberimAPI_GetService_FullMethodName                 = "/berberim.v1.BerberimAPI/GetService"
-	BerberimAPI_DeleteService_FullMethodName              = "/berberim.v1.BerberimAPI/DeleteService"
-	BerberimAPI_GetStaffMember_FullMethodName             = "/berberim.v1.BerberimAPI/GetStaffMember"
-	BerberimAPI_UpdateStaffMember_FullMethodName          = "/berberim.v1.BerberimAPI/UpdateStaffMember"
-	BerberimAPI_DeleteStaffMember_FullMethodName          = "/berberim.v1.BerberimAPI/DeleteStaffMember"
-	BerberimAPI_SetStaffStatus_FullMethodName             = "/berberim.v1.BerberimAPI/SetStaffStatus"
-	BerberimAPI_GetStaffServices_FullMethodName           = "/berberim.v1.BerberimAPI/GetStaffServices"
-	BerberimAPI_SetStaffServices_FullMethodName           = "/berberim.v1.BerberimAPI/SetStaffServices"
-	BerberimAPI_ListScheduleRules_FullMethodName          = "/berberim.v1.BerberimAPI/ListScheduleRules"
-	BerberimAPI_CreateScheduleRule_FullMethodName         = "/berberim.v1.BerberimAPI/CreateScheduleRule"
-	BerberimAPI_UpdateScheduleRule_FullMethodName         = "/berberim.v1.BerberimAPI/UpdateScheduleRule"
-	BerberimAPI_DeleteScheduleRule_FullMethodName         = "/berberim.v1.BerberimAPI/DeleteScheduleRule"
-	BerberimAPI_ListTimeOffs_FullMethodName               = "/berberim.v1.BerberimAPI/ListTimeOffs"
-	BerberimAPI_CreateTimeOff_FullMethodName              = "/berberim.v1.BerberimAPI/CreateTimeOff"
-	BerberimAPI_UpdateTimeOff_FullMethodName              = "/berberim.v1.BerberimAPI/UpdateTimeOff"
-	BerberimAPI_DeleteTimeOff_FullMethodName              = "/berberim.v1.BerberimAPI/DeleteTimeOff"
-	BerberimAPI_ListCustomers_FullMethodName              = "/berberim.v1.BerberimAPI/ListCustomers"
-	BerberimAPI_CreateCustomer_FullMethodName             = "/berberim.v1.BerberimAPI/CreateCustomer"
-	BerberimAPI_GetAdminCustomer_FullMethodName           = "/berberim.v1.BerberimAPI/GetAdminCustomer"
-	BerberimAPI_UpdateCustomer_FullMethodName             = "/berberim.v1.BerberimAPI/UpdateCustomer"
-	BerberimAPI_SetCustomerStatus_FullMethodName          = "/berberim.v1.BerberimAPI/SetCustomerStatus"
-	BerberimAPI_GetLoyaltySettings_FullMethodName         = "/berberim.v1.BerberimAPI/GetLoyaltySettings"
-	BerberimAPI_UpdateLoyaltySettings_FullMethodName      = "/berberim.v1.BerberimAPI/UpdateLoyaltySettings"
-	BerberimAPI_ListRewards_FullMethodName                = "/berberim.v1.BerberimAPI/ListRewards"
-	BerberimAPI_CreateReward_FullMethodName               = "/berberim.v1.BerberimAPI/CreateReward"
-	BerberimAPI_GetReward_FullMethodName                  = "/berberim.v1.BerberimAPI/GetReward"
-	BerberimAPI_UpdateReward_FullMethodName               = "/berberim.v1.BerberimAPI/UpdateReward"
-	BerberimAPI_DeleteReward_FullMethodName               = "/berberim.v1.BerberimAPI/DeleteReward"
-	BerberimAPI_SetRewardStatus_FullMethodName            = "/berberim.v1.BerberimAPI/SetRewardStatus"
-	BerberimAPI_GetAnalyticsOverview_FullMethodName       = "/berberim.v1.BerberimAPI/GetAnalyticsOverview"
-	BerberimAPI_GetCohortAnalysis_FullMethodName          = "/berberim.v1.BerberimAPI/GetCohortAnalysis"
-	BerberimAPI_GetRetentionAnalysis_FullMethodName       = "/berberim.v1.BerberimAPI/GetRetentionAnalysis"
-	BerberimAPI_GetCustomerLTV_FullMethodName             = "/berberim.v1.BerberimAPI/GetCustomerLTV"
-	BerberimAPI_GetNoShowAnalysis_FullMethodName          = "/berberim.v1.BerberimAPI/GetNoShowAnalysis"
-	BerberimAPI_CreateTenant_FullMethodName               = "/berberim.v1.BerberimAPI/CreateTenant"
-	BerberimAPI_ListTenants_FullMethodName                = "/berberim.v1.BerberimAPI/ListTenants"
-	BerberimAPI_GetTenant_FullMethodName                  = "/berberim.v1.BerberimAPI/GetTenant"
-	BerberimAPI_SetTenantStatus_FullMethodName            = "/berberim.v1.BerberimAPI/SetTenantStatus"
-	BerberimAPI_UpdateTenant_FullMethodName               = "/berberim.v1.BerberimAPI/UpdateTenant"
-	BerberimAPI_FreezeTenant_FullMethodName               = "/berberim.v1.BerberimAPI/FreezeTenant"
-	BerberimAPI_ReactivateTenant_FullMethodName           = "/berberim.v1.BerberimAPI/ReactivateTenant"
-	BerberimAPI_CancelTenantSubscription_FullMethodName   = "/berberim.v1.BerberimAPI/CancelTenantSubscription"
-	BerberimAPI_ExtendTenantSubscription_FullMethodName   = "/berberim.v1.BerberimAPI/ExtendTenantSubscription"
-	BerberimAPI_ListPlatformUsers_FullMethodName          = "/berberim.v1.BerberimAPI/ListPlatformUsers"
-	BerberimAPI_CreatePlatformUser_FullMethodName         = "/berberim.v1.BerberimAPI/CreatePlatformUser"
-	BerberimAPI_GetPlatformUser_FullMethodName            = "/berberim.v1.BerberimAPI/GetPlatformUser"
-	BerberimAPI_UpdatePlatformUser_FullMethodName         = "/berberim.v1.BerberimAPI/UpdatePlatformUser"
-	BerberimAPI_DeletePlatformUser_FullMethodName         = "/berberim.v1.BerberimAPI/DeletePlatformUser"
+	BerberimAPI_SendCustomerOTP_FullMethodName                 = "/berberim.v1.BerberimAPI/SendCustomerOTP"
+	BerberimAPI_VerifyCustomerOTP_FullMethodName               = "/berberim.v1.BerberimAPI/VerifyCustomerOTP"
+	BerberimAPI_VerifyCustomerSocialLogin_FullMethodName       = "/berberim.v1.BerberimAPI/VerifyCustomerSocialLogin"
+	BerberimAPI_LoginTenantUser_FullMethodName                 = "/berberim.v1.BerberimAPI/LoginTenantUser"
+	BerberimAPI_LoginPlatformUser_FullMethodName               = "/berberim.v1.BerberimAPI/LoginPlatformUser"
+	BerberimAPI_RefreshToken_FullMethodName                    = "/berberim.v1.BerberimAPI/RefreshToken"
+	BerberimAPI_Logout_FullMethodName                          = "/berberim.v1.BerberimAPI/Logout"
+	BerberimAPI_LogoutAll_FullMethodName                       = "/berberim.v1.BerberimAPI/LogoutAll"
+	BerberimAPI_ListSessions_FullMethodName                    = "/berberim.v1.BerberimAPI/ListSessions"
+	BerberimAPI_RevokeSession_FullMethodName                   = "/berberim.v1.BerberimAPI/RevokeSession"
+	BerberimAPI_RegisterPushDevice_FullMethodName              = "/berberim.v1.BerberimAPI/RegisterPushDevice"
+	BerberimAPI_DeletePushDevice_FullMethodName                = "/berberim.v1.BerberimAPI/DeletePushDevice"
+	BerberimAPI_CreateTenantUser_FullMethodName                = "/berberim.v1.BerberimAPI/CreateTenantUser"
+	BerberimAPI_ListTenantUsers_FullMethodName                 = "/berberim.v1.BerberimAPI/ListTenantUsers"
+	BerberimAPI_DisableTenantUser_FullMethodName               = "/berberim.v1.BerberimAPI/DisableTenantUser"
+	BerberimAPI_EnableTenantUser_FullMethodName                = "/berberim.v1.BerberimAPI/EnableTenantUser"
+	BerberimAPI_GetTenantSettings_FullMethodName               = "/berberim.v1.BerberimAPI/GetTenantSettings"
+	BerberimAPI_UpdateTenantSettings_FullMethodName            = "/berberim.v1.BerberimAPI/UpdateTenantSettings"
+	BerberimAPI_GetNotificationSettings_FullMethodName         = "/berberim.v1.BerberimAPI/GetNotificationSettings"
+	BerberimAPI_UpdateNotificationSettings_FullMethodName      = "/berberim.v1.BerberimAPI/UpdateNotificationSettings"
+	BerberimAPI_ListServices_FullMethodName                    = "/berberim.v1.BerberimAPI/ListServices"
+	BerberimAPI_CreateService_FullMethodName                   = "/berberim.v1.BerberimAPI/CreateService"
+	BerberimAPI_UpdateService_FullMethodName                   = "/berberim.v1.BerberimAPI/UpdateService"
+	BerberimAPI_SearchAvailability_FullMethodName              = "/berberim.v1.BerberimAPI/SearchAvailability"
+	BerberimAPI_GetSlotRecommendations_FullMethodName          = "/berberim.v1.BerberimAPI/GetSlotRecommendations"
+	BerberimAPI_GetBookingLimitStatus_FullMethodName           = "/berberim.v1.BerberimAPI/GetBookingLimitStatus"
+	BerberimAPI_CreateAppointment_FullMethodName               = "/berberim.v1.BerberimAPI/CreateAppointment"
+	BerberimAPI_GetAppointment_FullMethodName                  = "/berberim.v1.BerberimAPI/GetAppointment"
+	BerberimAPI_ListAppointments_FullMethodName                = "/berberim.v1.BerberimAPI/ListAppointments"
+	BerberimAPI_CancelAppointment_FullMethodName               = "/berberim.v1.BerberimAPI/CancelAppointment"
+	BerberimAPI_RescheduleAppointment_FullMethodName           = "/berberim.v1.BerberimAPI/RescheduleAppointment"
+	BerberimAPI_CompleteAppointment_FullMethodName             = "/berberim.v1.BerberimAPI/CompleteAppointment"
+	BerberimAPI_MarkNoShow_FullMethodName                      = "/berberim.v1.BerberimAPI/MarkNoShow"
+	BerberimAPI_MarkPaymentReceived_FullMethodName             = "/berberim.v1.BerberimAPI/MarkPaymentReceived"
+	BerberimAPI_GetLoyaltyBalance_FullMethodName               = "/berberim.v1.BerberimAPI/GetLoyaltyBalance"
+	BerberimAPI_GetPublicBootstrap_FullMethodName              = "/berberim.v1.BerberimAPI/GetPublicBootstrap"
+	BerberimAPI_GetPublicService_FullMethodName                = "/berberim.v1.BerberimAPI/GetPublicService"
+	BerberimAPI_ListPublicStaff_FullMethodName                 = "/berberim.v1.BerberimAPI/ListPublicStaff"
+	BerberimAPI_GetPublicStaff_FullMethodName                  = "/berberim.v1.BerberimAPI/GetPublicStaff"
+	BerberimAPI_ListPublicStaffServices_FullMethodName         = "/berberim.v1.BerberimAPI/ListPublicStaffServices"
+	BerberimAPI_GetAvailabilityDays_FullMethodName             = "/berberim.v1.BerberimAPI/GetAvailabilityDays"
+	BerberimAPI_GetCustomerProfile_FullMethodName              = "/berberim.v1.BerberimAPI/GetCustomerProfile"
+	BerberimAPI_UpdateCustomerProfile_FullMethodName           = "/berberim.v1.BerberimAPI/UpdateCustomerProfile"
+	BerberimAPI_GetLoyaltyTransactions_FullMethodName          = "/berberim.v1.BerberimAPI/GetLoyaltyTransactions"
+	BerberimAPI_CreateStaffReview_FullMethodName               = "/berberim.v1.BerberimAPI/CreateStaffReview"
+	BerberimAPI_UpdateStaffReview_FullMethodName               = "/berberim.v1.BerberimAPI/UpdateStaffReview"
+	BerberimAPI_DeleteStaffReview_FullMethodName               = "/berberim.v1.BerberimAPI/DeleteStaffReview"
+	BerberimAPI_ListStaffReviews_FullMethodName                = "/berberim.v1.BerberimAPI/ListStaffReviews"
+	BerberimAPI_GetMyReviewForAppointment_FullMethodName       = "/berberim.v1.BerberimAPI/GetMyReviewForAppointment"
+	BerberimAPI_ListCustomerNotifications_FullMethodName       = "/berberim.v1.BerberimAPI/ListCustomerNotifications"
+	BerberimAPI_MarkNotificationRead_FullMethodName            = "/berberim.v1.BerberimAPI/MarkNotificationRead"
+	BerberimAPI_MarkAllNotificationsRead_FullMethodName        = "/berberim.v1.BerberimAPI/MarkAllNotificationsRead"
+	BerberimAPI_GetUnreadNotificationCount_FullMethodName      = "/berberim.v1.BerberimAPI/GetUnreadNotificationCount"
+	BerberimAPI_GenerateCustomerAvatarUploadURL_FullMethodName = "/berberim.v1.BerberimAPI/GenerateCustomerAvatarUploadURL"
+	BerberimAPI_ConfirmCustomerAvatarUpload_FullMethodName     = "/berberim.v1.BerberimAPI/ConfirmCustomerAvatarUpload"
+	BerberimAPI_GenerateStaffAvatarUploadURL_FullMethodName    = "/berberim.v1.BerberimAPI/GenerateStaffAvatarUploadURL"
+	BerberimAPI_ConfirmStaffAvatarUpload_FullMethodName        = "/berberim.v1.BerberimAPI/ConfirmStaffAvatarUpload"
+	BerberimAPI_GetStaffProfile_FullMethodName                 = "/berberim.v1.BerberimAPI/GetStaffProfile"
+	BerberimAPI_GetStaffCalendar_FullMethodName                = "/berberim.v1.BerberimAPI/GetStaffCalendar"
+	BerberimAPI_GetTenantBranding_FullMethodName               = "/berberim.v1.BerberimAPI/GetTenantBranding"
+	BerberimAPI_UpdateTenantBranding_FullMethodName            = "/berberim.v1.BerberimAPI/UpdateTenantBranding"
+	BerberimAPI_GetService_FullMethodName                      = "/berberim.v1.BerberimAPI/GetService"
+	BerberimAPI_DeleteService_FullMethodName                   = "/berberim.v1.BerberimAPI/DeleteService"
+	BerberimAPI_GetStaffMember_FullMethodName                  = "/berberim.v1.BerberimAPI/GetStaffMember"
+	BerberimAPI_UpdateStaffMember_FullMethodName               = "/berberim.v1.BerberimAPI/UpdateStaffMember"
+	BerberimAPI_DeleteStaffMember_FullMethodName               = "/berberim.v1.BerberimAPI/DeleteStaffMember"
+	BerberimAPI_SetStaffStatus_FullMethodName                  = "/berberim.v1.BerberimAPI/SetStaffStatus"
+	BerberimAPI_GetStaffServices_FullMethodName                = "/berberim.v1.BerberimAPI/GetStaffServices"
+	BerberimAPI_SetStaffServices_FullMethodName                = "/berberim.v1.BerberimAPI/SetStaffServices"
+	BerberimAPI_ListScheduleRules_FullMethodName               = "/berberim.v1.BerberimAPI/ListScheduleRules"
+	BerberimAPI_CreateScheduleRule_FullMethodName              = "/berberim.v1.BerberimAPI/CreateScheduleRule"
+	BerberimAPI_UpdateScheduleRule_FullMethodName              = "/berberim.v1.BerberimAPI/UpdateScheduleRule"
+	BerberimAPI_DeleteScheduleRule_FullMethodName              = "/berberim.v1.BerberimAPI/DeleteScheduleRule"
+	BerberimAPI_ListTimeOffs_FullMethodName                    = "/berberim.v1.BerberimAPI/ListTimeOffs"
+	BerberimAPI_CreateTimeOff_FullMethodName                   = "/berberim.v1.BerberimAPI/CreateTimeOff"
+	BerberimAPI_UpdateTimeOff_FullMethodName                   = "/berberim.v1.BerberimAPI/UpdateTimeOff"
+	BerberimAPI_DeleteTimeOff_FullMethodName                   = "/berberim.v1.BerberimAPI/DeleteTimeOff"
+	BerberimAPI_ListCustomers_FullMethodName                   = "/berberim.v1.BerberimAPI/ListCustomers"
+	BerberimAPI_CreateCustomer_FullMethodName                  = "/berberim.v1.BerberimAPI/CreateCustomer"
+	BerberimAPI_GetAdminCustomer_FullMethodName                = "/berberim.v1.BerberimAPI/GetAdminCustomer"
+	BerberimAPI_UpdateCustomer_FullMethodName                  = "/berberim.v1.BerberimAPI/UpdateCustomer"
+	BerberimAPI_SetCustomerStatus_FullMethodName               = "/berberim.v1.BerberimAPI/SetCustomerStatus"
+	BerberimAPI_GetLoyaltySettings_FullMethodName              = "/berberim.v1.BerberimAPI/GetLoyaltySettings"
+	BerberimAPI_UpdateLoyaltySettings_FullMethodName           = "/berberim.v1.BerberimAPI/UpdateLoyaltySettings"
+	BerberimAPI_ListRewards_FullMethodName                     = "/berberim.v1.BerberimAPI/ListRewards"
+	BerberimAPI_CreateReward_FullMethodName                    = "/berberim.v1.BerberimAPI/CreateReward"
+	BerberimAPI_GetReward_FullMethodName                       = "/berberim.v1.BerberimAPI/GetReward"
+	BerberimAPI_UpdateReward_FullMethodName                    = "/berberim.v1.BerberimAPI/UpdateReward"
+	BerberimAPI_DeleteReward_FullMethodName                    = "/berberim.v1.BerberimAPI/DeleteReward"
+	BerberimAPI_SetRewardStatus_FullMethodName                 = "/berberim.v1.BerberimAPI/SetRewardStatus"
+	BerberimAPI_GetAnalyticsOverview_FullMethodName            = "/berberim.v1.BerberimAPI/GetAnalyticsOverview"
+	BerberimAPI_GetCohortAnalysis_FullMethodName               = "/berberim.v1.BerberimAPI/GetCohortAnalysis"
+	BerberimAPI_GetRetentionAnalysis_FullMethodName            = "/berberim.v1.BerberimAPI/GetRetentionAnalysis"
+	BerberimAPI_GetCustomerLTV_FullMethodName                  = "/berberim.v1.BerberimAPI/GetCustomerLTV"
+	BerberimAPI_GetNoShowAnalysis_FullMethodName               = "/berberim.v1.BerberimAPI/GetNoShowAnalysis"
+	BerberimAPI_CreateTenant_FullMethodName                    = "/berberim.v1.BerberimAPI/CreateTenant"
+	BerberimAPI_ListTenants_FullMethodName                     = "/berberim.v1.BerberimAPI/ListTenants"
+	BerberimAPI_GetTenant_FullMethodName                       = "/berberim.v1.BerberimAPI/GetTenant"
+	BerberimAPI_SetTenantStatus_FullMethodName                 = "/berberim.v1.BerberimAPI/SetTenantStatus"
+	BerberimAPI_UpdateTenant_FullMethodName                    = "/berberim.v1.BerberimAPI/UpdateTenant"
+	BerberimAPI_FreezeTenant_FullMethodName                    = "/berberim.v1.BerberimAPI/FreezeTenant"
+	BerberimAPI_ReactivateTenant_FullMethodName                = "/berberim.v1.BerberimAPI/ReactivateTenant"
+	BerberimAPI_CancelTenantSubscription_FullMethodName        = "/berberim.v1.BerberimAPI/CancelTenantSubscription"
+	BerberimAPI_ExtendTenantSubscription_FullMethodName        = "/berberim.v1.BerberimAPI/ExtendTenantSubscription"
+	BerberimAPI_ListPlatformUsers_FullMethodName               = "/berberim.v1.BerberimAPI/ListPlatformUsers"
+	BerberimAPI_CreatePlatformUser_FullMethodName              = "/berberim.v1.BerberimAPI/CreatePlatformUser"
+	BerberimAPI_GetPlatformUser_FullMethodName                 = "/berberim.v1.BerberimAPI/GetPlatformUser"
+	BerberimAPI_UpdatePlatformUser_FullMethodName              = "/berberim.v1.BerberimAPI/UpdatePlatformUser"
+	BerberimAPI_DeletePlatformUser_FullMethodName              = "/berberim.v1.BerberimAPI/DeletePlatformUser"
 )
 
 // BerberimAPIClient is the client API for BerberimAPI service.
@@ -199,6 +203,11 @@ type BerberimAPIClient interface {
 	MarkNotificationRead(ctx context.Context, in *MarkNotificationReadRequest, opts ...grpc.CallOption) (*MarkNotificationReadResponse, error)
 	MarkAllNotificationsRead(ctx context.Context, in *MarkAllNotificationsReadRequest, opts ...grpc.CallOption) (*MarkAllNotificationsReadResponse, error)
 	GetUnreadNotificationCount(ctx context.Context, in *GetUnreadNotificationCountRequest, opts ...grpc.CallOption) (*GetUnreadNotificationCountResponse, error)
+	// ── Avatar upload ─────────────────────────────────────────────────────────
+	GenerateCustomerAvatarUploadURL(ctx context.Context, in *GenerateAvatarUploadURLRequest, opts ...grpc.CallOption) (*GenerateAvatarUploadURLResponse, error)
+	ConfirmCustomerAvatarUpload(ctx context.Context, in *ConfirmAvatarUploadRequest, opts ...grpc.CallOption) (*ConfirmAvatarUploadResponse, error)
+	GenerateStaffAvatarUploadURL(ctx context.Context, in *GenerateAvatarUploadURLRequest, opts ...grpc.CallOption) (*GenerateAvatarUploadURLResponse, error)
+	ConfirmStaffAvatarUpload(ctx context.Context, in *ConfirmAvatarUploadRequest, opts ...grpc.CallOption) (*ConfirmAvatarUploadResponse, error)
 	// ── Staff profile & calendar ──────────────────────────────────────────────
 	GetStaffProfile(ctx context.Context, in *GetStaffProfileRequest, opts ...grpc.CallOption) (*GetStaffProfileResponse, error)
 	GetStaffCalendar(ctx context.Context, in *GetStaffCalendarRequest, opts ...grpc.CallOption) (*GetStaffCalendarResponse, error)
@@ -801,6 +810,46 @@ func (c *berberimAPIClient) GetUnreadNotificationCount(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *berberimAPIClient) GenerateCustomerAvatarUploadURL(ctx context.Context, in *GenerateAvatarUploadURLRequest, opts ...grpc.CallOption) (*GenerateAvatarUploadURLResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateAvatarUploadURLResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_GenerateCustomerAvatarUploadURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) ConfirmCustomerAvatarUpload(ctx context.Context, in *ConfirmAvatarUploadRequest, opts ...grpc.CallOption) (*ConfirmAvatarUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfirmAvatarUploadResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ConfirmCustomerAvatarUpload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) GenerateStaffAvatarUploadURL(ctx context.Context, in *GenerateAvatarUploadURLRequest, opts ...grpc.CallOption) (*GenerateAvatarUploadURLResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateAvatarUploadURLResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_GenerateStaffAvatarUploadURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) ConfirmStaffAvatarUpload(ctx context.Context, in *ConfirmAvatarUploadRequest, opts ...grpc.CallOption) (*ConfirmAvatarUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfirmAvatarUploadResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ConfirmStaffAvatarUpload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *berberimAPIClient) GetStaffProfile(ctx context.Context, in *GetStaffProfileRequest, opts ...grpc.CallOption) (*GetStaffProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetStaffProfileResponse)
@@ -1394,6 +1443,11 @@ type BerberimAPIServer interface {
 	MarkNotificationRead(context.Context, *MarkNotificationReadRequest) (*MarkNotificationReadResponse, error)
 	MarkAllNotificationsRead(context.Context, *MarkAllNotificationsReadRequest) (*MarkAllNotificationsReadResponse, error)
 	GetUnreadNotificationCount(context.Context, *GetUnreadNotificationCountRequest) (*GetUnreadNotificationCountResponse, error)
+	// ── Avatar upload ─────────────────────────────────────────────────────────
+	GenerateCustomerAvatarUploadURL(context.Context, *GenerateAvatarUploadURLRequest) (*GenerateAvatarUploadURLResponse, error)
+	ConfirmCustomerAvatarUpload(context.Context, *ConfirmAvatarUploadRequest) (*ConfirmAvatarUploadResponse, error)
+	GenerateStaffAvatarUploadURL(context.Context, *GenerateAvatarUploadURLRequest) (*GenerateAvatarUploadURLResponse, error)
+	ConfirmStaffAvatarUpload(context.Context, *ConfirmAvatarUploadRequest) (*ConfirmAvatarUploadResponse, error)
 	// ── Staff profile & calendar ──────────────────────────────────────────────
 	GetStaffProfile(context.Context, *GetStaffProfileRequest) (*GetStaffProfileResponse, error)
 	GetStaffCalendar(context.Context, *GetStaffCalendarRequest) (*GetStaffCalendarResponse, error)
@@ -1624,6 +1678,18 @@ func (UnimplementedBerberimAPIServer) MarkAllNotificationsRead(context.Context, 
 }
 func (UnimplementedBerberimAPIServer) GetUnreadNotificationCount(context.Context, *GetUnreadNotificationCountRequest) (*GetUnreadNotificationCountResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUnreadNotificationCount not implemented")
+}
+func (UnimplementedBerberimAPIServer) GenerateCustomerAvatarUploadURL(context.Context, *GenerateAvatarUploadURLRequest) (*GenerateAvatarUploadURLResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GenerateCustomerAvatarUploadURL not implemented")
+}
+func (UnimplementedBerberimAPIServer) ConfirmCustomerAvatarUpload(context.Context, *ConfirmAvatarUploadRequest) (*ConfirmAvatarUploadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConfirmCustomerAvatarUpload not implemented")
+}
+func (UnimplementedBerberimAPIServer) GenerateStaffAvatarUploadURL(context.Context, *GenerateAvatarUploadURLRequest) (*GenerateAvatarUploadURLResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GenerateStaffAvatarUploadURL not implemented")
+}
+func (UnimplementedBerberimAPIServer) ConfirmStaffAvatarUpload(context.Context, *ConfirmAvatarUploadRequest) (*ConfirmAvatarUploadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConfirmStaffAvatarUpload not implemented")
 }
 func (UnimplementedBerberimAPIServer) GetStaffProfile(context.Context, *GetStaffProfileRequest) (*GetStaffProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetStaffProfile not implemented")
@@ -2752,6 +2818,78 @@ func _BerberimAPI_GetUnreadNotificationCount_Handler(srv interface{}, ctx contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BerberimAPIServer).GetUnreadNotificationCount(ctx, req.(*GetUnreadNotificationCountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_GenerateCustomerAvatarUploadURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateAvatarUploadURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).GenerateCustomerAvatarUploadURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_GenerateCustomerAvatarUploadURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).GenerateCustomerAvatarUploadURL(ctx, req.(*GenerateAvatarUploadURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_ConfirmCustomerAvatarUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmAvatarUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ConfirmCustomerAvatarUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ConfirmCustomerAvatarUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ConfirmCustomerAvatarUpload(ctx, req.(*ConfirmAvatarUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_GenerateStaffAvatarUploadURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateAvatarUploadURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).GenerateStaffAvatarUploadURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_GenerateStaffAvatarUploadURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).GenerateStaffAvatarUploadURL(ctx, req.(*GenerateAvatarUploadURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_ConfirmStaffAvatarUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmAvatarUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ConfirmStaffAvatarUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ConfirmStaffAvatarUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ConfirmStaffAvatarUpload(ctx, req.(*ConfirmAvatarUploadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3910,6 +4048,22 @@ var BerberimAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUnreadNotificationCount",
 			Handler:    _BerberimAPI_GetUnreadNotificationCount_Handler,
+		},
+		{
+			MethodName: "GenerateCustomerAvatarUploadURL",
+			Handler:    _BerberimAPI_GenerateCustomerAvatarUploadURL_Handler,
+		},
+		{
+			MethodName: "ConfirmCustomerAvatarUpload",
+			Handler:    _BerberimAPI_ConfirmCustomerAvatarUpload_Handler,
+		},
+		{
+			MethodName: "GenerateStaffAvatarUploadURL",
+			Handler:    _BerberimAPI_GenerateStaffAvatarUploadURL_Handler,
+		},
+		{
+			MethodName: "ConfirmStaffAvatarUpload",
+			Handler:    _BerberimAPI_ConfirmStaffAvatarUpload_Handler,
 		},
 		{
 			MethodName: "GetStaffProfile",

@@ -19,12 +19,15 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	gcsstorage "cloud.google.com/go/storage"
+
 	berberimv1 "github.com/berberim/api/api/v1"
 	"github.com/berberim/api/internal/analytics"
 	apihandler "github.com/berberim/api/internal/api"
 	"github.com/berberim/api/internal/appointment"
 	"github.com/berberim/api/internal/auth"
 	authjwt "github.com/berberim/api/internal/auth/jwt"
+	"github.com/berberim/api/internal/avatar"
 	"github.com/berberim/api/internal/config"
 	"github.com/berberim/api/internal/customer"
 	grpcinterceptor "github.com/berberim/api/internal/grpc"
@@ -81,7 +84,7 @@ func New() *Server {
 	// ── Tenant domain ─────────────────────────────────────────────────────────
 	tenantRepo := tenant.NewRepo(db)
 	tenantSvc := tenant.NewService(logger, tenantRepo)
-	tenantHandler := tenant.NewHandler(logger, tenantSvc)
+	tenantHandler := tenant.NewHandler(logger, tenantSvc, &cfg.Avatar)
 
 	// ── Loyalty domain ────────────────────────────────────────────────────────
 	loyaltyRepo := loyalty.NewRepo(db)
@@ -91,7 +94,7 @@ func New() *Server {
 	// ── Appointment domain ────────────────────────────────────────────────────
 	appointmentRepo := appointment.NewRepo(db)
 	appointmentSvc := appointment.NewService(appointmentRepo, loyaltySvc, logger)
-	appointmentHandler := appointment.NewHandler(appointmentSvc, logger)
+	appointmentHandler := appointment.NewHandler(appointmentSvc, logger, &cfg.Avatar)
 
 	// ── Notification domain ────────────────────────────────────────────────────
 	notificationRepo := notification.NewRepo(db)
@@ -104,7 +107,7 @@ func New() *Server {
 	// ── Customer domain ───────────────────────────────────────────────────────
 	customerRepo := customer.NewRepo(db)
 	customerSvc := customer.NewService(customerRepo)
-	customerHandler := customer.NewHandler(customerSvc)
+	customerHandler := customer.NewHandler(&cfg.Avatar, customerSvc)
 
 	// ── Review domain ─────────────────────────────────────────────────────────
 	reviewRepo := review.NewRepo(db)
@@ -116,8 +119,18 @@ func New() *Server {
 	analyticsSvc := analytics.NewService(logger, analyticsRepo)
 	analyticsHandler := analytics.NewHandler(logger, analyticsSvc)
 
+	// ── Avatar domain ─────────────────────────────────────────────────────────
+	gcsClient, err := gcsstorage.NewClient(context.Background())
+	if err != nil {
+		log.Fatalf("gcs client: %v", err)
+	}
+	avatarStorage := avatar.NewGCSStorage(gcsClient, cfg.Avatar.Bucket)
+	avatarSvc := avatar.NewService(&cfg.Avatar, logger, avatarStorage, customerRepo, tenantRepo)
+	avatarHandler := avatar.NewHandler(avatarSvc)
+
 	// ── Compose ───────────────────────────────────────────────────────────────
-	composed := apihandler.NewHandler(authHandler, tenantHandler, appointmentHandler, loyaltyHandler, customerHandler, notificationHandler, reviewHandler, analyticsHandler)
+	composed := apihandler.NewHandler(authHandler, tenantHandler, appointmentHandler, loyaltyHandler,
+		customerHandler, notificationHandler, reviewHandler, analyticsHandler, avatarHandler)
 
 	return &Server{
 		cfg:         cfg,

@@ -1,27 +1,30 @@
 import { useRouter } from 'expo-router';
 import { Scissors } from 'lucide-react-native';
 import React from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen } from '../../src/components/common/Screen';
-import { CatalogCategoryTabs } from '../../src/components/services/catalog/CatalogCategoryTabs';
-import { CatalogServiceCard } from '../../src/components/services/catalog/CatalogServiceCard';
-import { CatalogStatsHUD } from '../../src/components/services/catalog/CatalogStatsHUD';
-import { CatalogTopBar } from '../../src/components/services/catalog/CatalogTopBar';
-import { useServiceCatalog } from '../../src/hooks/services/useServiceCatalog';
+import { Screen } from '@/src/components/common/Screen';
+import { CatalogCategoryTabs } from '@/src/components/services/catalog/CatalogCategoryTabs';
+import { CatalogServiceCard } from '@/src/components/services/catalog/CatalogServiceCard';
+import { CatalogStatsHUD } from '@/src/components/services/catalog/CatalogStatsHUD';
+import { useServiceCatalog } from '@/src/hooks/services/useServiceCatalog';
+import { useTranslation } from 'react-i18next';
 
 export default function ServicesListScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { services, stats, categories, activeCategory, setActiveCategory } =
     useServiceCatalog();
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      <View style={{ paddingTop: insets.top }}>
-        <CatalogTopBar />
-      </View>
-
+    <Screen
+      style={styles.container}
+      withPadding={false}
+      transparentStatusBar
+      headerTitle={t('settings.items.services')}
+      showHeaderBack={true}
+    >
       <FlatList
         data={services}
         keyExtractor={(item) => item.id}

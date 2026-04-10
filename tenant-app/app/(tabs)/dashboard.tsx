@@ -1,16 +1,16 @@
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen } from '../../src/components/common/Screen';
-import { DashboardNextAppointment } from '../../src/components/dashboard/DashboardNextAppointment';
-import { DashboardOperationalHeader } from '../../src/components/dashboard/DashboardOperationalHeader';
-import { DashboardQuickActions } from '../../src/components/dashboard/DashboardQuickActions';
-import { DashboardShopInsights } from '../../src/components/dashboard/DashboardShopInsights';
-import { DashboardStatsGrid } from '../../src/components/dashboard/DashboardStatsGrid';
-import { COLORS } from '../../src/constants/theme';
-import { useDashboard } from '../../src/hooks/dashboard/useDashboard';
-import { useSessionStore } from '../../src/store/useSessionStore';
-import { useTenantStore } from '../../src/store/useTenantStore';
+import { Screen } from '@/src/components/common/Screen';
+import { DashboardNextAppointment } from '@/src/components/dashboard/DashboardNextAppointment';
+import { DashboardOperationalHeader } from '@/src/components/dashboard/DashboardOperationalHeader';
+import { DashboardQuickActions } from '@/src/components/dashboard/DashboardQuickActions';
+import { DashboardShopInsights } from '@/src/components/dashboard/DashboardShopInsights';
+import { DashboardStatsGrid } from '@/src/components/dashboard/DashboardStatsGrid';
+import { COLORS } from '@/src/constants/theme';
+import { useDashboard } from '@/src/hooks/dashboard/useDashboard';
+import { useSessionStore } from '@/src/store/useSessionStore';
+import { useTenantStore } from '@/src/store/useTenantStore';
 import { useTranslation } from 'react-i18next';
 
 export default function DashboardScreen() {

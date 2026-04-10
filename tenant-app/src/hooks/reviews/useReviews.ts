@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useSessionStore } from '@/src/store/useSessionStore';
-import { useStaffReviews } from '../queries/useStaff';
+import { useStaffReviews } from '@/src/hooks/queries/useStaff';
 
 export interface Review {
   id: string;

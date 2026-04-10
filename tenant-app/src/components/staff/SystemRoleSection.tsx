@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '@/src/constants/theme';
-import { RoleSelector } from './RoleSelector';
+import { RoleSelector } from '@/src/components/staff/RoleSelector';
 import { StaffRole } from '@/src/hooks/staff/useAddStaff';
 import { useTranslation } from 'react-i18next';
 

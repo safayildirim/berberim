@@ -94,6 +94,8 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	customer.GET("/notifications/unread-count", h.Customer.GetUnreadNotificationCount)
 	customer.PATCH("/notifications/read-all", h.Customer.MarkAllNotificationsRead)
 	customer.PATCH("/notifications/:id/read", h.Customer.MarkNotificationRead)
+	customer.POST("/avatar/upload-url", h.Customer.GenerateAvatarUploadURL)
+	customer.PUT("/avatar/confirm", h.Customer.ConfirmAvatarUpload)
 
 	// ── Tenant API — staff + admin ────────────────────────────────────────────
 	// Who:   tenant_user (role=staff or role=admin)
@@ -107,6 +109,8 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	tenant.GET("/calendar", h.Tenant.GetCalendar)
 	tenant.POST("/push-devices", h.Tenant.RegisterPushDevice)
 	tenant.DELETE("/push-devices/:id", h.Tenant.DeletePushDevice)
+	tenant.POST("/avatar/upload-url", h.Tenant.GenerateStaffAvatarUploadURL)
+	tenant.PUT("/avatar/confirm", h.Tenant.ConfirmStaffAvatarUpload)
 
 	tenant.GET("/services", h.Tenant.ListServices)
 	tenant.GET("/services/:id", h.Tenant.GetService)

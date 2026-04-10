@@ -12,14 +12,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen } from '../../src/components/common/Screen';
-import { AccountAccessSection } from '../../src/components/staff/AccountAccessSection';
-import { AddStaffHeader } from '../../src/components/staff/AddStaffHeader';
-import { PersonalInfoSection } from '../../src/components/staff/PersonalInfoSection';
-import { StaffPhotoSection } from '../../src/components/staff/StaffPhotoSection';
-import { COLORS, SHADOWS } from '../../src/constants/theme';
-import { useAddStaff } from '../../src/hooks/staff/useAddStaff';
-import { useSessionStore } from '../../src/store/useSessionStore';
+import { Screen } from '@/src/components/common/Screen';
+import { AccountAccessSection } from '@/src/components/staff/AccountAccessSection';
+import { PersonalInfoSection } from '@/src/components/staff/PersonalInfoSection';
+import { StaffPhotoSection } from '@/src/components/staff/StaffPhotoSection';
+import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { useAddStaff } from '@/src/hooks/staff/useAddStaff';
+import { useSessionStore } from '@/src/store/useSessionStore';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 
@@ -37,9 +36,13 @@ export default function AddStaffScreen() {
   }, [isAdmin, router]);
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      <AddStaffHeader />
-
+    <Screen
+      style={styles.container}
+      withPadding={false}
+      transparentStatusBar
+      headerTitle={t('settings.staff.addStaff')}
+      showHeaderBack={true}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -47,10 +50,7 @@ export default function AddStaffScreen() {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 40 },
-          ]}
+          contentContainerStyle={styles.scrollContent}
         >
           <StaffPhotoSection />
 
@@ -71,41 +71,42 @@ export default function AddStaffScreen() {
             role={form.role}
             setRole={form.setRole}
           />
-
-          {/* Submit Action */}
-          <View style={styles.submitContainer}>
-            <TouchableOpacity
-              onPress={actions.handleSubmit}
-              disabled={ui.isSubmitting}
-              activeOpacity={0.9}
-              style={styles.submitBtnWrapper}
-            >
-              <LinearGradient
-                colors={[COLORS.primary, '#1b263b']}
-                style={styles.submitBtn}
-              >
-                {ui.isSubmitting ? (
-                  <ActivityIndicator size="small" color={COLORS.white} />
-                ) : (
-                  <View style={styles.submitBtnContent}>
-                    <Text style={styles.submitBtnText}>
-                      {t('settings.staff.create.submit')}
-                    </Text>
-                    <UserPlus
-                      size={20}
-                      color={COLORS.white}
-                      strokeWidth={2.5}
-                    />
-                  </View>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <Text style={styles.footerHint}>
-              {t('settings.staff.create.invitationHint')}
-            </Text>
-          </View>
         </ScrollView>
+
+        {/* Sticky Submit Action */}
+        <View
+          style={[
+            styles.stickyFooter,
+            { paddingBottom: Math.max(insets.bottom, 20) },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={actions.handleSubmit}
+            disabled={ui.isSubmitting}
+            activeOpacity={0.9}
+            style={styles.submitBtnWrapper}
+          >
+            <LinearGradient
+              colors={[COLORS.primary, '#1b263b']}
+              style={styles.submitBtn}
+            >
+              {ui.isSubmitting ? (
+                <ActivityIndicator size="small" color={COLORS.white} />
+              ) : (
+                <View style={styles.submitBtnContent}>
+                  <Text style={styles.submitBtnText}>
+                    {t('settings.staff.create.submit')}
+                  </Text>
+                  <UserPlus size={20} color={COLORS.white} strokeWidth={2.5} />
+                </View>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <Text style={styles.footerHint}>
+            {t('settings.staff.create.invitationHint')}
+          </Text>
+        </View>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -119,8 +120,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
   },
-  submitContainer: {
-    marginTop: 8,
+  stickyFooter: {
+    paddingTop: 16,
+    paddingHorizontal: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: COLORS.background,
   },
   submitBtnWrapper: {
     borderRadius: 20,
