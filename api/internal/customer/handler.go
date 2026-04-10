@@ -6,6 +6,7 @@ import (
 	berberimv1 "github.com/berberim/api/api/v1"
 	"github.com/berberim/api/internal/config"
 	"github.com/berberim/api/internal/identity"
+	"github.com/berberim/api/internal/membership"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -14,6 +15,7 @@ import (
 // MembershipService is a narrow interface for membership operations needed by the customer handler.
 type MembershipService interface {
 	SetMembershipStatus(ctx context.Context, customerID, tenantID uuid.UUID, status string) error
+	ListCustomerTenants(ctx context.Context, customerID uuid.UUID) ([]membership.MembershipWithTenant, error)
 }
 
 // Handler is a thin gRPC bridge — parse → call service → marshal.
@@ -49,7 +51,20 @@ func (h *Handler) GetCustomerProfile(ctx context.Context, _ *berberimv1.GetCusto
 		return nil, err
 	}
 
-	return &berberimv1.GetCustomerProfileResponse{Profile: h.customerToProto(c)}, nil
+	// Include tenant memberships so the client can offer tenant selection.
+	tenants, err := h.membershipSvc.ListCustomerTenants(ctx, rc.UserID)
+	if err != nil {
+		return nil, err
+	}
+	protoTenants := make([]*berberimv1.CustomerTenantMembership, 0, len(tenants))
+	for i := range tenants {
+		protoTenants = append(protoTenants, membershipToProto(&tenants[i]))
+	}
+
+	return &berberimv1.GetCustomerProfileResponse{
+		Profile: h.customerToProto(c),
+		Tenants: protoTenants,
+	}, nil
 }
 
 // UpdateCustomerProfile updates the global customer profile (no tenant context needed).
@@ -165,6 +180,20 @@ func (h *Handler) SetCustomerStatus(ctx context.Context, req *berberimv1.SetCust
 		return nil, err
 	}
 	return &berberimv1.SetCustomerStatusResponse{}, nil
+}
+
+func membershipToProto(m *membership.MembershipWithTenant) *berberimv1.CustomerTenantMembership {
+	p := &berberimv1.CustomerTenantMembership{
+		TenantId: m.TenantID.String(),
+		Name:     m.TenantName,
+		Slug:     m.TenantSlug,
+		Status:   m.Status,
+		JoinedAt: m.JoinedAt.UTC().Format("2006-01-02T15:04:05Z"),
+	}
+	if m.LogoURL != nil {
+		p.LogoUrl = *m.LogoURL
+	}
+	return p
 }
 
 func (h *Handler) customerToProto(c *Customer) *berberimv1.Customer {

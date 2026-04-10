@@ -27,10 +27,14 @@ export const useVerifyOtp = () => {
       await tokenStorage.setAccessToken(data.access_token);
       await tokenStorage.setRefreshToken(data.refresh_token);
 
-      // 2. Fetch user data
+      // 2. Fetch user data (includes tenant memberships)
       const user = await authService.me();
 
-      // 3. Update Zustand store (tokens already in SecureStore)
+      // 3. Populate tenants so index.tsx redirect logic works
+      const setTenants = useSessionStore.getState().setTenants;
+      setTenants(user?.tenants ?? []);
+
+      // 4. Update Zustand store (tokens already in SecureStore)
       await setSession(user, data.access_token, data.refresh_token);
 
       // Pre-seed query cache

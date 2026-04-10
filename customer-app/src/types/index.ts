@@ -37,6 +37,7 @@ export type CustomerProfile = {
     created_at: string;
     loyalty_points: number;
   };
+  tenants: TenantMembership[];
 };
 
 export type AppointmentStatus =

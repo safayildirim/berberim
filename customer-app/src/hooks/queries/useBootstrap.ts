@@ -4,7 +4,6 @@ import { tokenStorage } from '@/src/lib/auth/token-storage';
 import { authService } from '@/src/services/auth.service';
 import { tenantService } from '@/src/services/tenant.service';
 import { useTenantStore } from '@/src/store/useTenantStore';
-import { TenantMembership } from '@/src/types';
 
 export const useBootstrap = () => {
   const setTenants = useSessionStore((state) => state.setTenants);
@@ -18,7 +17,6 @@ export const useBootstrap = () => {
       // 1. Check for existing session
       const token = await tokenStorage.getAccessToken();
       let user = null;
-      let tenants: TenantMembership[] = [];
 
       if (token) {
         try {
@@ -28,11 +26,11 @@ export const useBootstrap = () => {
         }
       }
 
-      // 2. If authenticated, load tenants BEFORE calling bootstrap
+      // 2. If authenticated, populate tenants from the /me response
       //    so the store is fully populated when navigation reads it.
       if (user) {
         try {
-          tenants = await tenantService.listMyTenants();
+          const tenants = user.tenants ?? [];
           setTenants(tenants);
 
           // Restore previously active tenant, or auto-select if only one

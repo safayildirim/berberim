@@ -1,19 +1,21 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ScrollView, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/src/components/common/Screen';
 import { Button, Typography } from '@/src/components/ui';
-import { COLORS, IMAGES, SHADOWS, SIZES } from '@/src/constants/theme';
 import { useSessionStore } from '@/src/lib/auth/session-store';
 import { useTenantStore } from '@/src/store/useTenantStore';
 import { tenantService } from '@/src/services/tenant.service';
 import { useQueryClient } from '@tanstack/react-query';
 import { TenantMembership } from '@/src/types';
+import { useTheme } from '@/src/store/useThemeStore';
+import { TenantCard } from '@/src/components/tenant/TenantCard';
 
 export default function SelectTenantScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { isDark } = useTheme();
   const queryClient = useQueryClient();
   const tenants = useSessionStore((s) => s.tenants);
   const setActiveTenant = useSessionStore((s) => s.setActiveTenant);
@@ -28,93 +30,110 @@ export default function SelectTenantScreen() {
   };
 
   return (
-    <Screen style={styles.container}>
-      <View style={styles.content}>
-        <Typography variant="h2" align="center">
-          {t('tenant.selectTitle', 'Dükkan Seç')}
-        </Typography>
-        <Typography
-          variant="body"
-          color={COLORS.secondary}
-          align="center"
-          style={styles.subtitle}
-        >
-          {t('tenant.selectSubtitle', 'Hangi berbere gitmek istiyorsun?')}
-        </Typography>
+    <Screen
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#000000' : '#ffffff' },
+      ]}
+      transparentStatusBar
+    >
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Typography
+            variant="caption"
+            style={[styles.label, { color: isDark ? '#71717a' : '#a1a1aa' }]}
+          >
+            {t('tenant.selectLabel', 'Dükkan Seçim').toUpperCase()}
+          </Typography>
+          <Typography
+            variant="h1"
+            style={[styles.title, { color: isDark ? '#ffffff' : '#18181b' }]}
+          >
+            {t('tenant.selectTitle', 'Dükkan Seç')}
+          </Typography>
+          <Typography
+            style={[styles.subtitle, { color: isDark ? '#a1a1aa' : '#71717a' }]}
+          >
+            {t('tenant.selectSubtitle', 'Hangi berbere gitmek istiyorsun?')}
+          </Typography>
+        </View>
 
         <View style={styles.list}>
           {tenants
             .filter((m) => m.status === 'active')
             .map((membership) => (
-              <Pressable
+              <TenantCard
                 key={membership.tenant_id}
-                style={styles.tenantCard}
+                membership={membership}
                 onPress={() => handleSelectTenant(membership)}
-              >
-                <Image
-                  source={{
-                    uri: membership.logo_url || IMAGES.defaultLogo,
-                  }}
-                  style={styles.tenantLogo}
-                />
-                <View style={styles.tenantInfo}>
-                  <Typography variant="label">{membership.name}</Typography>
-                  <Typography variant="caption" color={COLORS.secondary}>
-                    {membership.slug}
-                  </Typography>
-                </View>
-              </Pressable>
+              />
             ))}
         </View>
 
-        <Button
-          title={t('tenant.addAnother', 'Yeni Dükkan Ekle')}
-          onPress={() => router.push('/(tenant)/link-code')}
-          variant="outline"
-          style={styles.addButton}
-        />
-      </View>
+        <View style={styles.footer}>
+          <Button
+            title={t('tenant.addAnother', 'Yeni Dükkan Ekle')}
+            onPress={() => router.push('/(tenant)/link-code')}
+            variant="outline"
+            style={[
+              styles.addButton,
+              {
+                borderColor: isDark ? '#27272a' : '#e4e4e7',
+                backgroundColor: isDark ? 'transparent' : '#f4f4f5',
+              },
+            ]}
+            titleStyle={{ color: isDark ? '#d4d4d8' : '#71717a' }}
+          />
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingHorizontal: 0,
   },
-  content: {
-    paddingHorizontal: SIZES.padding * 1.5,
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 80,
+    paddingBottom: 40,
+    flexGrow: 1,
+  },
+  header: {
+    marginBottom: 40,
+  },
+  label: {
+    fontWeight: '800',
+    letterSpacing: 2.5,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 40,
+    fontWeight: '800',
+    marginBottom: 16,
+    letterSpacing: -1,
   },
   subtitle: {
-    marginTop: SIZES.sm,
-    marginBottom: SIZES.xl,
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '500',
+    maxWidth: 280,
   },
   list: {
-    gap: SIZES.sm,
-    marginBottom: SIZES.lg,
-  },
-  tenantCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SIZES.md,
-    backgroundColor: COLORS.card,
-    borderRadius: SIZES.radius,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    ...SHADOWS.sm,
-  },
-  tenantLogo: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.muted,
-  },
-  tenantInfo: {
-    marginLeft: SIZES.md,
     flex: 1,
   },
+  footer: {
+    marginTop: 40,
+  },
   addButton: {
-    marginTop: SIZES.sm,
+    height: 64,
+    borderRadius: 20,
+    borderWidth: 1.5,
   },
 });

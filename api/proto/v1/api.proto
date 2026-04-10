@@ -856,6 +856,7 @@ message GetCustomerProfileRequest {}
 
 message GetCustomerProfileResponse {
   Customer profile = 1;
+  repeated CustomerTenantMembership tenants = 2;
 }
 
 message UpdateCustomerProfileRequest {
