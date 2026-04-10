@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, UserCircle, Loader2 } from 'lucide-react-native';
+import { AlertCircle, UserCircle } from 'lucide-react-native';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 import { useBookingStore } from '@/src/store/useBookingStore';
@@ -36,7 +36,6 @@ export default function BookingReviewScreen() {
     totalPrice,
     totalDuration,
     isRebookMode,
-    reset: resetBooking,
   } = useBookingStore();
 
   const [localNotes, setLocalNotes] = useState(notes);

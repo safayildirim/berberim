@@ -9,6 +9,7 @@ export const queryKeys = {
   customer: {
     profile: ['customer', 'profile'] as const,
     notifications: ['customer', 'notifications'] as const,
+    unreadCount: ['customer', 'notifications', 'unread-count'] as const,
   },
   services: {
     list: (category?: string) => ['services', 'list', category].filter(Boolean),

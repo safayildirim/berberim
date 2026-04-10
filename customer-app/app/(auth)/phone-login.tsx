@@ -19,12 +19,7 @@ export default function PhoneLoginScreen() {
     usePhoneLogin();
 
   return (
-    <Screen
-      headerTitle={branding?.name}
-      showProfile={false}
-      showHeaderBack
-      scrollable
-    >
+    <Screen headerTitle={branding?.name} showHeaderBack scrollable>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboard}

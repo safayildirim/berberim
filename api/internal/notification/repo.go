@@ -323,6 +323,72 @@ func (r *Repo) GetTenantTimezone(ctx context.Context, tenantID uuid.UUID) (strin
 	return tz, nil
 }
 
+// ── Customer Notifications ───────────────────────────────────────────────────
+
+func (r *Repo) CreateCustomerNotification(ctx context.Context, notif *CustomerNotification) error {
+	return r.dbForCtx(ctx).WithContext(ctx).Create(notif).Error
+}
+
+func (r *Repo) ListCustomerNotifications(ctx context.Context, tenantID, customerID uuid.UUID, page, pageSize int) ([]CustomerNotification, int64, error) {
+	var notifications []CustomerNotification
+	var total int64
+
+	db := r.dbForCtx(ctx).WithContext(ctx).
+		Model(&CustomerNotification{}).
+		Where("tenant_id = ? AND customer_id = ?", tenantID, customerID)
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
+	if err := db.Order("created_at DESC").
+		Offset(offset).
+		Limit(pageSize).
+		Find(&notifications).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return notifications, total, nil
+}
+
+func (r *Repo) MarkNotificationRead(ctx context.Context, tenantID, customerID, notifID uuid.UUID) error {
+	res := r.dbForCtx(ctx).WithContext(ctx).
+		Model(&CustomerNotification{}).
+		Where("id = ? AND tenant_id = ? AND customer_id = ? AND is_read = false", notifID, tenantID, customerID).
+		Updates(map[string]interface{}{
+			"is_read": true,
+			"read_at": time.Now(),
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
+func (r *Repo) MarkAllNotificationsRead(ctx context.Context, tenantID, customerID uuid.UUID) (int64, error) {
+	res := r.dbForCtx(ctx).WithContext(ctx).
+		Model(&CustomerNotification{}).
+		Where("tenant_id = ? AND customer_id = ? AND is_read = false", tenantID, customerID).
+		Updates(map[string]interface{}{
+			"is_read": true,
+			"read_at": time.Now(),
+		})
+	return res.RowsAffected, res.Error
+}
+
+func (r *Repo) CountUnreadNotifications(ctx context.Context, tenantID, customerID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.dbForCtx(ctx).WithContext(ctx).
+		Model(&CustomerNotification{}).
+		Where("tenant_id = ? AND customer_id = ? AND is_read = false", tenantID, customerID).
+		Count(&count).Error
+	return count, err
+}
+
 func buildReminderDedupeKey(appointmentID uuid.UUID, recipientType string, recipientID uuid.UUID, offsetMinutes int32) string {
 	return fmt.Sprintf("appointment:%s:recipient:%s:%s:offset:%d", appointmentID.String(), recipientType, recipientID.String(), offsetMinutes)
 }

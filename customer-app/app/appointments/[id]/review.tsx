@@ -17,7 +17,7 @@ import { ReviewCommentInput } from '@/src/components/reviews/ReviewCommentInput'
 import { ReviewHeader } from '@/src/components/reviews/ReviewHeader';
 import { ReviewRatingSelector } from '@/src/components/reviews/ReviewRatingSelector';
 import { Button } from '@/src/components/ui';
-import { COLORS, SHADOWS, SIZES } from '@/src/constants/theme';
+import { SHADOWS, SIZES } from '@/src/constants/theme';
 import {
   useCreateReview,
   useUpdateReview,
@@ -31,7 +31,7 @@ export default function AddReviewScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   const { data: appointment, isLoading: isLoadingAppointment } =
     useAppointmentDetail(id as string);

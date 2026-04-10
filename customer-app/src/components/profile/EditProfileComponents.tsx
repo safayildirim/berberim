@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { SIZES, TYPOGRAPHY } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 

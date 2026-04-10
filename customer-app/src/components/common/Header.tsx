@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
@@ -96,16 +96,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-  },
-  profileButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    overflow: 'hidden',
-  },
-  topProfileAvatar: {
-    width: '100%',
-    height: '100%',
   },
 });

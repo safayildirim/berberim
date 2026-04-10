@@ -26,7 +26,7 @@ export default function BookingStaffScreen() {
       avg_rating: s.avg_rating,
       review_count: s.review_count,
     })) as Staff[];
-  }, [selectedSlot]);
+  }, [t, selectedSlot]);
 
   const handleSelectStaff = (staff: any) => {
     setStaff(staff);

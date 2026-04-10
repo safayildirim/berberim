@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, View, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 

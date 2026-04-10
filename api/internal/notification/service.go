@@ -60,6 +60,100 @@ type DispatchStats struct {
 	Skipped int
 }
 
+// CreateNotificationInput is the input for creating an in-app notification.
+type CreateNotificationInput struct {
+	TenantID    uuid.UUID
+	CustomerID  uuid.UUID
+	Type        string
+	Title       string
+	Body        string
+	DeepLink    string
+	ReferenceID *uuid.UUID
+	Metadata    map[string]interface{}
+}
+
+// NotificationCreator is the narrow interface for domains that need to create
+// customer notifications. Implemented by notification.Service.
+type NotificationCreator interface {
+	CreateNotification(ctx context.Context, input CreateNotificationInput) error
+}
+
+func (s *Service) CreateNotification(ctx context.Context, input CreateNotificationInput) error {
+	metadataJSON := []byte("{}")
+	if len(input.Metadata) > 0 {
+		b, err := json.Marshal(input.Metadata)
+		if err != nil {
+			return status.Errorf(codes.Internal, "marshal notification metadata: %v", err)
+		}
+		metadataJSON = b
+	}
+
+	var deepLink *string
+	if input.DeepLink != "" {
+		deepLink = &input.DeepLink
+	}
+
+	notif := &CustomerNotification{
+		ID:          uuid.New(),
+		TenantID:    input.TenantID,
+		CustomerID:  input.CustomerID,
+		Type:        input.Type,
+		Title:       input.Title,
+		Body:        input.Body,
+		DeepLink:    deepLink,
+		ReferenceID: input.ReferenceID,
+		Metadata:    metadataJSON,
+	}
+
+	if err := s.repo.CreateCustomerNotification(ctx, notif); err != nil {
+		return status.Errorf(codes.Internal, "create notification: %v", err)
+	}
+	return nil
+}
+
+func (s *Service) ListCustomerNotifications(ctx context.Context, tenantID, customerID uuid.UUID, page, pageSize int32) ([]CustomerNotification, int64, error) {
+	p := int(page)
+	if p < 1 {
+		p = 1
+	}
+	ps := int(pageSize)
+	if ps < 1 || ps > 50 {
+		ps = 20
+	}
+
+	notifications, total, err := s.repo.ListCustomerNotifications(ctx, tenantID, customerID, p, ps)
+	if err != nil {
+		return nil, 0, status.Errorf(codes.Internal, "list customer notifications: %v", err)
+	}
+	return notifications, total, nil
+}
+
+func (s *Service) MarkNotificationRead(ctx context.Context, tenantID, customerID, notifID uuid.UUID) error {
+	if err := s.repo.MarkNotificationRead(ctx, tenantID, customerID, notifID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return status.Error(codes.NotFound, "notification not found")
+		}
+		return status.Errorf(codes.Internal, "mark notification read: %v", err)
+	}
+	return nil
+}
+
+func (s *Service) MarkAllNotificationsRead(ctx context.Context, tenantID, customerID uuid.UUID) (int32, error) {
+	count, err := s.repo.MarkAllNotificationsRead(ctx, tenantID, customerID)
+	if err != nil {
+		return 0, status.Errorf(codes.Internal, "mark all notifications read: %v", err)
+	}
+	return int32(count), nil
+}
+
+func (s *Service) GetUnreadNotificationCount(ctx context.Context, tenantID, customerID uuid.UUID) (int32, error) {
+	count, err := s.repo.CountUnreadNotifications(ctx, tenantID, customerID)
+	if err != nil {
+		return 0, status.Errorf(codes.Internal, "count unread notifications: %v", err)
+	}
+	return int32(count), nil
+}
+
 func (s *Service) GetSettings(ctx context.Context, tenantID uuid.UUID) (*NotificationSettings, error) {
 	settings, err := s.repo.GetSettings(ctx, tenantID)
 	if err != nil {

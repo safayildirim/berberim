@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { FlatList, StyleSheet } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
 import { useNotifications } from '@/src/hooks/queries/useCampaigns';
 import { useNotificationMutations } from '@/src/hooks/mutations/useNotificationMutations';
@@ -15,7 +14,7 @@ export default function NotificationsScreen() {
   const { markAllAsRead, markAsRead } = useNotificationMutations();
 
   const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.isRead).length,
+    () => notifications.filter((n) => !n.is_read).length,
     [notifications],
   );
 
@@ -49,7 +48,7 @@ export default function NotificationsScreen() {
         renderItem={({ item }) => (
           <NotificationItem
             notification={item}
-            onPress={() => handleNotificationPress(item.id, item.isRead)}
+            onPress={() => handleNotificationPress(item.id, item.is_read)}
           />
         )}
         ListEmptyComponent={<NotificationEmptyState />}

@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 	"go.uber.org/zap"
@@ -98,6 +99,7 @@ func New() *Server {
 	notificationSvc := notification.NewService(logger, notificationRepo, pushProvider)
 	notificationHandler := notification.NewHandler(notificationSvc)
 	appointmentSvc.SetReminderScheduler(notificationSvc)
+	appointmentSvc.SetNotificationCreator(&notificationAdapter{svc: notificationSvc})
 
 	// ── Customer domain ───────────────────────────────────────────────────────
 	customerRepo := customer.NewRepo(db)
@@ -223,4 +225,21 @@ func (s *Server) serveHTTP() error {
 
 func Health(c *echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+}
+
+// notificationAdapter bridges notification.Service to appointment.NotificationCreator.
+type notificationAdapter struct {
+	svc *notification.Service
+}
+
+func (a *notificationAdapter) CreateNotification(ctx context.Context, tenantID, customerID uuid.UUID, notifType, title, body, deepLink string, referenceID *uuid.UUID) error {
+	return a.svc.CreateNotification(ctx, notification.CreateNotificationInput{
+		TenantID:    tenantID,
+		CustomerID:  customerID,
+		Type:        notifType,
+		Title:       title,
+		Body:        body,
+		DeepLink:    deepLink,
+		ReferenceID: referenceID,
+	})
 }

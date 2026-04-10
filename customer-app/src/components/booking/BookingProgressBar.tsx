@@ -13,7 +13,7 @@ export const BookingProgressBar = ({
   currentStep,
   totalSteps,
 }: BookingProgressBarProps) => {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const { t } = useTranslation();
 
   return (

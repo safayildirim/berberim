@@ -167,7 +167,10 @@ export type AppNotification = {
   id: string;
   title: string;
   body: string;
-  type: 'booking' | 'campaign' | 'status';
-  isRead: boolean;
-  createdAt: string;
+  type: 'booking' | 'campaign' | 'status' | 'system';
+  is_read: boolean;
+  created_at: string;
+  read_at?: string;
+  deep_link?: string;
+  reference_id?: string;
 };

@@ -21,12 +21,28 @@ export const useNotifications = () => {
   return useQuery({
     queryKey: queryKeys.customer.notifications,
     queryFn: async (): Promise<AppNotification[]> => {
-      const response = await api.get<{ notifications: AppNotification[] }>(
-        '/customer/notifications',
-      );
+      const response = await api.get<{
+        notifications: AppNotification[];
+        total: number;
+        total_pages: number;
+        unread_count: number;
+      }>('/customer/notifications');
       return response.notifications || [];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+export const useUnreadNotificationCount = () => {
+  return useQuery({
+    queryKey: queryKeys.customer.unreadCount,
+    queryFn: async (): Promise<number> => {
+      const response = await api.get<{ count: number }>(
+        '/customer/notifications/unread-count',
+      );
+      return response.count || 0;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 };
 

@@ -68,6 +68,10 @@ const (
 	BerberimAPI_DeleteStaffReview_FullMethodName          = "/berberim.v1.BerberimAPI/DeleteStaffReview"
 	BerberimAPI_ListStaffReviews_FullMethodName           = "/berberim.v1.BerberimAPI/ListStaffReviews"
 	BerberimAPI_GetMyReviewForAppointment_FullMethodName  = "/berberim.v1.BerberimAPI/GetMyReviewForAppointment"
+	BerberimAPI_ListCustomerNotifications_FullMethodName  = "/berberim.v1.BerberimAPI/ListCustomerNotifications"
+	BerberimAPI_MarkNotificationRead_FullMethodName       = "/berberim.v1.BerberimAPI/MarkNotificationRead"
+	BerberimAPI_MarkAllNotificationsRead_FullMethodName   = "/berberim.v1.BerberimAPI/MarkAllNotificationsRead"
+	BerberimAPI_GetUnreadNotificationCount_FullMethodName = "/berberim.v1.BerberimAPI/GetUnreadNotificationCount"
 	BerberimAPI_GetStaffProfile_FullMethodName            = "/berberim.v1.BerberimAPI/GetStaffProfile"
 	BerberimAPI_GetStaffCalendar_FullMethodName           = "/berberim.v1.BerberimAPI/GetStaffCalendar"
 	BerberimAPI_GetTenantBranding_FullMethodName          = "/berberim.v1.BerberimAPI/GetTenantBranding"
@@ -190,6 +194,11 @@ type BerberimAPIClient interface {
 	DeleteStaffReview(ctx context.Context, in *DeleteStaffReviewRequest, opts ...grpc.CallOption) (*DeleteStaffReviewResponse, error)
 	ListStaffReviews(ctx context.Context, in *ListStaffReviewsRequest, opts ...grpc.CallOption) (*ListStaffReviewsResponse, error)
 	GetMyReviewForAppointment(ctx context.Context, in *GetMyReviewForAppointmentRequest, opts ...grpc.CallOption) (*GetMyReviewForAppointmentResponse, error)
+	// ── Customer Notifications ─────────────────────────────────────────────────
+	ListCustomerNotifications(ctx context.Context, in *ListCustomerNotificationsRequest, opts ...grpc.CallOption) (*ListCustomerNotificationsResponse, error)
+	MarkNotificationRead(ctx context.Context, in *MarkNotificationReadRequest, opts ...grpc.CallOption) (*MarkNotificationReadResponse, error)
+	MarkAllNotificationsRead(ctx context.Context, in *MarkAllNotificationsReadRequest, opts ...grpc.CallOption) (*MarkAllNotificationsReadResponse, error)
+	GetUnreadNotificationCount(ctx context.Context, in *GetUnreadNotificationCountRequest, opts ...grpc.CallOption) (*GetUnreadNotificationCountResponse, error)
 	// ── Staff profile & calendar ──────────────────────────────────────────────
 	GetStaffProfile(ctx context.Context, in *GetStaffProfileRequest, opts ...grpc.CallOption) (*GetStaffProfileResponse, error)
 	GetStaffCalendar(ctx context.Context, in *GetStaffCalendarRequest, opts ...grpc.CallOption) (*GetStaffCalendarResponse, error)
@@ -746,6 +755,46 @@ func (c *berberimAPIClient) GetMyReviewForAppointment(ctx context.Context, in *G
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetMyReviewForAppointmentResponse)
 	err := c.cc.Invoke(ctx, BerberimAPI_GetMyReviewForAppointment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) ListCustomerNotifications(ctx context.Context, in *ListCustomerNotificationsRequest, opts ...grpc.CallOption) (*ListCustomerNotificationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCustomerNotificationsResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ListCustomerNotifications_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) MarkNotificationRead(ctx context.Context, in *MarkNotificationReadRequest, opts ...grpc.CallOption) (*MarkNotificationReadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MarkNotificationReadResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_MarkNotificationRead_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) MarkAllNotificationsRead(ctx context.Context, in *MarkAllNotificationsReadRequest, opts ...grpc.CallOption) (*MarkAllNotificationsReadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MarkAllNotificationsReadResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_MarkAllNotificationsRead_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) GetUnreadNotificationCount(ctx context.Context, in *GetUnreadNotificationCountRequest, opts ...grpc.CallOption) (*GetUnreadNotificationCountResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUnreadNotificationCountResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_GetUnreadNotificationCount_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1340,6 +1389,11 @@ type BerberimAPIServer interface {
 	DeleteStaffReview(context.Context, *DeleteStaffReviewRequest) (*DeleteStaffReviewResponse, error)
 	ListStaffReviews(context.Context, *ListStaffReviewsRequest) (*ListStaffReviewsResponse, error)
 	GetMyReviewForAppointment(context.Context, *GetMyReviewForAppointmentRequest) (*GetMyReviewForAppointmentResponse, error)
+	// ── Customer Notifications ─────────────────────────────────────────────────
+	ListCustomerNotifications(context.Context, *ListCustomerNotificationsRequest) (*ListCustomerNotificationsResponse, error)
+	MarkNotificationRead(context.Context, *MarkNotificationReadRequest) (*MarkNotificationReadResponse, error)
+	MarkAllNotificationsRead(context.Context, *MarkAllNotificationsReadRequest) (*MarkAllNotificationsReadResponse, error)
+	GetUnreadNotificationCount(context.Context, *GetUnreadNotificationCountRequest) (*GetUnreadNotificationCountResponse, error)
 	// ── Staff profile & calendar ──────────────────────────────────────────────
 	GetStaffProfile(context.Context, *GetStaffProfileRequest) (*GetStaffProfileResponse, error)
 	GetStaffCalendar(context.Context, *GetStaffCalendarRequest) (*GetStaffCalendarResponse, error)
@@ -1558,6 +1612,18 @@ func (UnimplementedBerberimAPIServer) ListStaffReviews(context.Context, *ListSta
 }
 func (UnimplementedBerberimAPIServer) GetMyReviewForAppointment(context.Context, *GetMyReviewForAppointmentRequest) (*GetMyReviewForAppointmentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMyReviewForAppointment not implemented")
+}
+func (UnimplementedBerberimAPIServer) ListCustomerNotifications(context.Context, *ListCustomerNotificationsRequest) (*ListCustomerNotificationsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCustomerNotifications not implemented")
+}
+func (UnimplementedBerberimAPIServer) MarkNotificationRead(context.Context, *MarkNotificationReadRequest) (*MarkNotificationReadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MarkNotificationRead not implemented")
+}
+func (UnimplementedBerberimAPIServer) MarkAllNotificationsRead(context.Context, *MarkAllNotificationsReadRequest) (*MarkAllNotificationsReadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MarkAllNotificationsRead not implemented")
+}
+func (UnimplementedBerberimAPIServer) GetUnreadNotificationCount(context.Context, *GetUnreadNotificationCountRequest) (*GetUnreadNotificationCountResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUnreadNotificationCount not implemented")
 }
 func (UnimplementedBerberimAPIServer) GetStaffProfile(context.Context, *GetStaffProfileRequest) (*GetStaffProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetStaffProfile not implemented")
@@ -2614,6 +2680,78 @@ func _BerberimAPI_GetMyReviewForAppointment_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BerberimAPIServer).GetMyReviewForAppointment(ctx, req.(*GetMyReviewForAppointmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_ListCustomerNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCustomerNotificationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ListCustomerNotifications(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ListCustomerNotifications_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ListCustomerNotifications(ctx, req.(*ListCustomerNotificationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_MarkNotificationRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarkNotificationReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).MarkNotificationRead(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_MarkNotificationRead_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).MarkNotificationRead(ctx, req.(*MarkNotificationReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_MarkAllNotificationsRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarkAllNotificationsReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).MarkAllNotificationsRead(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_MarkAllNotificationsRead_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).MarkAllNotificationsRead(ctx, req.(*MarkAllNotificationsReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_GetUnreadNotificationCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUnreadNotificationCountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).GetUnreadNotificationCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_GetUnreadNotificationCount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).GetUnreadNotificationCount(ctx, req.(*GetUnreadNotificationCountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3756,6 +3894,22 @@ var BerberimAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMyReviewForAppointment",
 			Handler:    _BerberimAPI_GetMyReviewForAppointment_Handler,
+		},
+		{
+			MethodName: "ListCustomerNotifications",
+			Handler:    _BerberimAPI_ListCustomerNotifications_Handler,
+		},
+		{
+			MethodName: "MarkNotificationRead",
+			Handler:    _BerberimAPI_MarkNotificationRead_Handler,
+		},
+		{
+			MethodName: "MarkAllNotificationsRead",
+			Handler:    _BerberimAPI_MarkAllNotificationsRead_Handler,
+		},
+		{
+			MethodName: "GetUnreadNotificationCount",
+			Handler:    _BerberimAPI_GetUnreadNotificationCount_Handler,
 		},
 		{
 			MethodName: "GetStaffProfile",

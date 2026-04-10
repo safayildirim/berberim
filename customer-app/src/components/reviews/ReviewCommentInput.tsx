@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { SIZES, TYPOGRAPHY } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/src/store/useThemeStore';

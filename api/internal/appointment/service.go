@@ -25,6 +25,10 @@ type ReminderScheduler interface {
 	CancelAppointmentReminders(ctx context.Context, tenantID, appointmentID uuid.UUID, reason string) error
 }
 
+type NotificationCreator interface {
+	CreateNotification(ctx context.Context, tenantID, customerID uuid.UUID, notifType, title, body, deepLink string, referenceID *uuid.UUID) error
+}
+
 type RepoInterface interface {
 	GetTenantTimezone(ctx context.Context, tenantID uuid.UUID) (string, error)
 	GetMaxWeeklyCustomerBookings(ctx context.Context, tenantID uuid.UUID) (int, error)
@@ -51,10 +55,11 @@ type RepoInterface interface {
 }
 
 type Service struct {
-	repo      RepoInterface
-	loyalty   LoyaltyService
-	reminders ReminderScheduler
-	log       *zap.Logger
+	repo          RepoInterface
+	loyalty       LoyaltyService
+	reminders     ReminderScheduler
+	notifications NotificationCreator
+	log           *zap.Logger
 }
 
 func NewService(repo RepoInterface, loyalty LoyaltyService, log *zap.Logger) *Service {
@@ -63,6 +68,10 @@ func NewService(repo RepoInterface, loyalty LoyaltyService, log *zap.Logger) *Se
 
 func (s *Service) SetReminderScheduler(reminderScheduler ReminderScheduler) {
 	s.reminders = reminderScheduler
+}
+
+func (s *Service) SetNotificationCreator(nc NotificationCreator) {
+	s.notifications = nc
 }
 
 func (s *Service) loadTenantLocation(ctx context.Context, tenantID uuid.UUID) *time.Location {
@@ -539,6 +548,17 @@ func (s *Service) CreateAppointment(ctx context.Context, req CreateAppointmentRe
 				return fmt.Errorf("schedule reminders: %w", err)
 			}
 		}
+		if s.notifications != nil {
+			loc := s.loadTenantLocation(ctx, req.TenantID)
+			refID := appt.ID
+			if err := s.notifications.CreateNotification(ctx, req.TenantID, req.CustomerID,
+				"booking", "Appointment Confirmed",
+				fmt.Sprintf("Your appointment is confirmed for %s.", appt.StartsAt.In(loc).Format("02 Jan 15:04")),
+				fmt.Sprintf("berberim://appointments/%s", appt.ID), &refID,
+			); err != nil {
+				s.log.Warn("failed to create booking notification", zap.Error(err))
+			}
+		}
 		return nil
 	}); err != nil {
 		return nil, nil, err
@@ -575,6 +595,17 @@ func (s *Service) CancelAppointment(ctx context.Context, req CancelAppointmentRe
 		if s.reminders != nil {
 			if err := s.reminders.CancelAppointmentReminders(txCtx, req.TenantID, appt.ID, "appointment_cancelled"); err != nil {
 				return fmt.Errorf("cancel reminders: %w", err)
+			}
+		}
+		if s.notifications != nil {
+			loc := s.loadTenantLocation(txCtx, req.TenantID)
+			refID := appt.ID
+			if err := s.notifications.CreateNotification(txCtx, req.TenantID, appt.CustomerID,
+				"status", "Appointment Cancelled",
+				fmt.Sprintf("Your appointment on %s has been cancelled.", appt.StartsAt.In(loc).Format("02 Jan 15:04")),
+				fmt.Sprintf("berberim://appointments/%s", appt.ID), &refID,
+			); err != nil {
+				s.log.Warn("failed to create cancellation notification", zap.Error(err))
 			}
 		}
 		return nil
@@ -651,6 +682,17 @@ func (s *Service) RescheduleAppointment(ctx context.Context, req RescheduleAppoi
 			}
 			if err := s.reminders.ScheduleAppointmentReminders(txCtx, req.TenantID, newAppt.ID, newAppt.CustomerID, newAppt.StartsAt); err != nil {
 				return fmt.Errorf("schedule new reminders: %w", err)
+			}
+		}
+		if s.notifications != nil {
+			loc := s.loadTenantLocation(txCtx, req.TenantID)
+			refID := newAppt.ID
+			if err := s.notifications.CreateNotification(txCtx, req.TenantID, newAppt.CustomerID,
+				"status", "Appointment Rescheduled",
+				fmt.Sprintf("Your appointment has been rescheduled to %s.", newAppt.StartsAt.In(loc).Format("02 Jan 15:04")),
+				fmt.Sprintf("berberim://appointments/%s", newAppt.ID), &refID,
+			); err != nil {
+				s.log.Warn("failed to create reschedule notification", zap.Error(err))
 			}
 		}
 		return nil

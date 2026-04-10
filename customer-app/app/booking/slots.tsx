@@ -1,13 +1,7 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
-import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react-native';
+import { RotateCcw } from 'lucide-react-native';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 import { useBookingStore } from '@/src/store/useBookingStore';
@@ -36,7 +30,6 @@ export default function BookingSlotsScreen() {
   } = useBookingStore();
 
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const flatListRef = useRef<FlatList>(null);
 
   const dates = useMemo(
     () =>

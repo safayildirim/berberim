@@ -93,6 +93,18 @@ func (s *stubClient) GetNotificationSettings(_ context.Context, _ *berberimv1.Ge
 func (s *stubClient) UpdateNotificationSettings(_ context.Context, _ *berberimv1.UpdateNotificationSettingsRequest, _ ...grpc.CallOption) (*berberimv1.UpdateNotificationSettingsResponse, error) {
 	return &berberimv1.UpdateNotificationSettingsResponse{}, nil
 }
+func (s *stubClient) ListCustomerNotifications(_ context.Context, _ *berberimv1.ListCustomerNotificationsRequest, _ ...grpc.CallOption) (*berberimv1.ListCustomerNotificationsResponse, error) {
+	return &berberimv1.ListCustomerNotificationsResponse{}, nil
+}
+func (s *stubClient) MarkNotificationRead(_ context.Context, _ *berberimv1.MarkNotificationReadRequest, _ ...grpc.CallOption) (*berberimv1.MarkNotificationReadResponse, error) {
+	return &berberimv1.MarkNotificationReadResponse{}, nil
+}
+func (s *stubClient) MarkAllNotificationsRead(_ context.Context, _ *berberimv1.MarkAllNotificationsReadRequest, _ ...grpc.CallOption) (*berberimv1.MarkAllNotificationsReadResponse, error) {
+	return &berberimv1.MarkAllNotificationsReadResponse{}, nil
+}
+func (s *stubClient) GetUnreadNotificationCount(_ context.Context, _ *berberimv1.GetUnreadNotificationCountRequest, _ ...grpc.CallOption) (*berberimv1.GetUnreadNotificationCountResponse, error) {
+	return &berberimv1.GetUnreadNotificationCountResponse{}, nil
+}
 func (s *stubClient) ListServices(_ context.Context, _ *berberimv1.ListServicesRequest, _ ...grpc.CallOption) (*berberimv1.ListServicesResponse, error) {
 	return &berberimv1.ListServicesResponse{}, nil
 }

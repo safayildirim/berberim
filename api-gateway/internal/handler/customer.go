@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	berberimv1 "github.com/berberim/api/api/v1"
 	"github.com/labstack/echo/v5"
 	"google.golang.org/grpc/metadata"
@@ -273,6 +275,55 @@ func (h *CustomerHandler) DeletePushDevice(c *echo.Context) error {
 	req := &berberimv1.DeletePushDeviceRequest{DeviceId: c.Param("id")}
 	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
 	resp, err := h.client.DeletePushDevice(ctx, req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// GET /api/v1/customer/notifications
+func (h *CustomerHandler) ListNotifications(c *echo.Context) error {
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	pageSize, _ := strconv.Atoi(c.QueryParam("page_size"))
+	req := &berberimv1.ListCustomerNotificationsRequest{
+		Page:     int32(page),
+		PageSize: int32(pageSize),
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ListCustomerNotifications(ctx, req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// PATCH /api/v1/customer/notifications/:id/read
+func (h *CustomerHandler) MarkNotificationRead(c *echo.Context) error {
+	req := &berberimv1.MarkNotificationReadRequest{
+		NotificationId: c.Param("id"),
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.MarkNotificationRead(ctx, req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// PATCH /api/v1/customer/notifications/read-all
+func (h *CustomerHandler) MarkAllNotificationsRead(c *echo.Context) error {
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.MarkAllNotificationsRead(ctx, &berberimv1.MarkAllNotificationsReadRequest{})
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// GET /api/v1/customer/notifications/unread-count
+func (h *CustomerHandler) GetUnreadNotificationCount(c *echo.Context) error {
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.GetUnreadNotificationCount(ctx, &berberimv1.GetUnreadNotificationCountRequest{})
 	if err != nil {
 		return grpcErr(c, err)
 	}

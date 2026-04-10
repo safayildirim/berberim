@@ -6,6 +6,7 @@ import { MapPin, Bell } from 'lucide-react-native';
 import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
 import { SIZES } from '@/src/constants/theme';
+import { useUnreadNotificationCount } from '@/src/hooks/queries/useCampaigns';
 
 interface HomeHeaderProps {
   user: {
@@ -19,6 +20,7 @@ export const HomeHeader = ({ user, location }: HomeHeaderProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
@@ -72,7 +74,7 @@ export const HomeHeader = ({ user, location }: HomeHeaderProps) => {
           onPress={() => router.push('/notifications')}
         >
           <Bell size={18} color={colors.text} />
-          <View style={styles.notificationDot} />
+          {unreadCount > 0 && <View style={styles.notificationDot} />}
         </TouchableOpacity>
       </View>
     </View>

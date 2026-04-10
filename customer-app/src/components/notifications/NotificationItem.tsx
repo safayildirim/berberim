@@ -60,17 +60,17 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       style={[
         styles.container,
         {
-          backgroundColor: notification.isRead
+          backgroundColor: notification.is_read
             ? colors.background
             : colors.surfaceContainerLowest,
-          borderColor: notification.isRead
+          borderColor: notification.is_read
             ? colors.outlineVariant
             : '#f59e0b20',
         },
-        !notification.isRead && styles.unreadShadow,
+        !notification.is_read && styles.unreadShadow,
       ]}
     >
-      {!notification.isRead && (
+      {!notification.is_read && (
         <View
           style={[styles.unreadIndicator, { backgroundColor: '#f59e0b' }]}
         />
@@ -85,7 +85,9 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
               variant="label"
               style={[
                 styles.title,
-                { color: notification.isRead ? colors.secondary : colors.text },
+                {
+                  color: notification.is_read ? colors.secondary : colors.text,
+                },
               ]}
               numberOfLines={1}
             >
@@ -95,7 +97,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
               variant="caption"
               style={{ color: colors.onSurfaceVariant }}
             >
-              {format(parseISO(notification.createdAt), 'MMM d', {
+              {format(parseISO(notification.created_at), 'MMM d', {
                 locale: dateLocale,
               })}
             </Typography>
@@ -105,7 +107,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
             style={[
               styles.body,
               {
-                color: notification.isRead
+                color: notification.is_read
                   ? colors.onSurfaceVariant
                   : colors.secondary,
               },

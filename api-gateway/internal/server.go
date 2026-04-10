@@ -90,6 +90,10 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	customer.PATCH("/reviews/:id", h.Customer.UpdateReview)
 	customer.DELETE("/reviews/:id", h.Customer.DeleteReview)
 	customer.GET("/appointments/:id/review", h.Customer.GetMyReviewForAppointment)
+	customer.GET("/notifications", h.Customer.ListNotifications)
+	customer.GET("/notifications/unread-count", h.Customer.GetUnreadNotificationCount)
+	customer.PATCH("/notifications/read-all", h.Customer.MarkAllNotificationsRead)
+	customer.PATCH("/notifications/:id/read", h.Customer.MarkNotificationRead)
 
 	// ── Tenant API — staff + admin ────────────────────────────────────────────
 	// Who:   tenant_user (role=staff or role=admin)

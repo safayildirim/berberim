@@ -16,6 +16,13 @@ const (
 )
 
 const (
+	NotifTypeBooking  = "booking"
+	NotifTypeCampaign = "campaign"
+	NotifTypeStatus   = "status"
+	NotifTypeSystem   = "system"
+)
+
+const (
 	RecipientTypeCustomer = "customer"
 	RecipientTypeStaff    = "tenant_user"
 )
@@ -79,6 +86,23 @@ type UserDevice struct {
 }
 
 func (UserDevice) TableName() string { return "user_devices" }
+
+type CustomerNotification struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	TenantID    uuid.UUID `gorm:"type:uuid;not null"`
+	CustomerID  uuid.UUID `gorm:"type:uuid;not null"`
+	Type        string    `gorm:"size:30;not null"`
+	Title       string    `gorm:"size:500;not null"`
+	Body        string    `gorm:"type:text;not null"`
+	IsRead      bool      `gorm:"not null;default:false"`
+	ReadAt      *time.Time
+	DeepLink    *string    `gorm:"type:text"`
+	ReferenceID *uuid.UUID `gorm:"type:uuid"`
+	Metadata    []byte     `gorm:"type:jsonb;not null;default:'{}'"`
+	CreatedAt   time.Time
+}
+
+func (CustomerNotification) TableName() string { return "customer_notifications" }
 
 type AppointmentSnapshot struct {
 	ID         uuid.UUID

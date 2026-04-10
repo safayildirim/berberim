@@ -382,3 +382,21 @@ func (h *Handler) ListStaffReviews(ctx context.Context, req *berberimv1.ListStaf
 func (h *Handler) GetMyReviewForAppointment(ctx context.Context, req *berberimv1.GetMyReviewForAppointmentRequest) (*berberimv1.GetMyReviewForAppointmentResponse, error) {
 	return h.review.GetMyReviewForAppointment(ctx, req)
 }
+
+// ── Customer Notification RPCs ───────────────────────────────────────────────
+
+func (h *Handler) ListCustomerNotifications(ctx context.Context, req *berberimv1.ListCustomerNotificationsRequest) (*berberimv1.ListCustomerNotificationsResponse, error) {
+	return h.notification.ListCustomerNotifications(ctx, req)
+}
+
+func (h *Handler) MarkNotificationRead(ctx context.Context, req *berberimv1.MarkNotificationReadRequest) (*berberimv1.MarkNotificationReadResponse, error) {
+	return h.notification.MarkNotificationRead(ctx, req)
+}
+
+func (h *Handler) MarkAllNotificationsRead(ctx context.Context, req *berberimv1.MarkAllNotificationsReadRequest) (*berberimv1.MarkAllNotificationsReadResponse, error) {
+	return h.notification.MarkAllNotificationsRead(ctx, req)
+}
+
+func (h *Handler) GetUnreadNotificationCount(ctx context.Context, req *berberimv1.GetUnreadNotificationCountRequest) (*berberimv1.GetUnreadNotificationCountResponse, error) {
+	return h.notification.GetUnreadNotificationCount(ctx, req)
+}

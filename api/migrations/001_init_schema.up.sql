@@ -403,6 +403,24 @@ CREATE TABLE push_notification_logs (
 CREATE INDEX idx_push_notification_logs_tenant_id ON push_notification_logs(tenant_id, created_at DESC);
 CREATE INDEX idx_push_notification_logs_recipient ON push_notification_logs(recipient_type, recipient_id);
 
+CREATE TABLE customer_notifications (
+  id uuid primary key,
+  tenant_id uuid not null references tenants(id),
+  customer_id uuid not null references customers(id),
+  type varchar(30) not null CHECK (type IN ('booking', 'campaign', 'status', 'system')),
+  title varchar(500) not null,
+  body text not null,
+  is_read boolean not null default false,
+  read_at timestamptz,
+  deep_link text,
+  reference_id uuid,
+  metadata jsonb not null default '{}',
+  created_at timestamptz not null default now()
+);
+
+CREATE INDEX idx_customer_notifications_inbox ON customer_notifications(tenant_id, customer_id, created_at DESC);
+CREATE INDEX idx_customer_notifications_unread ON customer_notifications(tenant_id, customer_id) WHERE is_read = false;
+
 CREATE TABLE audit_logs (
   id uuid primary key,
   actor_type varchar(30) not null CHECK (actor_type IN ('super_admin', 'admin', 'staff', 'customer', 'system')),

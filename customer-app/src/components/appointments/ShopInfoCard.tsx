@@ -8,7 +8,6 @@ import {
 } from 'lucide-react-native';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
-import { SIZES } from '@/src/constants/theme';
 import { LocationMap } from '@/src/components/common/LocationMap';
 
 interface ShopInfoCardProps {

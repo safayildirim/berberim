@@ -6,7 +6,7 @@ import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 
 export const PolicyInfoCard = () => {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const { t } = useTranslation();
 
   return (

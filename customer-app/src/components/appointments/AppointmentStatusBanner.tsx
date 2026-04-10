@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, Clock } from 'lucide-react-native';
+import { CheckCircle2 } from 'lucide-react-native';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 
@@ -12,7 +12,7 @@ interface AppointmentStatusBannerProps {
 export const AppointmentStatusBanner = ({
   status,
 }: AppointmentStatusBannerProps) => {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const { t } = useTranslation();
 
   const isConfirmed =

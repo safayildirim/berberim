@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Star } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/src/store/useThemeStore';

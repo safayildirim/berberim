@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS customer_notifications;
 DROP TABLE IF EXISTS push_notification_logs;
 DROP TABLE IF EXISTS notification_reminders;
 DROP TABLE IF EXISTS notification_settings;

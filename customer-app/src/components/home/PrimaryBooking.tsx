@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Clock } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
 import { SIZES } from '@/src/constants/theme';
 import { useBookingStore } from '@/src/store/useBookingStore';
@@ -18,7 +17,6 @@ export const PrimaryBooking = ({
   earliestAvailable,
   limitReached,
 }: PrimaryBookingProps) => {
-  const { colors, isDark } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const resetBooking = useBookingStore((state) => state.reset);
