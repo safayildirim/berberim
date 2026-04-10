@@ -17,16 +17,28 @@ export default function BookingLayout() {
   const { colors, isDark } = useTheme();
   const { reset: resetBooking, isRebookMode } = useBookingStore();
 
-  const steps = isRebookMode
-    ? ['slots', 'review']
-    : ['services', 'slots', 'staff', 'review'];
+  // Stabilize steps based on initial mode to prevent progress bar flickering during reset
+  const initialIsRebookMode = React.useRef(isRebookMode).current;
+  const steps = React.useMemo(() => {
+    return initialIsRebookMode
+      ? ['slots', 'review']
+      : ['services', 'slots', 'staff', 'review'];
+  }, [initialIsRebookMode]);
 
   const currentStepIndex = steps.findIndex((s) => pathname.includes(s));
   const isSuccessScreen = pathname.includes('success');
 
   const handleClose = () => {
-    resetBooking();
-    router.replace('/(tabs)');
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
+
+    // Reset store on a slight delay to allow exit animation to complete smoothly
+    setTimeout(() => {
+      resetBooking();
+    }, 100);
   };
 
   const handleBack = () => {

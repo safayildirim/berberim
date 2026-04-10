@@ -3,6 +3,7 @@ import { StyleSheet, Switch, View } from 'react-native';
 import { COLORS, SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/store/useThemeStore';
 
 interface ReviewAnonymityToggleProps {
   value: boolean;
@@ -14,16 +15,33 @@ export const ReviewAnonymityToggle: React.FC<ReviewAnonymityToggleProps> = ({
   onValueChange,
 }) => {
   const { t } = useTranslation();
+  const { colors, isDark } = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: isDark
+            ? 'rgba(255,255,255,0.03)'
+            : 'rgba(0,0,0,0.02)',
+          borderColor: colors.outlineVariant,
+        },
+      ]}
+    >
       <View style={styles.textColumn}>
-        <Typography variant="label" style={styles.title}>
+        <Typography
+          variant="label"
+          style={[styles.title, { color: colors.onSurface }]}
+        >
           {t('reviews.submit_anonymously', {
             defaultValue: 'Submit anonymously',
           })}
         </Typography>
-        <Typography variant="caption" style={styles.subtitle}>
+        <Typography
+          variant="caption"
+          style={[styles.subtitle, { color: colors.secondary }]}
+        >
           {t('reviews.anonymous_hint', {
             defaultValue: "Your profile photo and name won't be visible",
           })}
@@ -33,10 +51,10 @@ export const ReviewAnonymityToggle: React.FC<ReviewAnonymityToggleProps> = ({
         value={value}
         onValueChange={onValueChange}
         trackColor={{
-          false: COLORS.surfaceContainerHighest,
-          true: COLORS.primary,
+          false: isDark ? colors.surfaceContainerHighest : '#e2e8f0',
+          true: colors.primary,
         }}
-        thumbColor={COLORS.white}
+        thumbColor={colors.white}
       />
     </View>
   );
@@ -48,8 +66,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: SIZES.md,
-    backgroundColor: COLORS.surfaceContainerLow + '66', // 30% opacity approx
     borderRadius: 16,
+    borderWidth: 1,
     marginBottom: SIZES.xl,
   },
   textColumn: {
@@ -58,11 +76,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: '800',
-    color: COLORS.onSurface,
     marginBottom: 2,
   },
   subtitle: {
-    color: COLORS.secondary,
     lineHeight: 16,
   },
 });

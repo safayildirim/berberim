@@ -227,6 +227,12 @@ export const resources = {
           'Bu değerlendirmeyi silmek istediğinizden emin misiniz?',
         anonymous: 'Anonim',
         your_review: 'Değerlendirmeniz',
+        how_was_haircut: 'Kesiminiz Nasıldı?',
+        feedback_help:
+          'Geri bildiriminiz {{name}} için ustalığını geliştirmede yardımcı olur.',
+        tap_to_rate: 'PUANLAMAK İÇİN DOKUNUN',
+        experience_details: 'Deneyim Detayları',
+        submit_anonymously: 'Anonim Gönder',
       },
       loyalty: {
         title: 'Sadakat Programı',
@@ -523,6 +529,11 @@ export const resources = {
         delete_confirm_msg: 'Are you sure you want to delete this review?',
         anonymous: 'Anonymous',
         your_review: 'Your Review',
+        how_was_haircut: 'How was your haircut?',
+        feedback_help: 'Your feedback helps {{name}} improve his craft.',
+        tap_to_rate: 'TAP TO RATE',
+        experience_details: 'Experience Details',
+        submit_anonymously: 'Submit anonymously',
       },
       loyalty: {
         title: 'Loyalty & Rewards',

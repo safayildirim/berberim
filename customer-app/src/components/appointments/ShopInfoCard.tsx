@@ -9,12 +9,15 @@ import {
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 import { SIZES } from '@/src/constants/theme';
+import { LocationMap } from '@/src/components/common/LocationMap';
 
 interface ShopInfoCardProps {
   shopName: string;
   shopImage?: string;
   barberName: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
   onCall: () => void;
   onDirections: () => void;
 }
@@ -24,6 +27,8 @@ export const ShopInfoCard = ({
   shopImage,
   barberName,
   address,
+  latitude,
+  longitude,
   onCall,
   onDirections,
 }: ShopInfoCardProps) => {
@@ -91,29 +96,14 @@ export const ShopInfoCard = ({
         </Typography>
       </View>
 
-      {/* Map Preview Placeholder */}
-      <View
-        style={[
-          styles.mapPlaceholder,
-          {
-            borderColor: colors.outlineVariant,
-            backgroundColor: isDark ? '#27272a' : '#e5e7eb',
-          },
-        ]}
-      >
-        <Image
-          source={{
-            uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-          }}
-          style={[styles.mapImage, { opacity: isDark ? 0.7 : 0.9 }]}
+      {latitude && longitude && (
+        <LocationMap
+          latitude={latitude}
+          longitude={longitude}
+          title={shopName}
+          style={styles.mapContainer}
         />
-        <View style={styles.mapOverlay}>
-          <View style={styles.pingContainer}>
-            <View style={styles.pingEffect} />
-            <MapPin size={32} color="#f59e0b" fill="#f59e0b" />
-          </View>
-        </View>
-      </View>
+      )}
 
       <View style={styles.actions}>
         <TouchableOpacity
@@ -208,35 +198,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
   },
-  mapPlaceholder: {
+  mapContainer: {
     width: '100%',
     height: 128,
     borderRadius: 12,
     overflow: 'hidden',
-    position: 'relative',
     borderWidth: 1,
     marginBottom: 20,
-  },
-  mapImage: {
-    width: '100%',
-    height: '100%',
-  },
-  mapOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pingContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pingEffect: {
-    position: 'absolute',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(245, 158, 11, 0.3)',
   },
   actions: {
     flexDirection: 'row',

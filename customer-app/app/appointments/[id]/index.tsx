@@ -21,11 +21,14 @@ import { AppointmentServiceCard } from '@/src/components/appointments/Appointmen
 import { PolicyInfoCard } from '@/src/components/appointments/PolicyInfoCard';
 import { AppointmentStickyActions } from '@/src/components/appointments/AppointmentStickyActions';
 
+import { useTenantStore } from '@/src/store/useTenantStore';
+
 export default function AppointmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
+  const tenant = useTenantStore((state) => state.config);
 
   const {
     data: appointment,
@@ -96,17 +99,17 @@ export default function AppointmentDetailScreen() {
   };
 
   const handleCall = () => {
-    if (appointment?.shop?.phone) {
-      Linking.openURL(`tel:${appointment.shop.phone}`);
+    if (tenant?.phone_number) {
+      Linking.openURL(`tel:${tenant.phone_number}`);
     } else {
       Alert.alert(t('common.error'), 'Shop phone number not available');
     }
   };
 
   const handleDirections = () => {
-    if (appointment?.shop) {
-      const { latitude, longitude, name } = appointment.shop;
-      const url = `http://maps.apple.com/?daddr=${latitude},${longitude}&q=${encodeURIComponent(name || 'Barber Shop')}`;
+    if (tenant?.coordinates) {
+      const { latitude, longitude } = tenant.coordinates;
+      const url = `http://maps.apple.com/?daddr=${latitude},${longitude}&q=${encodeURIComponent(tenant.name || 'Barber Shop')}`;
       Linking.openURL(url);
     }
   };
@@ -128,7 +131,6 @@ export default function AppointmentDetailScreen() {
     <View style={styles.root}>
       <Screen
         headerTitle={t('appointments.details')}
-        showProfile={false}
         showHeaderBack={true}
         loading={isLoading}
         error={error}
@@ -144,14 +146,16 @@ export default function AppointmentDetailScreen() {
               <AppointmentStatusBanner status={appointment.status} />
 
               <ShopInfoCard
-                shopName={appointment.shop?.name || '---'}
-                shopImage={appointment.shop?.logo_url}
+                shopName={tenant?.name || '---'}
+                shopImage={tenant?.branding?.logo_url}
                 barberName={
                   appointment.staff
                     ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
                     : '---'
                 }
-                address={appointment.shop?.address || '---'}
+                address={tenant?.address || '---'}
+                latitude={tenant?.coordinates?.latitude}
+                longitude={tenant?.coordinates?.longitude}
                 onCall={handleCall}
                 onDirections={handleDirections}
               />

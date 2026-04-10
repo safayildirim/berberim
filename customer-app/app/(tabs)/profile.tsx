@@ -30,7 +30,6 @@ export default function ProfileScreen() {
     <Screen
       headerTitle={t('nav.profile')}
       style={{ backgroundColor: colors.background }}
-      showProfile={false}
       transparentStatusBar
     >
       <ScrollView

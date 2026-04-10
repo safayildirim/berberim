@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { MapPin, Bell } from 'lucide-react-native';
 import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
@@ -17,6 +18,7 @@ interface HomeHeaderProps {
 export const HomeHeader = ({ user, location }: HomeHeaderProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
 
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
@@ -67,6 +69,7 @@ export const HomeHeader = ({ user, location }: HomeHeaderProps) => {
               borderColor: colors.outlineVariant,
             },
           ]}
+          onPress={() => router.push('/notifications')}
         >
           <Bell size={18} color={colors.text} />
           <View style={styles.notificationDot} />

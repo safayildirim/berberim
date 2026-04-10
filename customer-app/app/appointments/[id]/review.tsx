@@ -2,7 +2,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Send } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen } from '@/src/components/common/Screen';
 import { ReviewAnonymityToggle } from '@/src/components/reviews/ReviewAnonymityToggle';
@@ -17,12 +24,14 @@ import {
 } from '@/src/hooks/mutations/useReviewMutations';
 import { useAppointmentDetail } from '@/src/hooks/queries/useAppointments';
 import { useMyReview } from '@/src/hooks/queries/useReviews';
+import { useTheme } from '@/src/store/useThemeStore';
 
 export default function AddReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
 
   const { data: appointment, isLoading: isLoadingAppointment } =
     useAppointmentDetail(id as string);
@@ -88,52 +97,72 @@ export default function AddReviewScreen() {
           ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
           : t('reviews.rate_experience')
       }
+      showHeaderBack={true}
       loading={isLoading}
       style={styles.screen}
       transparentStatusBar
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: Math.max(insets.bottom, SIZES.padding) + SIZES.xl },
-        ]}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
-        <ReviewHeader
-          staffName={appointment?.staff?.first_name}
-          staffImageUrl={appointment?.staff?.avatar}
-        />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <ReviewHeader
+            staffName={appointment?.staff?.first_name}
+            staffImageUrl={appointment?.staff?.avatar}
+          />
 
-        <ReviewRatingSelector rating={rating} onRatingChange={setRating} />
+          <ReviewRatingSelector rating={rating} onRatingChange={setRating} />
 
-        <ReviewCommentInput value={comment} onChange={setComment} />
+          <ReviewCommentInput value={comment} onChange={setComment} />
 
-        <ReviewAnonymityToggle
-          value={isAnonymous}
-          onValueChange={setIsAnonymous}
-        />
+          <ReviewAnonymityToggle
+            value={isAnonymous}
+            onValueChange={setIsAnonymous}
+          />
+        </ScrollView>
 
-        <Button
-          title={review ? t('common.save') : t('common.submit')}
-          icon={<Send size={20} color={COLORS.white} />}
-          onPress={handleSubmit}
-          loading={isSubmitting}
-          disabled={rating === 0 || isSubmitting}
-          style={styles.submitButton}
-          size="lg"
-        />
-      </ScrollView>
+        <View
+          style={[
+            styles.footer,
+            {
+              backgroundColor: colors.background,
+              borderTopColor: colors.outlineVariant,
+              paddingBottom: Math.max(insets.bottom, SIZES.md),
+            },
+          ]}
+        >
+          <Button
+            title={review ? t('common.save') : t('common.submit')}
+            icon={<Send size={20} color={colors.onPrimary} />}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={rating === 0 || isSubmitting}
+            style={[styles.submitButton, { backgroundColor: colors.primary }]}
+            titleStyle={{ color: colors.onPrimary }}
+            size="lg"
+          />
+        </View>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: COLORS.background,
+    flex: 1,
   },
   scrollContent: {
     paddingHorizontal: SIZES.lg,
     paddingTop: SIZES.xl,
+    paddingBottom: SIZES.xl,
+  },
+  footer: {
+    padding: SIZES.lg,
+    borderTopWidth: 1,
   },
   submitButton: {
     height: 64,

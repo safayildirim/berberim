@@ -125,14 +125,6 @@ export type Appointment = {
   staff_user_id: string;
   services: AppointmentService[];
   staff?: Staff;
-  shop?: {
-    name: string;
-    logo_url?: string;
-    phone?: string;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
-  };
   total_price: string;
   notes?: string;
   created_at: string;

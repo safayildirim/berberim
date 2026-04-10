@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
+import { useTheme } from '@/src/store/useThemeStore';
 
 /**
  * Avatar Edit Section
@@ -26,6 +27,8 @@ export const AvatarEdit: React.FC<AvatarEditProps> = ({
   primaryColor,
   label,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.avatarContainer}>
       <View style={styles.avatarWrapper}>
@@ -35,20 +38,19 @@ export const AvatarEdit: React.FC<AvatarEditProps> = ({
               uri ||
               'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&fit=crop',
           }}
-          style={styles.avatar}
+          style={[styles.avatar, { borderColor: colors.outlineVariant }]}
         />
         <TouchableOpacity
           onPress={onPress}
           activeOpacity={0.8}
           style={[styles.cameraButton, { backgroundColor: primaryColor }]}
         >
-          <Camera size={14} color={COLORS.white} strokeWidth={3} />
+          <Camera size={14} color={colors.white} strokeWidth={3} />
         </TouchableOpacity>
       </View>
       <Typography
         variant="label"
-        color={COLORS.secondary}
-        style={styles.changeText}
+        style={[styles.changeText, { color: colors.secondary }]}
       >
         {label}
       </Typography>
@@ -76,22 +78,37 @@ export const FormField: React.FC<FormFieldProps> = ({
   disabled = false,
   icon: Icon,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.fieldContainer}>
-      <Typography variant="caption" style={styles.fieldLabel}>
+      <Typography
+        variant="caption"
+        style={[styles.fieldLabel, { color: colors.secondary }]}
+      >
         {label}
       </Typography>
-      <View style={[styles.inputContainer, disabled && styles.disabledInput]}>
+      <View
+        style={[
+          styles.inputContainer,
+          {
+            backgroundColor: colors.surfaceContainer,
+            borderColor: colors.outlineVariant,
+            borderWidth: 1,
+          },
+          disabled && styles.disabledInput,
+        ]}
+      >
         {Icon && (
-          <Icon size={16} color={COLORS.secondary} style={styles.inputIcon} />
+          <Icon size={16} color={colors.secondary} style={styles.inputIcon} />
         )}
         <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={COLORS.onSurfaceVariant}
+          placeholderTextColor={colors.onSurfaceVariant}
           editable={!disabled}
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
         />
       </View>
     </View>
@@ -113,7 +130,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 64,
     borderWidth: 2,
-    borderColor: COLORS.surfaceContainerHigh,
   },
   cameraButton: {
     position: 'absolute',
@@ -139,14 +155,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   fieldLabel: {
-    color: COLORS.secondary,
     fontWeight: '800',
     letterSpacing: 1.2,
     marginBottom: 8,
     textTransform: 'uppercase',
   },
   inputContainer: {
-    backgroundColor: COLORS.surfaceContainerLow,
     borderRadius: 12,
     height: 56,
     flexDirection: 'row',
@@ -157,7 +171,6 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.body,
     flex: 1,
     height: '100%',
-    color: COLORS.text,
   },
   inputIcon: {
     marginRight: 10,

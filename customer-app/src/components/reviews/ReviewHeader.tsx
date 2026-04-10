@@ -1,8 +1,9 @@
 import React from 'react';
 import { Image, StyleSheet, View, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { COLORS, SIZES } from '@/src/constants/theme';
 import { Typography } from '@/src/components/ui';
-import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/store/useThemeStore';
 
 interface ReviewHeaderProps {
   staffName?: string;
@@ -14,10 +15,16 @@ export const ReviewHeader: React.FC<ReviewHeaderProps> = ({
   staffImageUrl,
 }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
+      <View
+        style={[
+          styles.imageContainer,
+          { borderColor: colors.surfaceContainerHigh },
+        ]}
+      >
         <Image
           source={{
             uri:
@@ -27,15 +34,15 @@ export const ReviewHeader: React.FC<ReviewHeaderProps> = ({
           style={styles.image}
         />
       </View>
-      <Typography variant="h1" style={styles.title}>
-        {t('reviews.how_was_haircut', {
-          defaultValue: 'How was your haircut?',
-        })}
+      <Typography variant="h1" style={[styles.title, { color: colors.text }]}>
+        {t('reviews.how_was_haircut')}
       </Typography>
-      <Typography variant="body" style={styles.subtitle}>
+      <Typography
+        variant="body"
+        style={[styles.subtitle, { color: colors.secondary }]}
+      >
         {t('reviews.feedback_help', {
           name: staffName,
-          defaultValue: `Your feedback helps ${staffName} improve his craft.`,
         })}
       </Typography>
     </View>
@@ -54,7 +61,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: SIZES.md,
     borderWidth: 2,
-    borderColor: COLORS.surfaceContainerHigh,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -74,13 +80,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '900',
-    color: COLORS.primary,
     textAlign: 'center',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
-    color: COLORS.secondary,
     textAlign: 'center',
     paddingHorizontal: 20,
   },

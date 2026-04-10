@@ -27,7 +27,6 @@ interface ScreenProps {
   onHeaderBack?: () => void;
   showHeaderBack?: boolean;
   headerRightElement?: React.ReactNode;
-  showProfile?: boolean;
   transparentStatusBar?: boolean;
   contentContainerStyle?: ViewStyle;
 }
@@ -45,7 +44,6 @@ export const Screen: React.FC<ScreenProps> = ({
   onHeaderBack,
   showHeaderBack,
   headerRightElement,
-  showProfile,
   transparentStatusBar = false,
   contentContainerStyle,
 }) => {
@@ -147,7 +145,6 @@ export const Screen: React.FC<ScreenProps> = ({
             showHeaderBack !== undefined ? showHeaderBack : !!onHeaderBack
           }
           rightElement={headerRightElement}
-          showProfile={showProfile}
         />
       )}
       <View style={{ flex: 1 }}>{renderContent()}</View>

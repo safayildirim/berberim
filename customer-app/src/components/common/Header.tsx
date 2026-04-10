@@ -12,7 +12,6 @@ interface HeaderProps {
   onBack?: () => void;
   leftElement?: React.ReactNode;
   rightElement?: React.ReactNode;
-  showProfile?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,7 +20,6 @@ export const Header: React.FC<HeaderProps> = ({
   onBack,
   leftElement,
   rightElement,
-  showProfile = true,
 }) => {
   const router = useRouter();
   const { colors } = useTheme();
@@ -63,24 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
       </View>
 
       <View style={styles.rightContainer}>
-        {rightElement ? (
-          rightElement
-        ) : showProfile ? (
-          <TouchableOpacity
-            style={[
-              styles.profileButton,
-              { borderColor: colors.surfaceContainer },
-            ]}
-            onPress={() => router.push('/(tabs)/profile')}
-          >
-            <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop',
-              }}
-              style={styles.topProfileAvatar}
-            />
-          </TouchableOpacity>
-        ) : null}
+        {rightElement ? rightElement : null}
       </View>
     </View>
   );

@@ -15,6 +15,8 @@ import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 import { Appointment } from '@/src/types';
 
+import { useTenantStore } from '@/src/store/useTenantStore';
+
 interface BookingCardProps {
   booking: Appointment;
   type: 'upcoming' | 'past';
@@ -34,6 +36,7 @@ export const BookingCard = ({
 }: BookingCardProps) => {
   const { colors, isDark } = useTheme();
   const { t, i18n } = useTranslation();
+  const tenant = useTenantStore((state) => state.config);
 
   const startTime = parseISO(booking.starts_at);
   const dateLocale = i18n.language.startsWith('tr') ? tr : enUS;
@@ -59,14 +62,14 @@ export const BookingCard = ({
             <Image
               source={{
                 uri:
-                  booking.shop?.logo_url ||
+                  tenant?.branding?.logo_url ||
                   'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
               }}
               style={styles.shopImage}
             />
             <View>
               <Typography style={[styles.shopName, { color: colors.text }]}>
-                {booking.shop?.name || t('common.barberShop')}
+                {tenant?.name || t('common.barberShop')}
               </Typography>
               <Typography
                 variant="caption"
@@ -188,14 +191,14 @@ export const BookingCard = ({
         <Image
           source={{
             uri:
-              booking.shop?.logo_url ||
+              tenant?.branding?.logo_url ||
               'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
           }}
           style={styles.shopImage}
         />
         <View>
           <Typography style={[styles.shopName, { color: colors.text }]}>
-            {booking.shop?.name || t('common.barberShop')}
+            {tenant?.name || t('common.barberShop')}
           </Typography>
           <Typography
             variant="caption"

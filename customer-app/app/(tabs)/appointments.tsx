@@ -64,7 +64,6 @@ export default function AppointmentsScreen() {
     <Screen
       headerTitle={t('appointments.title')}
       loading={isLoading}
-      showProfile={false}
       error={error}
       transparentStatusBar
     >
