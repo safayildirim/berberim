@@ -5,6 +5,7 @@ import (
 
 	berberimv1 "github.com/berberim/api/api/v1"
 	"github.com/berberim/api/internal/identity"
+	"github.com/google/uuid"
 )
 
 // Handler is a thin gRPC bridge for avatar upload operations.
@@ -17,14 +18,11 @@ func NewHandler(svc *Service) *Handler {
 }
 
 func (h *Handler) GenerateCustomerAvatarUploadURL(ctx context.Context, req *berberimv1.GenerateAvatarUploadURLRequest) (*berberimv1.GenerateAvatarUploadURLResponse, error) {
-	rc, err := identity.FromGRPCMeta(ctx)
+	_, err := identity.FromGRPCMeta(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if err := rc.RequireTenant(); err != nil {
-		return nil, err
-	}
-
+	// Customer avatars are global — no tenant context needed.
 	uploadURL, objectKey, err := h.svc.GenerateUploadURL(ctx, req.ContentType, req.FileSize)
 	if err != nil {
 		return nil, err
@@ -40,11 +38,8 @@ func (h *Handler) ConfirmCustomerAvatarUpload(ctx context.Context, req *berberim
 	if err != nil {
 		return nil, err
 	}
-	if err := rc.RequireTenant(); err != nil {
-		return nil, err
-	}
-
-	avatarURL, err := h.svc.ConfirmUpload(ctx, UserTypeCustomer, rc.TenantID, rc.UserID, req.ObjectKey)
+	// Customer avatars are global — pass uuid.Nil as tenantID (customer repo ignores it).
+	avatarURL, err := h.svc.ConfirmUpload(ctx, UserTypeCustomer, uuid.Nil, rc.UserID, req.ObjectKey)
 	if err != nil {
 		return nil, err
 	}
