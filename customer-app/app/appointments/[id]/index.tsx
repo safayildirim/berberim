@@ -1,4 +1,4 @@
-import { AddReviewCard } from '@/src/components/appointments/LeaveReviewCard';
+import { AddReviewCard } from '@/src/components/appointments/AddReviewCard';
 import { format, parseISO } from 'date-fns';
 import { enUS, tr } from 'date-fns/locale';
 import { useLocalSearchParams, useRouter } from 'expo-router';
