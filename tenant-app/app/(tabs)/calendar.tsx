@@ -408,9 +408,63 @@ export default function CalendarScreen() {
       headerSubtitle={t('nav.calendar')}
       showNotification
     >
+      {/* Sticky Header Section */}
+      <View style={styles.stickyHeader}>
+        <View style={styles.calendarHeader}>
+          <View style={styles.headerTitle}>
+            <Text style={styles.headerTitleText}>{t('calendar.schedule')}</Text>
+            <Text style={styles.headerSubtitle}>
+              {format(selectedDate, 'MMMM yyyy', {
+                locale: dateLocale,
+              }).toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.calendarNav}>
+            <TouchableOpacity
+              onPress={handlePrevDay}
+              style={[
+                styles.navButton,
+                isSameDay(selectedDate, dates[0]) && { opacity: 0.3 },
+              ]}
+              disabled={isSameDay(selectedDate, dates[0])}
+            >
+              <ChevronLeft size={16} color={COLORS.secondary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleNextDay}
+              style={[
+                styles.navButton,
+                isSameDay(selectedDate, dates[dates.length - 1]) && {
+                  opacity: 0.3,
+                },
+              ]}
+              disabled={isSameDay(selectedDate, dates[dates.length - 1])}
+            >
+              <ChevronRight size={16} color={COLORS.secondary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Horizontal Date Selector */}
+        <FlatList
+          ref={flatListRef}
+          data={dates}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.dateStrip}
+          keyExtractor={(item) => item.toISOString()}
+          getItemLayout={(_, index) => ({
+            length: 64 + 12, // width + gap
+            offset: (64 + 12) * index,
+            index,
+          })}
+          renderItem={({ item }) => <DateItem date={item} />}
+        />
+      </View>
+
       <ScrollView
-        stickyHeaderIndices={[0]}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
             refreshing={isLoadingAppointments || isLoadingTimeOffs}
@@ -418,62 +472,6 @@ export default function CalendarScreen() {
           />
         }
       >
-        {/* Sticky Header Section */}
-        <View style={styles.stickyHeader}>
-          <View style={styles.calendarHeader}>
-            <View style={styles.headerTitle}>
-              <Text style={styles.headerTitleText}>
-                {t('calendar.schedule')}
-              </Text>
-              <Text style={styles.headerSubtitle}>
-                {format(selectedDate, 'MMMM yyyy', {
-                  locale: dateLocale,
-                }).toUpperCase()}
-              </Text>
-            </View>
-            <View style={styles.calendarNav}>
-              <TouchableOpacity
-                onPress={handlePrevDay}
-                style={[
-                  styles.navButton,
-                  isSameDay(selectedDate, dates[0]) && { opacity: 0.3 },
-                ]}
-                disabled={isSameDay(selectedDate, dates[0])}
-              >
-                <ChevronLeft size={16} color={COLORS.secondary} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleNextDay}
-                style={[
-                  styles.navButton,
-                  isSameDay(selectedDate, dates[dates.length - 1]) && {
-                    opacity: 0.3,
-                  },
-                ]}
-                disabled={isSameDay(selectedDate, dates[dates.length - 1])}
-              >
-                <ChevronRight size={16} color={COLORS.secondary} />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Horizontal Date Selector */}
-          <FlatList
-            ref={flatListRef}
-            data={dates}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.dateStrip}
-            keyExtractor={(item) => item.toISOString()}
-            getItemLayout={(_, index) => ({
-              length: 64 + 12, // width + gap
-              offset: (64 + 12) * index,
-              index,
-            })}
-            renderItem={({ item }) => <DateItem date={item} />}
-          />
-        </View>
-
         {/* Calendar Grid Section */}
         <View style={styles.gridContainer}>
           {/* Vertical Timeline Line */}
@@ -742,6 +740,9 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    paddingBottom: 120,
   },
   textWhite: { color: '#FFF' },
   stickyHeader: {

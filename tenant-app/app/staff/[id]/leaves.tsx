@@ -1,11 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Plus, ArrowLeft } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import React from 'react';
 import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -35,24 +34,14 @@ export default function LeavesScreen() {
   }, [isAdmin, id, currentUser?.id, router]);
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      {/* App Bar */}
-      <View style={[styles.appBar, { paddingTop: insets.top }]}>
-        <View style={styles.appBarContent}>
-          <View style={styles.leftGroup}>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.iconBtn}
-            >
-              <ArrowLeft size={24} color={COLORS.primary} strokeWidth={2.5} />
-            </TouchableOpacity>
-            <Text style={styles.appBarTitle}>
-              {t('settings.staff.schedule.title')}
-            </Text>
-          </View>
-        </View>
-      </View>
-
+    <Screen
+      headerTitle={t('settings.staff.schedule.title')}
+      onHeaderBack={() => router.back()}
+      showHeaderBack
+      style={styles.container}
+      withPadding={false}
+      transparentStatusBar
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -92,38 +81,6 @@ export default function LeavesScreen() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.background,
-  },
-  appBar: {
-    backgroundColor: 'rgba(247, 249, 251, 0.8)',
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant + '10',
-    zIndex: 100,
-  },
-  appBarContent: {
-    height: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  leftGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  appBarTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.primary,
-    fontFamily: 'Manrope',
-    letterSpacing: -0.5,
   },
   scrollContent: {
     padding: 24,

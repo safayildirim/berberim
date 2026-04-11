@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Share,
 } from 'react-native';
 import { Link2, Plus, Copy, Trash2, Clock } from 'lucide-react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -16,7 +17,6 @@ import * as Clipboard from 'expo-clipboard';
 import { Screen } from '@/src/components/common/Screen';
 import { adminService } from '@/src/services/admin.service';
 import { LinkCode } from '@/src/types';
-import { Share } from 'react-native';
 
 const C = {
   bg: '#f7f9fb',
