@@ -38,6 +38,7 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	pub.GET("/staff/:staffId", h.Public.GetStaff)
 	pub.GET("/staff/:staffId/services", h.Public.ListStaffServices)
 	pub.POST("/availability/search", h.Public.SearchAvailability)
+	pub.POST("/availability/search-multi-day", h.Public.SearchMultiDayAvailability)
 	pub.GET("/availability/days", h.Public.GetAvailabilityDays)
 
 	// ── Customer Auth ──────────────────────────────────────────────────────────
@@ -88,7 +89,7 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 		authzmw.RequireTokenType("customer"),
 		authzmw.RequireTenantHeader(),
 	)
-	customer.GET("/slot-recommendations", h.Customer.GetSlotRecommendations)
+	customer.POST("/availability/search-multi-day", h.Customer.SearchMultiDayAvailability)
 	customer.GET("/booking-limit", h.Customer.GetBookingLimitStatus)
 	customer.GET("/appointments", h.Customer.ListMyAppointments)
 	customer.POST("/appointments", h.Customer.CreateAppointment)
@@ -133,6 +134,10 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	tenant.POST("/staff/:id/schedule-rules", h.Tenant.CreateScheduleRule)
 	tenant.PATCH("/staff/:id/schedule-rules/:ruleId", h.Tenant.UpdateScheduleRule)
 	tenant.DELETE("/staff/:id/schedule-rules/:ruleId", h.Tenant.DeleteScheduleRule)
+	tenant.GET("/staff/:id/schedule-breaks", h.Tenant.ListScheduleBreaks)
+	tenant.POST("/staff/:id/schedule-breaks", h.Tenant.CreateScheduleBreak)
+	tenant.PATCH("/staff/:id/schedule-breaks/:breakId", h.Tenant.UpdateScheduleBreak)
+	tenant.DELETE("/staff/:id/schedule-breaks/:breakId", h.Tenant.DeleteScheduleBreak)
 	tenant.GET("/staff/:id/time-offs", h.Tenant.ListTimeOffs)
 	tenant.POST("/staff/:id/time-offs", h.Tenant.CreateTimeOff)
 	tenant.PATCH("/staff/:id/time-offs/:timeOffId", h.Tenant.UpdateTimeOff)
@@ -148,6 +153,8 @@ func NewRouter(cfg *config.Config, h *handler.Handlers, jwtValidator security.JW
 	tenant.POST("/appointments/:id/mark-payment-received", h.Tenant.MarkPaymentReceived)
 	tenant.POST("/appointments/:id/reschedule", h.Tenant.RescheduleAppointment)
 	tenant.POST("/availability/search", h.Tenant.SearchAvailability)
+	tenant.POST("/availability/search-multi-day", h.Tenant.SearchMultiDayAvailability)
+	tenant.POST("/availability/search-staff", h.Tenant.SearchStaffAvailability)
 
 	tenant.GET("/customers", h.Tenant.ListCustomers)
 	tenant.GET("/customers/:id", h.Tenant.GetCustomer)

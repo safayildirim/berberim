@@ -14,18 +14,11 @@ export const useCreateAppointment = () => {
     mutationFn: (data: CreateAppointmentRequest) =>
       appointmentService.create(data),
     onSuccess: () => {
-      // CLEAR local booking state
       resetBooking();
 
-      // Invalidate relevant queries:
-      // 1. My Appointments (all statuses)
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.all });
-      // 2. Availability (since one slot is now taken)
       queryClient.invalidateQueries({
-        queryKey: queryKeys.availability.search({}),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.availability.days({}),
+        queryKey: queryKeys.availability.all,
       });
     },
   });
@@ -45,7 +38,7 @@ export const useCancelAppointment = () => {
       });
       // Re-search availability on that day
       queryClient.invalidateQueries({
-        queryKey: queryKeys.availability.days({}),
+        queryKey: queryKeys.availability.all,
       });
     },
   });
@@ -63,7 +56,7 @@ export const useRescheduleAppointment = () => {
         queryKey: queryKeys.appointments.detail(id),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.availability.search({}),
+        queryKey: queryKeys.availability.all,
       });
     },
   });

@@ -328,6 +328,9 @@ func (h *Handler) UpdateTenantSettings(ctx context.Context, req *berberimv1.Upda
 		WalkInEnabled:             req.Settings.WalkInEnabled,
 		SameDayBookingEnabled:     req.Settings.SameDayBookingEnabled,
 		MaxWeeklyCustomerBookings: req.Settings.MaxWeeklyCustomerBookings,
+		BufferMinutes:             req.Settings.BufferMinutes,
+		MinAdvanceMinutes:         req.Settings.MinAdvanceMinutes,
+		MaxAdvanceDays:            req.Settings.MaxAdvanceDays,
 	})
 	if err != nil {
 		return nil, err
@@ -644,6 +647,109 @@ func (h *Handler) DeleteScheduleRule(ctx context.Context, req *berberimv1.Delete
 	return &berberimv1.DeleteScheduleRuleResponse{}, nil
 }
 
+// ── Schedule Breaks ─────────────────────────────────────────────────────────
+
+func (h *Handler) ListScheduleBreaks(ctx context.Context, req *berberimv1.ListScheduleBreaksRequest) (*berberimv1.ListScheduleBreaksResponse, error) {
+	rc, err := identity.FromGRPCMeta(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := rc.RequireTenant(); err != nil {
+		return nil, err
+	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
+	breaks, err := h.service.ListScheduleBreaks(ctx, rc.TenantID, staffID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*berberimv1.ScheduleBreak, 0, len(breaks))
+	for _, b := range breaks {
+		out = append(out, scheduleBreakToProto(&b))
+	}
+	return &berberimv1.ListScheduleBreaksResponse{Breaks: out}, nil
+}
+
+func (h *Handler) CreateScheduleBreak(ctx context.Context, req *berberimv1.CreateScheduleBreakRequest) (*berberimv1.CreateScheduleBreakResponse, error) {
+	rc, err := identity.FromGRPCMeta(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := rc.RequireTenant(); err != nil {
+		return nil, err
+	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
+	b, err := h.service.CreateScheduleBreak(ctx, CreateScheduleBreakInput{
+		TenantID:  rc.TenantID,
+		StaffID:   staffID,
+		DayOfWeek: int(req.DayOfWeek),
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		Label:     req.Label,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &berberimv1.CreateScheduleBreakResponse{ScheduleBreak: scheduleBreakToProto(b)}, nil
+}
+
+func (h *Handler) UpdateScheduleBreak(ctx context.Context, req *berberimv1.UpdateScheduleBreakRequest) (*berberimv1.UpdateScheduleBreakResponse, error) {
+	rc, err := identity.FromGRPCMeta(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := rc.RequireTenant(); err != nil {
+		return nil, err
+	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
+	breakID, err := uuid.Parse(req.BreakId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid break_id: %v", err)
+	}
+	b, err := h.service.UpdateScheduleBreak(ctx, UpdateScheduleBreakInput{
+		TenantID:  rc.TenantID,
+		StaffID:   staffID,
+		BreakID:   breakID,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		Label:     req.Label,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &berberimv1.UpdateScheduleBreakResponse{ScheduleBreak: scheduleBreakToProto(b)}, nil
+}
+
+func (h *Handler) DeleteScheduleBreak(ctx context.Context, req *berberimv1.DeleteScheduleBreakRequest) (*berberimv1.DeleteScheduleBreakResponse, error) {
+	rc, err := identity.FromGRPCMeta(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := rc.RequireTenant(); err != nil {
+		return nil, err
+	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
+	breakID, err := uuid.Parse(req.BreakId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid break_id: %v", err)
+	}
+	if err := h.service.DeleteScheduleBreak(ctx, rc.TenantID, staffID, breakID); err != nil {
+		return nil, err
+	}
+	return &berberimv1.DeleteScheduleBreakResponse{}, nil
+}
+
 // ── Time Offs ───────────────────────────────────────────────────────────────
 
 func (h *Handler) ListTimeOffs(ctx context.Context, req *berberimv1.ListTimeOffsRequest) (*berberimv1.ListTimeOffsResponse, error) {
@@ -703,13 +809,17 @@ func (h *Handler) UpdateTimeOff(ctx context.Context, req *berberimv1.UpdateTimeO
 	if err := rc.RequireTenant(); err != nil {
 		return nil, err
 	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
 	timeOffID, err := uuid.Parse(req.TimeOffId)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid time_off_id: %v", err)
 	}
 	t, err := h.service.UpdateTimeOff(ctx, UpdateTimeOffInput{
 		TenantID:  rc.TenantID,
-		StaffID:   uuid.Nil,
+		StaffID:   staffID,
 		TimeOffID: timeOffID,
 		StartAt:   req.StartAt,
 		EndAt:     req.EndAt,
@@ -729,11 +839,15 @@ func (h *Handler) DeleteTimeOff(ctx context.Context, req *berberimv1.DeleteTimeO
 	if err := rc.RequireTenant(); err != nil {
 		return nil, err
 	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
 	timeOffID, err := uuid.Parse(req.TimeOffId)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid time_off_id: %v", err)
 	}
-	if err := h.service.DeleteTimeOff(ctx, rc.TenantID, timeOffID); err != nil {
+	if err := h.service.DeleteTimeOff(ctx, rc.TenantID, staffID, timeOffID); err != nil {
 		return nil, err
 	}
 	return &berberimv1.DeleteTimeOffResponse{}, nil
@@ -908,6 +1022,9 @@ func settingsToProto(s *TenantSettings) *berberimv1.TenantSettingsData {
 		WalkInEnabled:             s.WalkInEnabled,
 		SameDayBookingEnabled:     s.SameDayBookingEnabled,
 		MaxWeeklyCustomerBookings: int32(s.MaxWeeklyCustomerBookings),
+		BufferMinutes:             int32(s.BufferMinutes),
+		MinAdvanceMinutes:         int32(s.MinAdvanceMinutes),
+		MaxAdvanceDays:            int32(s.MaxAdvanceDays),
 	}
 }
 
@@ -941,6 +1058,20 @@ func scheduleRuleToProto(r *ScheduleRule) *berberimv1.ScheduleRule {
 		SlotIntervalMinutes: int32(r.SlotIntervalMinutes),
 		IsWorkingDay:        r.IsWorkingDay,
 	}
+}
+
+func scheduleBreakToProto(b *ScheduleBreak) *berberimv1.ScheduleBreak {
+	p := &berberimv1.ScheduleBreak{
+		Id:          b.ID.String(),
+		StaffUserId: b.StaffUserID.String(),
+		DayOfWeek:   int32(b.DayOfWeek),
+		StartTime:   b.StartTime,
+		EndTime:     b.EndTime,
+	}
+	if b.Label != nil {
+		p.Label = *b.Label
+	}
+	return p
 }
 
 func timeOffToProto(t *TimeOff) *berberimv1.TimeOff {

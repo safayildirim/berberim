@@ -40,6 +40,63 @@ func (_m *MockRepoInterface) EXPECT() *MockRepoInterface_Expecter {
 	return &MockRepoInterface_Expecter{mock: &_m.Mock}
 }
 
+// AcquireStaffScheduleLock provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) AcquireStaffScheduleLock(ctx context.Context, staffUserID uuid.UUID) error {
+	ret := _mock.Called(ctx, staffUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AcquireStaffScheduleLock")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, staffUserID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepoInterface_AcquireStaffScheduleLock_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AcquireStaffScheduleLock'
+type MockRepoInterface_AcquireStaffScheduleLock_Call struct {
+	*mock.Call
+}
+
+// AcquireStaffScheduleLock is a helper method to define mock.On call
+//   - ctx context.Context
+//   - staffUserID uuid.UUID
+func (_e *MockRepoInterface_Expecter) AcquireStaffScheduleLock(ctx interface{}, staffUserID interface{}) *MockRepoInterface_AcquireStaffScheduleLock_Call {
+	return &MockRepoInterface_AcquireStaffScheduleLock_Call{Call: _e.mock.On("AcquireStaffScheduleLock", ctx, staffUserID)}
+}
+
+func (_c *MockRepoInterface_AcquireStaffScheduleLock_Call) Run(run func(ctx context.Context, staffUserID uuid.UUID)) *MockRepoInterface_AcquireStaffScheduleLock_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_AcquireStaffScheduleLock_Call) Return(err error) *MockRepoInterface_AcquireStaffScheduleLock_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepoInterface_AcquireStaffScheduleLock_Call) RunAndReturn(run func(ctx context.Context, staffUserID uuid.UUID) error) *MockRepoInterface_AcquireStaffScheduleLock_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CountCustomerAppointmentsInWeek provides a mock function for the type MockRepoInterface
 func (_mock *MockRepoInterface) CountCustomerAppointmentsInWeek(ctx context.Context, tenantID uuid.UUID, customerID uuid.UUID, weekStart time.Time, weekEnd time.Time) (int64, error) {
 	ret := _mock.Called(ctx, tenantID, customerID, weekStart, weekEnd)
@@ -120,6 +177,90 @@ func (_c *MockRepoInterface_CountCustomerAppointmentsInWeek_Call) Return(n int64
 }
 
 func (_c *MockRepoInterface_CountCustomerAppointmentsInWeek_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, customerID uuid.UUID, weekStart time.Time, weekEnd time.Time) (int64, error)) *MockRepoInterface_CountCustomerAppointmentsInWeek_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CountStaffAppointmentsToday provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) CountStaffAppointmentsToday(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, dayStart time.Time, dayEnd time.Time) (int64, error) {
+	ret := _mock.Called(ctx, tenantID, staffUserID, dayStart, dayEnd)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CountStaffAppointmentsToday")
+	}
+
+	var r0 int64
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, time.Time, time.Time) (int64, error)); ok {
+		return returnFunc(ctx, tenantID, staffUserID, dayStart, dayEnd)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, time.Time, time.Time) int64); ok {
+		r0 = returnFunc(ctx, tenantID, staffUserID, dayStart, dayEnd)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, time.Time, time.Time) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffUserID, dayStart, dayEnd)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_CountStaffAppointmentsToday_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CountStaffAppointmentsToday'
+type MockRepoInterface_CountStaffAppointmentsToday_Call struct {
+	*mock.Call
+}
+
+// CountStaffAppointmentsToday is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffUserID uuid.UUID
+//   - dayStart time.Time
+//   - dayEnd time.Time
+func (_e *MockRepoInterface_Expecter) CountStaffAppointmentsToday(ctx interface{}, tenantID interface{}, staffUserID interface{}, dayStart interface{}, dayEnd interface{}) *MockRepoInterface_CountStaffAppointmentsToday_Call {
+	return &MockRepoInterface_CountStaffAppointmentsToday_Call{Call: _e.mock.On("CountStaffAppointmentsToday", ctx, tenantID, staffUserID, dayStart, dayEnd)}
+}
+
+func (_c *MockRepoInterface_CountStaffAppointmentsToday_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, dayStart time.Time, dayEnd time.Time)) *MockRepoInterface_CountStaffAppointmentsToday_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		var arg3 time.Time
+		if args[3] != nil {
+			arg3 = args[3].(time.Time)
+		}
+		var arg4 time.Time
+		if args[4] != nil {
+			arg4 = args[4].(time.Time)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_CountStaffAppointmentsToday_Call) Return(n int64, err error) *MockRepoInterface_CountStaffAppointmentsToday_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_CountStaffAppointmentsToday_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, dayStart time.Time, dayEnd time.Time) (int64, error)) *MockRepoInterface_CountStaffAppointmentsToday_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -308,6 +449,80 @@ func (_c *MockRepoInterface_GetAppointment_Call) Return(appointment1 *appointmen
 }
 
 func (_c *MockRepoInterface_GetAppointment_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, appointmentID uuid.UUID) (*appointment.Appointment, error)) *MockRepoInterface_GetAppointment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAppointmentByIdempotencyKey provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) GetAppointmentByIdempotencyKey(ctx context.Context, tenantID uuid.UUID, key string) (*appointment.Appointment, error) {
+	ret := _mock.Called(ctx, tenantID, key)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAppointmentByIdempotencyKey")
+	}
+
+	var r0 *appointment.Appointment
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) (*appointment.Appointment, error)); ok {
+		return returnFunc(ctx, tenantID, key)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) *appointment.Appointment); ok {
+		r0 = returnFunc(ctx, tenantID, key)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*appointment.Appointment)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, string) error); ok {
+		r1 = returnFunc(ctx, tenantID, key)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_GetAppointmentByIdempotencyKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAppointmentByIdempotencyKey'
+type MockRepoInterface_GetAppointmentByIdempotencyKey_Call struct {
+	*mock.Call
+}
+
+// GetAppointmentByIdempotencyKey is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - key string
+func (_e *MockRepoInterface_Expecter) GetAppointmentByIdempotencyKey(ctx interface{}, tenantID interface{}, key interface{}) *MockRepoInterface_GetAppointmentByIdempotencyKey_Call {
+	return &MockRepoInterface_GetAppointmentByIdempotencyKey_Call{Call: _e.mock.On("GetAppointmentByIdempotencyKey", ctx, tenantID, key)}
+}
+
+func (_c *MockRepoInterface_GetAppointmentByIdempotencyKey_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, key string)) *MockRepoInterface_GetAppointmentByIdempotencyKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_GetAppointmentByIdempotencyKey_Call) Return(appointment1 *appointment.Appointment, err error) *MockRepoInterface_GetAppointmentByIdempotencyKey_Call {
+	_c.Call.Return(appointment1, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_GetAppointmentByIdempotencyKey_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, key string) (*appointment.Appointment, error)) *MockRepoInterface_GetAppointmentByIdempotencyKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -680,6 +895,78 @@ func (_c *MockRepoInterface_GetServiceByID_Call) RunAndReturn(run func(ctx conte
 	return _c
 }
 
+// GetStaffCustomPrice provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) GetStaffCustomPrice(ctx context.Context, staffUserID uuid.UUID, serviceID uuid.UUID) (string, error) {
+	ret := _mock.Called(ctx, staffUserID, serviceID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStaffCustomPrice")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (string, error)); ok {
+		return returnFunc(ctx, staffUserID, serviceID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) string); ok {
+		r0 = returnFunc(ctx, staffUserID, serviceID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, staffUserID, serviceID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_GetStaffCustomPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStaffCustomPrice'
+type MockRepoInterface_GetStaffCustomPrice_Call struct {
+	*mock.Call
+}
+
+// GetStaffCustomPrice is a helper method to define mock.On call
+//   - ctx context.Context
+//   - staffUserID uuid.UUID
+//   - serviceID uuid.UUID
+func (_e *MockRepoInterface_Expecter) GetStaffCustomPrice(ctx interface{}, staffUserID interface{}, serviceID interface{}) *MockRepoInterface_GetStaffCustomPrice_Call {
+	return &MockRepoInterface_GetStaffCustomPrice_Call{Call: _e.mock.On("GetStaffCustomPrice", ctx, staffUserID, serviceID)}
+}
+
+func (_c *MockRepoInterface_GetStaffCustomPrice_Call) Run(run func(ctx context.Context, staffUserID uuid.UUID, serviceID uuid.UUID)) *MockRepoInterface_GetStaffCustomPrice_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_GetStaffCustomPrice_Call) Return(s string, err error) *MockRepoInterface_GetStaffCustomPrice_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_GetStaffCustomPrice_Call) RunAndReturn(run func(ctx context.Context, staffUserID uuid.UUID, serviceID uuid.UUID) (string, error)) *MockRepoInterface_GetStaffCustomPrice_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetStaffMember provides a mock function for the type MockRepoInterface
 func (_mock *MockRepoInterface) GetStaffMember(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) (*appointment.StaffMember, error) {
 	ret := _mock.Called(ctx, tenantID, staffUserID)
@@ -750,6 +1037,74 @@ func (_c *MockRepoInterface_GetStaffMember_Call) Return(staffMember *appointment
 }
 
 func (_c *MockRepoInterface_GetStaffMember_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) (*appointment.StaffMember, error)) *MockRepoInterface_GetStaffMember_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTenantBookingConfig provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) GetTenantBookingConfig(ctx context.Context, tenantID uuid.UUID) (*appointment.TenantBookingConfig, error) {
+	ret := _mock.Called(ctx, tenantID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTenantBookingConfig")
+	}
+
+	var r0 *appointment.TenantBookingConfig
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*appointment.TenantBookingConfig, error)); ok {
+		return returnFunc(ctx, tenantID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *appointment.TenantBookingConfig); ok {
+		r0 = returnFunc(ctx, tenantID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*appointment.TenantBookingConfig)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, tenantID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_GetTenantBookingConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTenantBookingConfig'
+type MockRepoInterface_GetTenantBookingConfig_Call struct {
+	*mock.Call
+}
+
+// GetTenantBookingConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+func (_e *MockRepoInterface_Expecter) GetTenantBookingConfig(ctx interface{}, tenantID interface{}) *MockRepoInterface_GetTenantBookingConfig_Call {
+	return &MockRepoInterface_GetTenantBookingConfig_Call{Call: _e.mock.On("GetTenantBookingConfig", ctx, tenantID)}
+}
+
+func (_c *MockRepoInterface_GetTenantBookingConfig_Call) Run(run func(ctx context.Context, tenantID uuid.UUID)) *MockRepoInterface_GetTenantBookingConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_GetTenantBookingConfig_Call) Return(tenantBookingConfig *appointment.TenantBookingConfig, err error) *MockRepoInterface_GetTenantBookingConfig_Call {
+	_c.Call.Return(tenantBookingConfig, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_GetTenantBookingConfig_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID) (*appointment.TenantBookingConfig, error)) *MockRepoInterface_GetTenantBookingConfig_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -890,6 +1245,326 @@ func (_c *MockRepoInterface_GetTenantTimezone_Call) Return(s string, err error) 
 }
 
 func (_c *MockRepoInterface_GetTenantTimezone_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID) (string, error)) *MockRepoInterface_GetTenantTimezone_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAllStaffBookedSlots provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListAllStaffBookedSlots(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from time.Time, to time.Time) (map[uuid.UUID][]appointment.BookedSlot, error) {
+	ret := _mock.Called(ctx, tenantID, staffIDs, from, to)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllStaffBookedSlots")
+	}
+
+	var r0 map[uuid.UUID][]appointment.BookedSlot
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID, time.Time, time.Time) (map[uuid.UUID][]appointment.BookedSlot, error)); ok {
+		return returnFunc(ctx, tenantID, staffIDs, from, to)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID, time.Time, time.Time) map[uuid.UUID][]appointment.BookedSlot); ok {
+		r0 = returnFunc(ctx, tenantID, staffIDs, from, to)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uuid.UUID][]appointment.BookedSlot)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, []uuid.UUID, time.Time, time.Time) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffIDs, from, to)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListAllStaffBookedSlots_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllStaffBookedSlots'
+type MockRepoInterface_ListAllStaffBookedSlots_Call struct {
+	*mock.Call
+}
+
+// ListAllStaffBookedSlots is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffIDs []uuid.UUID
+//   - from time.Time
+//   - to time.Time
+func (_e *MockRepoInterface_Expecter) ListAllStaffBookedSlots(ctx interface{}, tenantID interface{}, staffIDs interface{}, from interface{}, to interface{}) *MockRepoInterface_ListAllStaffBookedSlots_Call {
+	return &MockRepoInterface_ListAllStaffBookedSlots_Call{Call: _e.mock.On("ListAllStaffBookedSlots", ctx, tenantID, staffIDs, from, to)}
+}
+
+func (_c *MockRepoInterface_ListAllStaffBookedSlots_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from time.Time, to time.Time)) *MockRepoInterface_ListAllStaffBookedSlots_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 []uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].([]uuid.UUID)
+		}
+		var arg3 time.Time
+		if args[3] != nil {
+			arg3 = args[3].(time.Time)
+		}
+		var arg4 time.Time
+		if args[4] != nil {
+			arg4 = args[4].(time.Time)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffBookedSlots_Call) Return(uUIDToBookedSlots map[uuid.UUID][]appointment.BookedSlot, err error) *MockRepoInterface_ListAllStaffBookedSlots_Call {
+	_c.Call.Return(uUIDToBookedSlots, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffBookedSlots_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from time.Time, to time.Time) (map[uuid.UUID][]appointment.BookedSlot, error)) *MockRepoInterface_ListAllStaffBookedSlots_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAllStaffScheduleBreaks provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListAllStaffScheduleBreaks(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID) (map[uuid.UUID][]appointment.ScheduleBreak, error) {
+	ret := _mock.Called(ctx, tenantID, staffIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllStaffScheduleBreaks")
+	}
+
+	var r0 map[uuid.UUID][]appointment.ScheduleBreak
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID) (map[uuid.UUID][]appointment.ScheduleBreak, error)); ok {
+		return returnFunc(ctx, tenantID, staffIDs)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID) map[uuid.UUID][]appointment.ScheduleBreak); ok {
+		r0 = returnFunc(ctx, tenantID, staffIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uuid.UUID][]appointment.ScheduleBreak)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, []uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListAllStaffScheduleBreaks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllStaffScheduleBreaks'
+type MockRepoInterface_ListAllStaffScheduleBreaks_Call struct {
+	*mock.Call
+}
+
+// ListAllStaffScheduleBreaks is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffIDs []uuid.UUID
+func (_e *MockRepoInterface_Expecter) ListAllStaffScheduleBreaks(ctx interface{}, tenantID interface{}, staffIDs interface{}) *MockRepoInterface_ListAllStaffScheduleBreaks_Call {
+	return &MockRepoInterface_ListAllStaffScheduleBreaks_Call{Call: _e.mock.On("ListAllStaffScheduleBreaks", ctx, tenantID, staffIDs)}
+}
+
+func (_c *MockRepoInterface_ListAllStaffScheduleBreaks_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID)) *MockRepoInterface_ListAllStaffScheduleBreaks_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 []uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].([]uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffScheduleBreaks_Call) Return(uUIDToScheduleBreaks map[uuid.UUID][]appointment.ScheduleBreak, err error) *MockRepoInterface_ListAllStaffScheduleBreaks_Call {
+	_c.Call.Return(uUIDToScheduleBreaks, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffScheduleBreaks_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID) (map[uuid.UUID][]appointment.ScheduleBreak, error)) *MockRepoInterface_ListAllStaffScheduleBreaks_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAllStaffScheduleRules provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListAllStaffScheduleRules(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID) (map[uuid.UUID][]appointment.ScheduleRule, error) {
+	ret := _mock.Called(ctx, tenantID, staffIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllStaffScheduleRules")
+	}
+
+	var r0 map[uuid.UUID][]appointment.ScheduleRule
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID) (map[uuid.UUID][]appointment.ScheduleRule, error)); ok {
+		return returnFunc(ctx, tenantID, staffIDs)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID) map[uuid.UUID][]appointment.ScheduleRule); ok {
+		r0 = returnFunc(ctx, tenantID, staffIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uuid.UUID][]appointment.ScheduleRule)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, []uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListAllStaffScheduleRules_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllStaffScheduleRules'
+type MockRepoInterface_ListAllStaffScheduleRules_Call struct {
+	*mock.Call
+}
+
+// ListAllStaffScheduleRules is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffIDs []uuid.UUID
+func (_e *MockRepoInterface_Expecter) ListAllStaffScheduleRules(ctx interface{}, tenantID interface{}, staffIDs interface{}) *MockRepoInterface_ListAllStaffScheduleRules_Call {
+	return &MockRepoInterface_ListAllStaffScheduleRules_Call{Call: _e.mock.On("ListAllStaffScheduleRules", ctx, tenantID, staffIDs)}
+}
+
+func (_c *MockRepoInterface_ListAllStaffScheduleRules_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID)) *MockRepoInterface_ListAllStaffScheduleRules_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 []uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].([]uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffScheduleRules_Call) Return(uUIDToScheduleRules map[uuid.UUID][]appointment.ScheduleRule, err error) *MockRepoInterface_ListAllStaffScheduleRules_Call {
+	_c.Call.Return(uUIDToScheduleRules, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffScheduleRules_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID) (map[uuid.UUID][]appointment.ScheduleRule, error)) *MockRepoInterface_ListAllStaffScheduleRules_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAllStaffTimeOffs provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListAllStaffTimeOffs(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from time.Time, to time.Time) (map[uuid.UUID][]appointment.TimeOff, error) {
+	ret := _mock.Called(ctx, tenantID, staffIDs, from, to)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllStaffTimeOffs")
+	}
+
+	var r0 map[uuid.UUID][]appointment.TimeOff
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID, time.Time, time.Time) (map[uuid.UUID][]appointment.TimeOff, error)); ok {
+		return returnFunc(ctx, tenantID, staffIDs, from, to)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID, time.Time, time.Time) map[uuid.UUID][]appointment.TimeOff); ok {
+		r0 = returnFunc(ctx, tenantID, staffIDs, from, to)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uuid.UUID][]appointment.TimeOff)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, []uuid.UUID, time.Time, time.Time) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffIDs, from, to)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListAllStaffTimeOffs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllStaffTimeOffs'
+type MockRepoInterface_ListAllStaffTimeOffs_Call struct {
+	*mock.Call
+}
+
+// ListAllStaffTimeOffs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffIDs []uuid.UUID
+//   - from time.Time
+//   - to time.Time
+func (_e *MockRepoInterface_Expecter) ListAllStaffTimeOffs(ctx interface{}, tenantID interface{}, staffIDs interface{}, from interface{}, to interface{}) *MockRepoInterface_ListAllStaffTimeOffs_Call {
+	return &MockRepoInterface_ListAllStaffTimeOffs_Call{Call: _e.mock.On("ListAllStaffTimeOffs", ctx, tenantID, staffIDs, from, to)}
+}
+
+func (_c *MockRepoInterface_ListAllStaffTimeOffs_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from time.Time, to time.Time)) *MockRepoInterface_ListAllStaffTimeOffs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 []uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].([]uuid.UUID)
+		}
+		var arg3 time.Time
+		if args[3] != nil {
+			arg3 = args[3].(time.Time)
+		}
+		var arg4 time.Time
+		if args[4] != nil {
+			arg4 = args[4].(time.Time)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffTimeOffs_Call) Return(uUIDToTimeOffs map[uuid.UUID][]appointment.TimeOff, err error) *MockRepoInterface_ListAllStaffTimeOffs_Call {
+	_c.Call.Return(uUIDToTimeOffs, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListAllStaffTimeOffs_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from time.Time, to time.Time) (map[uuid.UUID][]appointment.TimeOff, error)) *MockRepoInterface_ListAllStaffTimeOffs_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1122,6 +1797,92 @@ func (_c *MockRepoInterface_ListBookedSlots_Call) RunAndReturn(run func(ctx cont
 	return _c
 }
 
+// ListConflictingAppointments provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListConflictingAppointments(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, from time.Time, to time.Time) ([]appointment.Appointment, error) {
+	ret := _mock.Called(ctx, tenantID, staffUserID, from, to)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListConflictingAppointments")
+	}
+
+	var r0 []appointment.Appointment
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, time.Time, time.Time) ([]appointment.Appointment, error)); ok {
+		return returnFunc(ctx, tenantID, staffUserID, from, to)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, time.Time, time.Time) []appointment.Appointment); ok {
+		r0 = returnFunc(ctx, tenantID, staffUserID, from, to)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]appointment.Appointment)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, time.Time, time.Time) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffUserID, from, to)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListConflictingAppointments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListConflictingAppointments'
+type MockRepoInterface_ListConflictingAppointments_Call struct {
+	*mock.Call
+}
+
+// ListConflictingAppointments is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffUserID uuid.UUID
+//   - from time.Time
+//   - to time.Time
+func (_e *MockRepoInterface_Expecter) ListConflictingAppointments(ctx interface{}, tenantID interface{}, staffUserID interface{}, from interface{}, to interface{}) *MockRepoInterface_ListConflictingAppointments_Call {
+	return &MockRepoInterface_ListConflictingAppointments_Call{Call: _e.mock.On("ListConflictingAppointments", ctx, tenantID, staffUserID, from, to)}
+}
+
+func (_c *MockRepoInterface_ListConflictingAppointments_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, from time.Time, to time.Time)) *MockRepoInterface_ListConflictingAppointments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		var arg3 time.Time
+		if args[3] != nil {
+			arg3 = args[3].(time.Time)
+		}
+		var arg4 time.Time
+		if args[4] != nil {
+			arg4 = args[4].(time.Time)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListConflictingAppointments_Call) Return(appointments []appointment.Appointment, err error) *MockRepoInterface_ListConflictingAppointments_Call {
+	_c.Call.Return(appointments, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListConflictingAppointments_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, from time.Time, to time.Time) ([]appointment.Appointment, error)) *MockRepoInterface_ListConflictingAppointments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListMultiAppointmentServices provides a mock function for the type MockRepoInterface
 func (_mock *MockRepoInterface) ListMultiAppointmentServices(ctx context.Context, appointmentIDs []uuid.UUID) ([]appointment.AppointmentService, error) {
 	ret := _mock.Called(ctx, appointmentIDs)
@@ -1254,6 +2015,160 @@ func (_c *MockRepoInterface_ListReviewsByAppointmentIDs_Call) Return(uUIDToRevie
 }
 
 func (_c *MockRepoInterface_ListReviewsByAppointmentIDs_Call) RunAndReturn(run func(ctx context.Context, appointmentIDs []uuid.UUID) (map[uuid.UUID]*appointment.ReviewInfo, error)) *MockRepoInterface_ListReviewsByAppointmentIDs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListScheduleBreaks provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListScheduleBreaks(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) ([]appointment.ScheduleBreak, error) {
+	ret := _mock.Called(ctx, tenantID, staffUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListScheduleBreaks")
+	}
+
+	var r0 []appointment.ScheduleBreak
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) ([]appointment.ScheduleBreak, error)); ok {
+		return returnFunc(ctx, tenantID, staffUserID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) []appointment.ScheduleBreak); ok {
+		r0 = returnFunc(ctx, tenantID, staffUserID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]appointment.ScheduleBreak)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffUserID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListScheduleBreaks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListScheduleBreaks'
+type MockRepoInterface_ListScheduleBreaks_Call struct {
+	*mock.Call
+}
+
+// ListScheduleBreaks is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffUserID uuid.UUID
+func (_e *MockRepoInterface_Expecter) ListScheduleBreaks(ctx interface{}, tenantID interface{}, staffUserID interface{}) *MockRepoInterface_ListScheduleBreaks_Call {
+	return &MockRepoInterface_ListScheduleBreaks_Call{Call: _e.mock.On("ListScheduleBreaks", ctx, tenantID, staffUserID)}
+}
+
+func (_c *MockRepoInterface_ListScheduleBreaks_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID)) *MockRepoInterface_ListScheduleBreaks_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListScheduleBreaks_Call) Return(scheduleBreaks []appointment.ScheduleBreak, err error) *MockRepoInterface_ListScheduleBreaks_Call {
+	_c.Call.Return(scheduleBreaks, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListScheduleBreaks_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) ([]appointment.ScheduleBreak, error)) *MockRepoInterface_ListScheduleBreaks_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListScheduleBreaksByDay provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListScheduleBreaksByDay(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, dayOfWeek int) ([]appointment.ScheduleBreak, error) {
+	ret := _mock.Called(ctx, tenantID, staffUserID, dayOfWeek)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListScheduleBreaksByDay")
+	}
+
+	var r0 []appointment.ScheduleBreak
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, int) ([]appointment.ScheduleBreak, error)); ok {
+		return returnFunc(ctx, tenantID, staffUserID, dayOfWeek)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, int) []appointment.ScheduleBreak); ok {
+		r0 = returnFunc(ctx, tenantID, staffUserID, dayOfWeek)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]appointment.ScheduleBreak)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, int) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffUserID, dayOfWeek)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListScheduleBreaksByDay_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListScheduleBreaksByDay'
+type MockRepoInterface_ListScheduleBreaksByDay_Call struct {
+	*mock.Call
+}
+
+// ListScheduleBreaksByDay is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffUserID uuid.UUID
+//   - dayOfWeek int
+func (_e *MockRepoInterface_Expecter) ListScheduleBreaksByDay(ctx interface{}, tenantID interface{}, staffUserID interface{}, dayOfWeek interface{}) *MockRepoInterface_ListScheduleBreaksByDay_Call {
+	return &MockRepoInterface_ListScheduleBreaksByDay_Call{Call: _e.mock.On("ListScheduleBreaksByDay", ctx, tenantID, staffUserID, dayOfWeek)}
+}
+
+func (_c *MockRepoInterface_ListScheduleBreaksByDay_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, dayOfWeek int)) *MockRepoInterface_ListScheduleBreaksByDay_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		var arg3 int
+		if args[3] != nil {
+			arg3 = args[3].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListScheduleBreaksByDay_Call) Return(scheduleBreaks []appointment.ScheduleBreak, err error) *MockRepoInterface_ListScheduleBreaksByDay_Call {
+	_c.Call.Return(scheduleBreaks, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListScheduleBreaksByDay_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID, dayOfWeek int) ([]appointment.ScheduleBreak, error)) *MockRepoInterface_ListScheduleBreaksByDay_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1402,6 +2317,80 @@ func (_c *MockRepoInterface_ListStaffScheduleRules_Call) Return(scheduleRules []
 }
 
 func (_c *MockRepoInterface_ListStaffScheduleRules_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) ([]appointment.ScheduleRule, error)) *MockRepoInterface_ListStaffScheduleRules_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListStaffServicesByStaff provides a mock function for the type MockRepoInterface
+func (_mock *MockRepoInterface) ListStaffServicesByStaff(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) ([]appointment.ServiceRecord, error) {
+	ret := _mock.Called(ctx, tenantID, staffUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListStaffServicesByStaff")
+	}
+
+	var r0 []appointment.ServiceRecord
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) ([]appointment.ServiceRecord, error)); ok {
+		return returnFunc(ctx, tenantID, staffUserID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) []appointment.ServiceRecord); ok {
+		r0 = returnFunc(ctx, tenantID, staffUserID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]appointment.ServiceRecord)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, tenantID, staffUserID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepoInterface_ListStaffServicesByStaff_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListStaffServicesByStaff'
+type MockRepoInterface_ListStaffServicesByStaff_Call struct {
+	*mock.Call
+}
+
+// ListStaffServicesByStaff is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tenantID uuid.UUID
+//   - staffUserID uuid.UUID
+func (_e *MockRepoInterface_Expecter) ListStaffServicesByStaff(ctx interface{}, tenantID interface{}, staffUserID interface{}) *MockRepoInterface_ListStaffServicesByStaff_Call {
+	return &MockRepoInterface_ListStaffServicesByStaff_Call{Call: _e.mock.On("ListStaffServicesByStaff", ctx, tenantID, staffUserID)}
+}
+
+func (_c *MockRepoInterface_ListStaffServicesByStaff_Call) Run(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID)) *MockRepoInterface_ListStaffServicesByStaff_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		var arg2 uuid.UUID
+		if args[2] != nil {
+			arg2 = args[2].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepoInterface_ListStaffServicesByStaff_Call) Return(serviceRecords []appointment.ServiceRecord, err error) *MockRepoInterface_ListStaffServicesByStaff_Call {
+	_c.Call.Return(serviceRecords, err)
+	return _c
+}
+
+func (_c *MockRepoInterface_ListStaffServicesByStaff_Call) RunAndReturn(run func(ctx context.Context, tenantID uuid.UUID, staffUserID uuid.UUID) ([]appointment.ServiceRecord, error)) *MockRepoInterface_ListStaffServicesByStaff_Call {
 	_c.Call.Return(run)
 	return _c
 }

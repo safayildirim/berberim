@@ -1,5 +1,13 @@
 import { create } from 'zustand';
-import { Appointment, AvailabilitySlot, Service, Staff } from '@/src/types';
+import {
+  Appointment,
+  AvailabilitySlot,
+  BookingEntryPoint,
+  Service,
+  Staff,
+  StaffChoice,
+  StaffOption,
+} from '@/src/types';
 
 interface RebookSource {
   appointmentId: string;
@@ -7,65 +15,198 @@ interface RebookSource {
 }
 
 interface BookingState {
-  selectedServices: Service[];
-  selectedStaff: Staff | null; // null means "No Preference"
+  entryPoint: BookingEntryPoint;
+  selectedServiceIds: string[];
+  selectedServicesSnapshot: Service[];
+  selectedStaffChoice: StaffChoice;
+  selectedStaffId: string | null;
+  selectedStaffSnapshot: StaffOption | Staff | null;
+  lockedStaffId: string | null;
   selectedSlot: AvailabilitySlot | null;
+  selectedDate: string | null;
   notes: string;
-  totalDuration: number;
-  totalPrice: number;
+  estimatedDurationMinutes: number;
+  estimatedPrice: number;
+  idempotencyKey: string;
   isRebookMode: boolean;
   rebookSource: RebookSource | null;
 
-  // Actions
+  // Compatibility selectors for screens that are being migrated.
+  selectedServices: Service[];
+  selectedStaff: Staff | null;
+  totalDuration: number;
+  totalPrice: number;
+
+  startFlow: (entryPoint?: BookingEntryPoint, staff?: Staff | null) => void;
   toggleService: (service: Service) => void;
-  setStaff: (staff: Staff | null) => void;
+  setStaffChoice: (
+    choice: StaffChoice,
+    staff?: StaffOption | Staff | null,
+  ) => void;
+  setStaff: (staff: Staff | StaffOption | null) => void;
   setSlot: (slot: AvailabilitySlot | null) => void;
+  setSelectedDate: (date: string | null) => void;
   setNotes: (notes: string) => void;
   setFromExisting: (appointment: Appointment) => void;
   reset: () => void;
 }
 
-export const useBookingStore = create<BookingState>((set, get) => ({
-  selectedServices: [],
-  selectedStaff: null,
+const newIntentKey = () =>
+  `booking_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+const computeTotals = (services: Service[]) => ({
+  estimatedDurationMinutes: services.reduce(
+    (sum, service) => sum + service.duration_minutes,
+    0,
+  ),
+  estimatedPrice: services.reduce(
+    (sum, service) => sum + Number(service.base_price || 0),
+    0,
+  ),
+});
+
+const toStaff = (staff: Staff | StaffOption | null): Staff | null => {
+  if (!staff) return null;
+  if ('id' in staff) return staff;
+  return {
+    id: staff.staff_user_id,
+    first_name: staff.first_name,
+    last_name: staff.last_name,
+    role: 'staff',
+    avatar: staff.avatar_url,
+    specialty: staff.specialty,
+    bio: staff.bio,
+    avg_rating: staff.avg_rating,
+    review_count: staff.review_count,
+  };
+};
+
+const getStaffId = (staff: Staff | StaffOption | null): string | null => {
+  if (!staff) return null;
+  return 'id' in staff ? staff.id : staff.staff_user_id;
+};
+
+const initialState = () => ({
+  entryPoint: 'services_first' as BookingEntryPoint,
+  selectedServiceIds: [],
+  selectedServicesSnapshot: [],
+  selectedStaffChoice: 'any' as StaffChoice,
+  selectedStaffId: null,
+  selectedStaffSnapshot: null,
+  lockedStaffId: null,
   selectedSlot: null,
+  selectedDate: null,
   notes: '',
-  totalDuration: 0,
-  totalPrice: 0,
+  estimatedDurationMinutes: 0,
+  estimatedPrice: 0,
+  idempotencyKey: newIntentKey(),
   isRebookMode: false,
   rebookSource: null,
+  selectedServices: [],
+  selectedStaff: null,
+  totalDuration: 0,
+  totalPrice: 0,
+});
 
-  toggleService: (service) => {
-    const { selectedServices } = get();
-    const isAlreadySelected = selectedServices.find((s) => s.id === service.id);
+export const useBookingStore = create<BookingState>((set, get) => ({
+  ...initialState(),
 
-    let nextServices;
-    if (isAlreadySelected) {
-      nextServices = selectedServices.filter((s) => s.id !== service.id);
-    } else {
-      nextServices = [...selectedServices, service];
-    }
-
-    const duration = nextServices.reduce(
-      (sum, s) => sum + s.duration_minutes,
-      0,
-    );
-    const price = nextServices.reduce(
-      (sum, s) => sum + Number(s.base_price || 0),
-      0,
-    );
-
+  startFlow: (entryPoint = 'services_first', staff = null) => {
+    const staffId = getStaffId(staff);
     set({
-      selectedServices: nextServices,
-      totalDuration: duration,
-      totalPrice: price,
-      selectedSlot: null, // Reset slot if services change as duration might change availability
+      ...initialState(),
+      entryPoint,
+      lockedStaffId: entryPoint === 'staff_first' ? staffId : null,
+      selectedStaffChoice: staffId ? 'specific' : 'any',
+      selectedStaffId: staffId,
+      selectedStaffSnapshot: staff,
+      selectedStaff: staff,
     });
   },
 
-  setStaff: (staff) => set({ selectedStaff: staff }),
-  setSlot: (slot) => set({ selectedSlot: slot }),
+  toggleService: (service) => {
+    const { selectedServicesSnapshot, lockedStaffId } = get();
+    const exists = selectedServicesSnapshot.some((s) => s.id === service.id);
+    const nextServices = exists
+      ? selectedServicesSnapshot.filter((s) => s.id !== service.id)
+      : [...selectedServicesSnapshot, service];
+    const totals = computeTotals(nextServices);
+
+    set((state) => ({
+      selectedServiceIds: nextServices.map((s) => s.id),
+      selectedServicesSnapshot: nextServices,
+      selectedServices: nextServices,
+      estimatedDurationMinutes: totals.estimatedDurationMinutes,
+      estimatedPrice: totals.estimatedPrice,
+      totalDuration: totals.estimatedDurationMinutes,
+      totalPrice: totals.estimatedPrice,
+      selectedSlot: null,
+      selectedStaffChoice:
+        state.entryPoint === 'staff_first' && lockedStaffId
+          ? 'specific'
+          : 'any',
+      selectedStaffId:
+        state.entryPoint === 'staff_first' ? lockedStaffId : null,
+      selectedStaffSnapshot:
+        state.entryPoint === 'staff_first' ? state.selectedStaffSnapshot : null,
+      selectedStaff:
+        state.entryPoint === 'staff_first' ? state.selectedStaff : null,
+    }));
+  },
+
+  setStaffChoice: (choice, staff = null) =>
+    set({
+      selectedStaffChoice: choice,
+      selectedStaffId: choice === 'specific' ? getStaffId(staff) : null,
+      selectedStaffSnapshot: choice === 'specific' ? staff : null,
+      selectedStaff: choice === 'specific' ? toStaff(staff) : null,
+    }),
+
+  setStaff: (staff) => {
+    if (!staff) {
+      set({
+        selectedStaffChoice: 'any',
+        selectedStaffId: null,
+        selectedStaffSnapshot: null,
+        selectedStaff: null,
+      });
+      return;
+    }
+    set({
+      selectedStaffChoice: 'specific',
+      selectedStaffId: getStaffId(staff),
+      selectedStaffSnapshot: staff,
+      selectedStaff: toStaff(staff),
+    });
+  },
+
+  setSlot: (slot) =>
+    set((state) => {
+      const selectedStaffStillAvailable =
+        !state.selectedStaffId ||
+        !!slot?.available_staff.some(
+          (staff) => staff.staff_user_id === state.selectedStaffId,
+        );
+
+      return {
+        selectedSlot: slot,
+        selectedDate: slot?.starts_at.slice(0, 10) ?? state.selectedDate,
+        selectedStaffChoice: selectedStaffStillAvailable
+          ? state.selectedStaffChoice
+          : 'any',
+        selectedStaffId: selectedStaffStillAvailable
+          ? state.selectedStaffId
+          : null,
+        selectedStaffSnapshot: selectedStaffStillAvailable
+          ? state.selectedStaffSnapshot
+          : null,
+        selectedStaff: selectedStaffStillAvailable ? state.selectedStaff : null,
+      };
+    }),
+
+  setSelectedDate: (date) => set({ selectedDate: date }),
   setNotes: (notes) => set({ notes }),
+
   setFromExisting: (appointment: Appointment) => {
     const mappedServices: Service[] = appointment.services.map((s) => ({
       id: s.service_id,
@@ -75,21 +216,22 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       base_price: s.price,
       category_name: '',
     }));
-
+    const totals = computeTotals(mappedServices);
     const staffName = appointment.staff
       ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
       : null;
 
     set({
+      ...initialState(),
+      entryPoint: 'rebook',
+      selectedServiceIds: mappedServices.map((s) => s.id),
+      selectedServicesSnapshot: mappedServices,
       selectedServices: mappedServices,
-      selectedStaff: appointment.staff || null,
-      selectedSlot: null, // User must pick a new slot for rebooking
       notes: appointment.notes || '',
-      totalDuration: mappedServices.reduce(
-        (sum, s) => sum + s.duration_minutes,
-        0,
-      ),
-      totalPrice: Number(appointment.total_price) || 0,
+      estimatedDurationMinutes: totals.estimatedDurationMinutes,
+      estimatedPrice: totals.estimatedPrice,
+      totalDuration: totals.estimatedDurationMinutes,
+      totalPrice: totals.estimatedPrice,
       isRebookMode: true,
       rebookSource: {
         appointmentId: appointment.id,
@@ -97,15 +239,6 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       },
     });
   },
-  reset: () =>
-    set({
-      selectedServices: [],
-      selectedStaff: null,
-      selectedSlot: null,
-      notes: '',
-      totalDuration: 0,
-      totalPrice: 0,
-      isRebookMode: false,
-      rebookSource: null,
-    }),
+
+  reset: () => set(initialState()),
 }));

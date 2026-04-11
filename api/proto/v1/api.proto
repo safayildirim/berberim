@@ -45,7 +45,8 @@ service BerberimAPI {
 
   // ── Availability ──────────────────────────────────────────────────────────
   rpc SearchAvailability(SearchAvailabilityRequest) returns (SearchAvailabilityResponse);
-  rpc GetSlotRecommendations(GetSlotRecommendationsRequest) returns (GetSlotRecommendationsResponse);
+  rpc SearchMultiDayAvailability(SearchMultiDayAvailabilityRequest) returns (SearchMultiDayAvailabilityResponse);
+  rpc SearchStaffAvailability(SearchStaffAvailabilityRequest) returns (SearchStaffAvailabilityResponse);
 
   rpc GetBookingLimitStatus(GetBookingLimitStatusRequest) returns (GetBookingLimitStatusResponse);
 
@@ -125,6 +126,10 @@ service BerberimAPI {
   rpc CreateScheduleRule(CreateScheduleRuleRequest) returns (CreateScheduleRuleResponse);
   rpc UpdateScheduleRule(UpdateScheduleRuleRequest) returns (UpdateScheduleRuleResponse);
   rpc DeleteScheduleRule(DeleteScheduleRuleRequest) returns (DeleteScheduleRuleResponse);
+  rpc ListScheduleBreaks(ListScheduleBreaksRequest) returns (ListScheduleBreaksResponse);
+  rpc CreateScheduleBreak(CreateScheduleBreakRequest) returns (CreateScheduleBreakResponse);
+  rpc UpdateScheduleBreak(UpdateScheduleBreakRequest) returns (UpdateScheduleBreakResponse);
+  rpc DeleteScheduleBreak(DeleteScheduleBreakRequest) returns (DeleteScheduleBreakResponse);
   rpc ListTimeOffs(ListTimeOffsRequest) returns (ListTimeOffsResponse);
   rpc CreateTimeOff(CreateTimeOffRequest) returns (CreateTimeOffResponse);
   rpc UpdateTimeOff(UpdateTimeOffRequest) returns (UpdateTimeOffResponse);
@@ -471,6 +476,12 @@ message TenantSettingsData {
   bool walk_in_enabled = 4;
   bool same_day_booking_enabled = 5;
   int32 max_weekly_customer_bookings = 6;
+  // Buffer time added after each appointment before the next slot opens.
+  int32 buffer_minutes = 7;
+  // Minimum advance booking time in minutes (0 = same-minute allowed).
+  int32 min_advance_minutes = 8;
+  // Maximum days in advance a customer can book (0 = unlimited).
+  int32 max_advance_days = 9;
 }
 
 message GetTenantSettingsRequest {}
@@ -609,15 +620,46 @@ message SearchAvailabilityResponse {
   repeated FilledSlot filled_slots = 2;
 }
 
-// ── Slot Recommendations ─────────────────────────────────────────────────────
+// ── Multi-day availability ────────────────────────────────────────────────────
 
-message GetSlotRecommendationsRequest {
+message SearchMultiDayAvailabilityRequest {
   string tenant_id = 1;
   repeated string service_ids = 2;
-  // Optional: enables personalized recommendations based on booking history.
-  string customer_id = 3;
-  // Optional: filter to a specific staff member.
-  string staff_user_id = 4;
+  string staff_user_id = 3;        // optional — empty means all qualified staff
+  string from_date = 4;            // YYYY-MM-DD inclusive
+  string to_date = 5;              // YYYY-MM-DD inclusive (max 14 days from from_date)
+}
+
+message DayAvailability {
+  string date = 1;
+  repeated AvailableSlot slots = 2;
+  repeated FilledSlot filled_slots = 3;
+}
+
+message SearchMultiDayAvailabilityResponse {
+  repeated DayAvailability days = 1;
+  repeated RecommendedSlot recommendations = 2;
+}
+
+// ── Staff availability ────────────────────────────────────────────────────────
+
+message SearchStaffAvailabilityRequest {
+  string tenant_id = 1;
+  string staff_user_id = 2;        // required
+  string from_date = 3;            // YYYY-MM-DD
+  string to_date = 4;              // YYYY-MM-DD
+  repeated string service_ids = 5; // optional filter
+}
+
+message StaffAvailabilityDay {
+  string date = 1;
+  repeated AvailableSlot slots = 2;
+  repeated FilledSlot filled_slots = 3;
+}
+
+message SearchStaffAvailabilityResponse {
+  repeated StaffAvailabilityDay days = 1;
+  repeated Service compatible_services = 2;
 }
 
 message RecommendedSlot {
@@ -627,10 +669,6 @@ message RecommendedSlot {
   repeated StaffOption available_staff = 3;
   // "earliest" | "preferred_time" | "preferred_staff" | "popular"
   string label = 4;
-}
-
-message GetSlotRecommendationsResponse {
-  repeated RecommendedSlot recommendations = 1;
 }
 
 message GetBookingLimitStatusRequest {}
@@ -691,6 +729,9 @@ message CreateAppointmentRequest {
   // Required when called from staff/admin surface (walk-in or booking for customer).
   // For customer surface, customer_id is taken from JWT metadata.
   string customer_id = 6;
+  // Optional client-generated idempotency key (max 64 chars).
+  // Repeat the same key to safely retry without double-booking.
+  string idempotency_key = 7;
 }
 
 message CreateAppointmentResponse {
@@ -810,6 +851,9 @@ message PublicStaffMember {
   string last_name = 3;
   double avg_rating = 4;
   int32 review_count = 5;
+  string specialty = 6;
+  string bio = 7;
+  string avatar_url = 8;
 }
 
 message ListPublicStaffRequest {
@@ -1041,6 +1085,54 @@ message DeleteScheduleRuleRequest {
 }
 
 message DeleteScheduleRuleResponse {}
+
+message ScheduleBreak {
+  string id = 1;
+  string staff_user_id = 2;
+  int32 day_of_week = 3;
+  string start_time = 4;
+  string end_time = 5;
+  string label = 6;
+}
+
+message ListScheduleBreaksRequest {
+  string staff_id = 1;
+}
+
+message ListScheduleBreaksResponse {
+  repeated ScheduleBreak breaks = 1;
+}
+
+message CreateScheduleBreakRequest {
+  string staff_id = 1;
+  int32 day_of_week = 2;
+  string start_time = 3;
+  string end_time = 4;
+  string label = 5;
+}
+
+message CreateScheduleBreakResponse {
+  ScheduleBreak schedule_break = 1;
+}
+
+message UpdateScheduleBreakRequest {
+  string staff_id = 1;
+  string break_id = 2;
+  string start_time = 3;
+  string end_time = 4;
+  string label = 5;
+}
+
+message UpdateScheduleBreakResponse {
+  ScheduleBreak schedule_break = 1;
+}
+
+message DeleteScheduleBreakRequest {
+  string staff_id = 1;
+  string break_id = 2;
+}
+
+message DeleteScheduleBreakResponse {}
 
 message TimeOff {
   string id = 1;

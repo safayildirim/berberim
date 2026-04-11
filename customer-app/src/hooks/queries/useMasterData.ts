@@ -3,7 +3,7 @@ import { api } from '@/src/lib/api/client';
 import { Service, Staff } from '@/src/types';
 import { queryKeys } from '@/src/lib/query/keys';
 
-export const useServices = (category?: string) => {
+export const useServices = (category?: string, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.services.list(category),
     queryFn: async (): Promise<Service[]> => {
@@ -17,12 +17,27 @@ export const useServices = (category?: string) => {
       return response.services || [];
     },
     staleTime: 1000 * 60 * 60, // Services list is very stable (1 hr)
+    enabled,
   });
 };
 
-export const useStaff = (tenantId?: string) => {
+export const useStaffServices = (staffId?: string | null, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.staff.list,
+    queryKey: queryKeys.services.staff(staffId || 'none'),
+    queryFn: async (): Promise<Service[]> => {
+      const response = await api.get<{ services: Service[] }>(
+        `/public/staff/${staffId}/services`,
+      );
+      return response.services || [];
+    },
+    staleTime: 1000 * 60 * 60,
+    enabled: enabled && !!staffId,
+  });
+};
+
+export const useStaff = (tenantId?: string, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.staff.list(tenantId),
     queryFn: async (): Promise<Staff[]> => {
       const response = await api.get<{ staff: Staff[] }>('/public/staff', {
         params: { tenant_id: tenantId },
@@ -30,5 +45,6 @@ export const useStaff = (tenantId?: string) => {
       return response.staff || [];
     },
     staleTime: 1000 * 60 * 60, // Staff list is stable
+    enabled: enabled && !!tenantId,
   });
 };

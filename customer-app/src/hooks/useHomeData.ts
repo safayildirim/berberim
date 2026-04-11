@@ -9,6 +9,7 @@ import {
 } from '@/src/hooks/queries/useAppointments';
 import { useLoyaltyWallet } from '@/src/hooks/queries/useLoyalty';
 import { useTenantStore } from '@/src/store/useTenantStore';
+import { Staff } from '@/src/types';
 
 export interface UpcomingAppointment {
   shopName: string;
@@ -20,8 +21,10 @@ export interface UpcomingAppointment {
 }
 
 export interface PastBooking {
+  appointmentId: string;
   shopName: string;
   barberName: string;
+  staff: Staff | null;
   service: string;
   lastVisit: string;
   shopImage: string;
@@ -82,8 +85,10 @@ export const useHomeData = () => {
     if (!lastCompleted) return null;
     const d = parseISO(lastCompleted.starts_at);
     return {
+      appointmentId: lastCompleted.id,
       shopName: config?.name || t('common.barberShop'),
       barberName: lastCompleted.staff?.first_name || '',
+      staff: lastCompleted.staff || null,
       service: lastCompleted.services?.[0]?.service_name || '',
       lastVisit: formatDistanceToNow(d, { addSuffix: true, locale }),
       shopImage:
@@ -94,7 +99,6 @@ export const useHomeData = () => {
 
   const bookingData = useMemo(
     () => ({
-      earliestAvailable: '09:00',
       limitReached: bookingLimit?.can_book === false,
     }),
     [bookingLimit],

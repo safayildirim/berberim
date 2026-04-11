@@ -9,20 +9,16 @@ import { SIZES } from '@/src/constants/theme';
 import { useBookingStore } from '@/src/store/useBookingStore';
 
 interface PrimaryBookingProps {
-  earliestAvailable: string;
   limitReached: boolean;
 }
 
-export const PrimaryBooking = ({
-  earliestAvailable,
-  limitReached,
-}: PrimaryBookingProps) => {
+export const PrimaryBooking = ({ limitReached }: PrimaryBookingProps) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const resetBooking = useBookingStore((state) => state.reset);
+  const startFlow = useBookingStore((state) => state.startFlow);
 
   const handlePress = () => {
-    resetBooking();
+    startFlow();
     router.push('/booking/services');
   };
 
@@ -60,7 +56,7 @@ export const PrimaryBooking = ({
               >
                 {limitReached
                   ? t('booking.weeklyLimitReached')
-                  : t('home.availableToday', { time: earliestAvailable })}
+                  : t('home.chooseServicesForAvailability')}
               </Typography>
             </View>
           </View>

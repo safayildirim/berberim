@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   value: {
-    fontSize: 14,
+    fontSize: 24,
     fontWeight: '900',
   },
   button: {

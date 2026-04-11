@@ -43,7 +43,8 @@ const (
 	BerberimAPI_CreateService_FullMethodName                   = "/berberim.v1.BerberimAPI/CreateService"
 	BerberimAPI_UpdateService_FullMethodName                   = "/berberim.v1.BerberimAPI/UpdateService"
 	BerberimAPI_SearchAvailability_FullMethodName              = "/berberim.v1.BerberimAPI/SearchAvailability"
-	BerberimAPI_GetSlotRecommendations_FullMethodName          = "/berberim.v1.BerberimAPI/GetSlotRecommendations"
+	BerberimAPI_SearchMultiDayAvailability_FullMethodName      = "/berberim.v1.BerberimAPI/SearchMultiDayAvailability"
+	BerberimAPI_SearchStaffAvailability_FullMethodName         = "/berberim.v1.BerberimAPI/SearchStaffAvailability"
 	BerberimAPI_GetBookingLimitStatus_FullMethodName           = "/berberim.v1.BerberimAPI/GetBookingLimitStatus"
 	BerberimAPI_CreateAppointment_FullMethodName               = "/berberim.v1.BerberimAPI/CreateAppointment"
 	BerberimAPI_GetAppointment_FullMethodName                  = "/berberim.v1.BerberimAPI/GetAppointment"
@@ -94,6 +95,10 @@ const (
 	BerberimAPI_CreateScheduleRule_FullMethodName              = "/berberim.v1.BerberimAPI/CreateScheduleRule"
 	BerberimAPI_UpdateScheduleRule_FullMethodName              = "/berberim.v1.BerberimAPI/UpdateScheduleRule"
 	BerberimAPI_DeleteScheduleRule_FullMethodName              = "/berberim.v1.BerberimAPI/DeleteScheduleRule"
+	BerberimAPI_ListScheduleBreaks_FullMethodName              = "/berberim.v1.BerberimAPI/ListScheduleBreaks"
+	BerberimAPI_CreateScheduleBreak_FullMethodName             = "/berberim.v1.BerberimAPI/CreateScheduleBreak"
+	BerberimAPI_UpdateScheduleBreak_FullMethodName             = "/berberim.v1.BerberimAPI/UpdateScheduleBreak"
+	BerberimAPI_DeleteScheduleBreak_FullMethodName             = "/berberim.v1.BerberimAPI/DeleteScheduleBreak"
 	BerberimAPI_ListTimeOffs_FullMethodName                    = "/berberim.v1.BerberimAPI/ListTimeOffs"
 	BerberimAPI_CreateTimeOff_FullMethodName                   = "/berberim.v1.BerberimAPI/CreateTimeOff"
 	BerberimAPI_UpdateTimeOff_FullMethodName                   = "/berberim.v1.BerberimAPI/UpdateTimeOff"
@@ -171,7 +176,8 @@ type BerberimAPIClient interface {
 	UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error)
 	// ── Availability ──────────────────────────────────────────────────────────
 	SearchAvailability(ctx context.Context, in *SearchAvailabilityRequest, opts ...grpc.CallOption) (*SearchAvailabilityResponse, error)
-	GetSlotRecommendations(ctx context.Context, in *GetSlotRecommendationsRequest, opts ...grpc.CallOption) (*GetSlotRecommendationsResponse, error)
+	SearchMultiDayAvailability(ctx context.Context, in *SearchMultiDayAvailabilityRequest, opts ...grpc.CallOption) (*SearchMultiDayAvailabilityResponse, error)
+	SearchStaffAvailability(ctx context.Context, in *SearchStaffAvailabilityRequest, opts ...grpc.CallOption) (*SearchStaffAvailabilityResponse, error)
 	GetBookingLimitStatus(ctx context.Context, in *GetBookingLimitStatusRequest, opts ...grpc.CallOption) (*GetBookingLimitStatusResponse, error)
 	// ── Appointments (shared across customer / staff / admin surfaces) ────────
 	CreateAppointment(ctx context.Context, in *CreateAppointmentRequest, opts ...grpc.CallOption) (*CreateAppointmentResponse, error)
@@ -236,6 +242,10 @@ type BerberimAPIClient interface {
 	CreateScheduleRule(ctx context.Context, in *CreateScheduleRuleRequest, opts ...grpc.CallOption) (*CreateScheduleRuleResponse, error)
 	UpdateScheduleRule(ctx context.Context, in *UpdateScheduleRuleRequest, opts ...grpc.CallOption) (*UpdateScheduleRuleResponse, error)
 	DeleteScheduleRule(ctx context.Context, in *DeleteScheduleRuleRequest, opts ...grpc.CallOption) (*DeleteScheduleRuleResponse, error)
+	ListScheduleBreaks(ctx context.Context, in *ListScheduleBreaksRequest, opts ...grpc.CallOption) (*ListScheduleBreaksResponse, error)
+	CreateScheduleBreak(ctx context.Context, in *CreateScheduleBreakRequest, opts ...grpc.CallOption) (*CreateScheduleBreakResponse, error)
+	UpdateScheduleBreak(ctx context.Context, in *UpdateScheduleBreakRequest, opts ...grpc.CallOption) (*UpdateScheduleBreakResponse, error)
+	DeleteScheduleBreak(ctx context.Context, in *DeleteScheduleBreakRequest, opts ...grpc.CallOption) (*DeleteScheduleBreakResponse, error)
 	ListTimeOffs(ctx context.Context, in *ListTimeOffsRequest, opts ...grpc.CallOption) (*ListTimeOffsResponse, error)
 	CreateTimeOff(ctx context.Context, in *CreateTimeOffRequest, opts ...grpc.CallOption) (*CreateTimeOffResponse, error)
 	UpdateTimeOff(ctx context.Context, in *UpdateTimeOffRequest, opts ...grpc.CallOption) (*UpdateTimeOffResponse, error)
@@ -532,10 +542,20 @@ func (c *berberimAPIClient) SearchAvailability(ctx context.Context, in *SearchAv
 	return out, nil
 }
 
-func (c *berberimAPIClient) GetSlotRecommendations(ctx context.Context, in *GetSlotRecommendationsRequest, opts ...grpc.CallOption) (*GetSlotRecommendationsResponse, error) {
+func (c *berberimAPIClient) SearchMultiDayAvailability(ctx context.Context, in *SearchMultiDayAvailabilityRequest, opts ...grpc.CallOption) (*SearchMultiDayAvailabilityResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSlotRecommendationsResponse)
-	err := c.cc.Invoke(ctx, BerberimAPI_GetSlotRecommendations_FullMethodName, in, out, cOpts...)
+	out := new(SearchMultiDayAvailabilityResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_SearchMultiDayAvailability_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) SearchStaffAvailability(ctx context.Context, in *SearchStaffAvailabilityRequest, opts ...grpc.CallOption) (*SearchStaffAvailabilityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchStaffAvailabilityResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_SearchStaffAvailability_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1042,6 +1062,46 @@ func (c *berberimAPIClient) DeleteScheduleRule(ctx context.Context, in *DeleteSc
 	return out, nil
 }
 
+func (c *berberimAPIClient) ListScheduleBreaks(ctx context.Context, in *ListScheduleBreaksRequest, opts ...grpc.CallOption) (*ListScheduleBreaksResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduleBreaksResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_ListScheduleBreaks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) CreateScheduleBreak(ctx context.Context, in *CreateScheduleBreakRequest, opts ...grpc.CallOption) (*CreateScheduleBreakResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateScheduleBreakResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_CreateScheduleBreak_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) UpdateScheduleBreak(ctx context.Context, in *UpdateScheduleBreakRequest, opts ...grpc.CallOption) (*UpdateScheduleBreakResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateScheduleBreakResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_UpdateScheduleBreak_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *berberimAPIClient) DeleteScheduleBreak(ctx context.Context, in *DeleteScheduleBreakRequest, opts ...grpc.CallOption) (*DeleteScheduleBreakResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteScheduleBreakResponse)
+	err := c.cc.Invoke(ctx, BerberimAPI_DeleteScheduleBreak_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *berberimAPIClient) ListTimeOffs(ctx context.Context, in *ListTimeOffsRequest, opts ...grpc.CallOption) (*ListTimeOffsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTimeOffsResponse)
@@ -1468,7 +1528,8 @@ type BerberimAPIServer interface {
 	UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error)
 	// ── Availability ──────────────────────────────────────────────────────────
 	SearchAvailability(context.Context, *SearchAvailabilityRequest) (*SearchAvailabilityResponse, error)
-	GetSlotRecommendations(context.Context, *GetSlotRecommendationsRequest) (*GetSlotRecommendationsResponse, error)
+	SearchMultiDayAvailability(context.Context, *SearchMultiDayAvailabilityRequest) (*SearchMultiDayAvailabilityResponse, error)
+	SearchStaffAvailability(context.Context, *SearchStaffAvailabilityRequest) (*SearchStaffAvailabilityResponse, error)
 	GetBookingLimitStatus(context.Context, *GetBookingLimitStatusRequest) (*GetBookingLimitStatusResponse, error)
 	// ── Appointments (shared across customer / staff / admin surfaces) ────────
 	CreateAppointment(context.Context, *CreateAppointmentRequest) (*CreateAppointmentResponse, error)
@@ -1533,6 +1594,10 @@ type BerberimAPIServer interface {
 	CreateScheduleRule(context.Context, *CreateScheduleRuleRequest) (*CreateScheduleRuleResponse, error)
 	UpdateScheduleRule(context.Context, *UpdateScheduleRuleRequest) (*UpdateScheduleRuleResponse, error)
 	DeleteScheduleRule(context.Context, *DeleteScheduleRuleRequest) (*DeleteScheduleRuleResponse, error)
+	ListScheduleBreaks(context.Context, *ListScheduleBreaksRequest) (*ListScheduleBreaksResponse, error)
+	CreateScheduleBreak(context.Context, *CreateScheduleBreakRequest) (*CreateScheduleBreakResponse, error)
+	UpdateScheduleBreak(context.Context, *UpdateScheduleBreakRequest) (*UpdateScheduleBreakResponse, error)
+	DeleteScheduleBreak(context.Context, *DeleteScheduleBreakRequest) (*DeleteScheduleBreakResponse, error)
 	ListTimeOffs(context.Context, *ListTimeOffsRequest) (*ListTimeOffsResponse, error)
 	CreateTimeOff(context.Context, *CreateTimeOffRequest) (*CreateTimeOffResponse, error)
 	UpdateTimeOff(context.Context, *UpdateTimeOffRequest) (*UpdateTimeOffResponse, error)
@@ -1661,8 +1726,11 @@ func (UnimplementedBerberimAPIServer) UpdateService(context.Context, *UpdateServ
 func (UnimplementedBerberimAPIServer) SearchAvailability(context.Context, *SearchAvailabilityRequest) (*SearchAvailabilityResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchAvailability not implemented")
 }
-func (UnimplementedBerberimAPIServer) GetSlotRecommendations(context.Context, *GetSlotRecommendationsRequest) (*GetSlotRecommendationsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetSlotRecommendations not implemented")
+func (UnimplementedBerberimAPIServer) SearchMultiDayAvailability(context.Context, *SearchMultiDayAvailabilityRequest) (*SearchMultiDayAvailabilityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchMultiDayAvailability not implemented")
+}
+func (UnimplementedBerberimAPIServer) SearchStaffAvailability(context.Context, *SearchStaffAvailabilityRequest) (*SearchStaffAvailabilityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchStaffAvailability not implemented")
 }
 func (UnimplementedBerberimAPIServer) GetBookingLimitStatus(context.Context, *GetBookingLimitStatusRequest) (*GetBookingLimitStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBookingLimitStatus not implemented")
@@ -1813,6 +1881,18 @@ func (UnimplementedBerberimAPIServer) UpdateScheduleRule(context.Context, *Updat
 }
 func (UnimplementedBerberimAPIServer) DeleteScheduleRule(context.Context, *DeleteScheduleRuleRequest) (*DeleteScheduleRuleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteScheduleRule not implemented")
+}
+func (UnimplementedBerberimAPIServer) ListScheduleBreaks(context.Context, *ListScheduleBreaksRequest) (*ListScheduleBreaksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScheduleBreaks not implemented")
+}
+func (UnimplementedBerberimAPIServer) CreateScheduleBreak(context.Context, *CreateScheduleBreakRequest) (*CreateScheduleBreakResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateScheduleBreak not implemented")
+}
+func (UnimplementedBerberimAPIServer) UpdateScheduleBreak(context.Context, *UpdateScheduleBreakRequest) (*UpdateScheduleBreakResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateScheduleBreak not implemented")
+}
+func (UnimplementedBerberimAPIServer) DeleteScheduleBreak(context.Context, *DeleteScheduleBreakRequest) (*DeleteScheduleBreakResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteScheduleBreak not implemented")
 }
 func (UnimplementedBerberimAPIServer) ListTimeOffs(context.Context, *ListTimeOffsRequest) (*ListTimeOffsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTimeOffs not implemented")
@@ -2384,20 +2464,38 @@ func _BerberimAPI_SearchAvailability_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BerberimAPI_GetSlotRecommendations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSlotRecommendationsRequest)
+func _BerberimAPI_SearchMultiDayAvailability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchMultiDayAvailabilityRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BerberimAPIServer).GetSlotRecommendations(ctx, in)
+		return srv.(BerberimAPIServer).SearchMultiDayAvailability(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BerberimAPI_GetSlotRecommendations_FullMethodName,
+		FullMethod: BerberimAPI_SearchMultiDayAvailability_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BerberimAPIServer).GetSlotRecommendations(ctx, req.(*GetSlotRecommendationsRequest))
+		return srv.(BerberimAPIServer).SearchMultiDayAvailability(ctx, req.(*SearchMultiDayAvailabilityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_SearchStaffAvailability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchStaffAvailabilityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).SearchStaffAvailability(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_SearchStaffAvailability_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).SearchStaffAvailability(ctx, req.(*SearchStaffAvailabilityRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3302,6 +3400,78 @@ func _BerberimAPI_DeleteScheduleRule_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BerberimAPI_ListScheduleBreaks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduleBreaksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).ListScheduleBreaks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_ListScheduleBreaks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).ListScheduleBreaks(ctx, req.(*ListScheduleBreaksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_CreateScheduleBreak_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateScheduleBreakRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).CreateScheduleBreak(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_CreateScheduleBreak_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).CreateScheduleBreak(ctx, req.(*CreateScheduleBreakRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_UpdateScheduleBreak_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateScheduleBreakRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).UpdateScheduleBreak(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_UpdateScheduleBreak_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).UpdateScheduleBreak(ctx, req.(*UpdateScheduleBreakRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BerberimAPI_DeleteScheduleBreak_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteScheduleBreakRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BerberimAPIServer).DeleteScheduleBreak(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BerberimAPI_DeleteScheduleBreak_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BerberimAPIServer).DeleteScheduleBreak(ctx, req.(*DeleteScheduleBreakRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BerberimAPI_ListTimeOffs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTimeOffsRequest)
 	if err := dec(in); err != nil {
@@ -4108,8 +4278,12 @@ var BerberimAPI_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BerberimAPI_SearchAvailability_Handler,
 		},
 		{
-			MethodName: "GetSlotRecommendations",
-			Handler:    _BerberimAPI_GetSlotRecommendations_Handler,
+			MethodName: "SearchMultiDayAvailability",
+			Handler:    _BerberimAPI_SearchMultiDayAvailability_Handler,
+		},
+		{
+			MethodName: "SearchStaffAvailability",
+			Handler:    _BerberimAPI_SearchStaffAvailability_Handler,
 		},
 		{
 			MethodName: "GetBookingLimitStatus",
@@ -4310,6 +4484,22 @@ var BerberimAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteScheduleRule",
 			Handler:    _BerberimAPI_DeleteScheduleRule_Handler,
+		},
+		{
+			MethodName: "ListScheduleBreaks",
+			Handler:    _BerberimAPI_ListScheduleBreaks_Handler,
+		},
+		{
+			MethodName: "CreateScheduleBreak",
+			Handler:    _BerberimAPI_CreateScheduleBreak_Handler,
+		},
+		{
+			MethodName: "UpdateScheduleBreak",
+			Handler:    _BerberimAPI_UpdateScheduleBreak_Handler,
+		},
+		{
+			MethodName: "DeleteScheduleBreak",
+			Handler:    _BerberimAPI_DeleteScheduleBreak_Handler,
 		},
 		{
 			MethodName: "ListTimeOffs",

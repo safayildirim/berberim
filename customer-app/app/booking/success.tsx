@@ -85,11 +85,6 @@ export default function BookingSuccessScreen() {
                 {mockUUID}
               </Typography>
             </View>
-            <View style={styles.statusBadge}>
-              <Typography variant="caption" style={styles.statusText}>
-                {t('appointments.status.confirmed').toUpperCase()}
-              </Typography>
-            </View>
           </View>
 
           <View
@@ -237,7 +232,7 @@ export default function BookingSuccessScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 60, paddingTop: 40 },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 60, paddingTop: 80 },
   heroSection: { alignItems: 'center', marginBottom: 32 },
   checkCircle: {
     width: 80,
@@ -284,13 +279,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     letterSpacing: 1,
   },
-  statusBadge: {
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  statusText: { color: '#22c55e', fontWeight: '800' },
   divider: { height: 1, width: '100%', marginVertical: 16 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   iconBox: {

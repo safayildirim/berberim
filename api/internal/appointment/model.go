@@ -14,6 +14,7 @@ type Appointment struct {
 	StaffUserID                  uuid.UUID `gorm:"type:uuid;not null"`
 	StartsAt                     time.Time `gorm:"not null"`
 	EndsAt                       time.Time `gorm:"not null"`
+	BlockedUntil                 time.Time `gorm:"not null"`
 	Status                       string    `gorm:"size:30;not null"`
 	CancellationReason           *string   `gorm:"type:text"`
 	CancelledByType              *string   `gorm:"size:30"`
@@ -22,6 +23,7 @@ type Appointment struct {
 	NotesCustomer                *string    `gorm:"type:text"`
 	NotesInternal                *string    `gorm:"type:text"`
 	RescheduledFromAppointmentID *uuid.UUID `gorm:"type:uuid"`
+	IdempotencyKey               *string    `gorm:"size:64"`
 	CreatedVia                   string     `gorm:"size:30;not null"`
 	CreatedAt                    time.Time
 	UpdatedAt                    time.Time
@@ -75,6 +77,7 @@ type StaffMember struct {
 	AvatarKey   *string   `gorm:"column:avatar_key"`
 	Specialty   *string
 	Bio         *string
+	Status      string
 	AvgRating   float64 `gorm:"column:avg_rating"`
 	ReviewCount int     `gorm:"column:review_count"`
 }
@@ -106,6 +109,20 @@ type ScheduleRule struct {
 	IsWorkingDay        bool      `gorm:"not null;default:true"`
 }
 
+// ScheduleBreak represents a recurring break for a staff member on a specific
+// day of the week. Stored in the staff_schedule_breaks table.
+type ScheduleBreak struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	TenantID    uuid.UUID `gorm:"type:uuid;not null"`
+	StaffUserID uuid.UUID `gorm:"type:uuid;not null"`
+	DayOfWeek   int       `gorm:"not null"`
+	StartTime   string    `gorm:"type:time;not null"`
+	EndTime     string    `gorm:"type:time;not null"`
+	Label       *string   `gorm:"size:50"`
+}
+
+func (ScheduleBreak) TableName() string { return "staff_schedule_breaks" }
+
 func (ScheduleRule) TableName() string { return "staff_schedule_rules" }
 
 // TimeOff mirrors staff_time_offs.
@@ -120,9 +137,11 @@ type TimeOff struct {
 func (TimeOff) TableName() string { return "staff_time_offs" }
 
 // BookedSlot is a lightweight projection of a booked appointment.
+// BlockedUntil includes the buffer period after the service ends.
 type BookedSlot struct {
-	StartsAt time.Time
-	EndsAt   time.Time
+	ID           uuid.UUID
+	StartsAt     time.Time
+	BlockedUntil time.Time
 }
 
 // AvailableSlot is computed output of the availability algorithm.
@@ -213,14 +232,6 @@ type PopularHour struct {
 	BookingCount int
 }
 
-// GetSlotRecommendationsRequest is the input for the slot recommendation engine.
-type GetSlotRecommendationsRequest struct {
-	TenantID    uuid.UUID
-	ServiceIDs  []uuid.UUID
-	CustomerID  uuid.UUID // zero = no personalization
-	StaffUserID uuid.UUID // zero = no staff filter
-}
-
 // SlotRecommendation is a single recommended time slot with a label explaining
 // why it was recommended.
 type SlotRecommendation struct {
@@ -228,4 +239,50 @@ type SlotRecommendation struct {
 	EndsAt         time.Time
 	AvailableStaff []StaffOption
 	Label          string // "earliest", "preferred_time", "preferred_staff", "popular"
+}
+
+// ── Multi-day availability types ────────────────────────────────────────────
+
+// TenantBookingConfig consolidates all tenant-level settings used by the
+// availability engine and the booking write path into a single read.
+type TenantBookingConfig struct {
+	Timezone              string `gorm:"column:timezone"`
+	BufferMinutes         int    `gorm:"column:buffer_minutes"`
+	SameDayBookingEnabled bool   `gorm:"column:same_day_booking_enabled"`
+	MinAdvanceMinutes     int    `gorm:"column:min_advance_minutes"`
+	MaxAdvanceDays        int    `gorm:"column:max_advance_days"`
+	MaxWeeklyBookings     int    `gorm:"column:max_weekly_bookings"`
+}
+
+type SearchMultiDayAvailabilityRequest struct {
+	TenantID    uuid.UUID
+	ServiceIDs  []uuid.UUID
+	StaffUserID uuid.UUID // optional — zero means all qualified staff
+	FromDate    string    // YYYY-MM-DD, inclusive
+	ToDate      string    // YYYY-MM-DD, inclusive (max 14 days)
+	CustomerID  uuid.UUID // optional — for personalized recommendations
+}
+
+type DayAvailability struct {
+	Date        string
+	Slots       []AvailableSlot
+	FilledSlots []FilledSlot
+}
+
+type MultiDayResult struct {
+	Days            []DayAvailability
+	Recommendations []SlotRecommendation
+}
+
+type SearchStaffAvailabilityRequest struct {
+	TenantID    uuid.UUID
+	StaffUserID uuid.UUID   // required
+	ServiceIDs  []uuid.UUID // optional filter
+	FromDate    string
+	ToDate      string
+}
+
+type StaffAvailabilityResult struct {
+	Days               []DayAvailability
+	CompatibleServices []ServiceRecord
 }

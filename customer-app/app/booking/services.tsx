@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 import { useBookingStore } from '@/src/store/useBookingStore';
-import { useServices } from '@/src/hooks/queries/useMasterData';
+import {
+  useServices,
+  useStaffServices,
+} from '@/src/hooks/queries/useMasterData';
 import { BookingServiceItem } from '@/src/components/booking/BookingServiceItem';
 import { BookingStickyFooter } from '@/src/components/booking/BookingStickyFooter';
 import { useRouter } from 'expo-router';
@@ -14,8 +17,19 @@ export default function BookingServicesScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const router = useRouter();
-  const { selectedServices, toggleService, totalPrice } = useBookingStore();
-  const { data: allServices, isLoading, error } = useServices();
+  const {
+    selectedServices,
+    toggleService,
+    totalPrice,
+    entryPoint,
+    selectedStaff,
+    selectedStaffId,
+  } = useBookingStore();
+  const isStaffFirst = entryPoint === 'staff_first' && !!selectedStaffId;
+  const allServicesQuery = useServices(undefined, !isStaffFirst);
+  const staffServicesQuery = useStaffServices(selectedStaffId, isStaffFirst);
+  const servicesQuery = isStaffFirst ? staffServicesQuery : allServicesQuery;
+  const { data: services, isLoading, error } = servicesQuery;
 
   return (
     <View style={styles.root}>
@@ -29,6 +43,18 @@ export default function BookingServicesScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {entryPoint === 'staff_first' && selectedStaff && (
+            <Typography
+              variant="caption"
+              style={[styles.staffContext, { color: colors.onSurfaceVariant }]}
+            >
+              {t('booking.bookingWith', {
+                name: `${selectedStaff.first_name} ${selectedStaff.last_name}`,
+                defaultValue: `Booking with ${selectedStaff.first_name} ${selectedStaff.last_name}`,
+              })}
+            </Typography>
+          )}
+
           <Typography
             variant="h2"
             style={[styles.title, { color: colors.text }]}
@@ -37,7 +63,7 @@ export default function BookingServicesScreen() {
           </Typography>
 
           <View style={styles.list}>
-            {allServices?.map((srv) => (
+            {services?.map((srv) => (
               <BookingServiceItem
                 key={srv.id}
                 name={srv.name}
@@ -101,6 +127,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 140,
+  },
+  staffContext: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 6,
   },
   title: {
     fontSize: 20,

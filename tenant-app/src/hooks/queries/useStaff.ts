@@ -28,15 +28,23 @@ export function useStaffDetail(id: string) {
 
 export function useStaffSchedule(staffId: string) {
   return useQuery({
-    queryKey: [...staffKeys.all, staffId, 'schedule'],
+    queryKey: queryKeys.staff.schedule(staffId),
     queryFn: () => staffService.getSchedule(staffId),
+    enabled: !!staffId,
+  });
+}
+
+export function useStaffScheduleBreaks(staffId: string) {
+  return useQuery({
+    queryKey: queryKeys.staff.scheduleBreaks(staffId),
+    queryFn: () => staffService.getScheduleBreaks(staffId),
     enabled: !!staffId,
   });
 }
 
 export function useStaffTimeOff(staffId: string) {
   return useQuery({
-    queryKey: [...staffKeys.all, staffId, 'timeOff'],
+    queryKey: queryKeys.staff.timeOff(staffId),
     queryFn: () => staffService.getTimeOff(staffId),
     enabled: !!staffId,
   });

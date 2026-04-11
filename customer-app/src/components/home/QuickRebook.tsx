@@ -2,10 +2,12 @@ import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { History, RotateCcw } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
 import { SIZES } from '@/src/constants/theme';
 import { PastBooking } from '@/src/hooks/useHomeData';
+import { useRebookAppointment } from '@/src/hooks/mutations/useAppointmentMutations';
 
 interface QuickRebookProps {
   pastBooking: PastBooking;
@@ -14,6 +16,14 @@ interface QuickRebookProps {
 export const QuickRebook = ({ pastBooking }: QuickRebookProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
+  const rebookAppointment = useRebookAppointment();
+
+  const handleRebook = () => {
+    rebookAppointment.mutate(pastBooking.appointmentId, {
+      onSuccess: () => router.push('/booking/slots'),
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -64,6 +74,8 @@ export const QuickRebook = ({ pastBooking }: QuickRebookProps) => {
         </View>
 
         <TouchableOpacity
+          onPress={handleRebook}
+          disabled={rebookAppointment.isPending}
           style={[
             styles.rebookButton,
             {

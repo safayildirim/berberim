@@ -117,8 +117,11 @@ func (s *stubClient) UpdateService(_ context.Context, _ *berberimv1.UpdateServic
 func (s *stubClient) SearchAvailability(_ context.Context, _ *berberimv1.SearchAvailabilityRequest, _ ...grpc.CallOption) (*berberimv1.SearchAvailabilityResponse, error) {
 	return &berberimv1.SearchAvailabilityResponse{}, nil
 }
-func (s *stubClient) GetSlotRecommendations(_ context.Context, _ *berberimv1.GetSlotRecommendationsRequest, _ ...grpc.CallOption) (*berberimv1.GetSlotRecommendationsResponse, error) {
-	return &berberimv1.GetSlotRecommendationsResponse{}, nil
+func (s *stubClient) SearchMultiDayAvailability(_ context.Context, _ *berberimv1.SearchMultiDayAvailabilityRequest, _ ...grpc.CallOption) (*berberimv1.SearchMultiDayAvailabilityResponse, error) {
+	return &berberimv1.SearchMultiDayAvailabilityResponse{}, nil
+}
+func (s *stubClient) SearchStaffAvailability(_ context.Context, _ *berberimv1.SearchStaffAvailabilityRequest, _ ...grpc.CallOption) (*berberimv1.SearchStaffAvailabilityResponse, error) {
+	return &berberimv1.SearchStaffAvailabilityResponse{}, nil
 }
 func (s *stubClient) CreateAppointment(_ context.Context, _ *berberimv1.CreateAppointmentRequest, _ ...grpc.CallOption) (*berberimv1.CreateAppointmentResponse, error) {
 	return &berberimv1.CreateAppointmentResponse{}, nil
@@ -218,6 +221,18 @@ func (s *stubClient) UpdateScheduleRule(_ context.Context, _ *berberimv1.UpdateS
 }
 func (s *stubClient) DeleteScheduleRule(_ context.Context, _ *berberimv1.DeleteScheduleRuleRequest, _ ...grpc.CallOption) (*berberimv1.DeleteScheduleRuleResponse, error) {
 	return &berberimv1.DeleteScheduleRuleResponse{}, nil
+}
+func (s *stubClient) ListScheduleBreaks(_ context.Context, _ *berberimv1.ListScheduleBreaksRequest, _ ...grpc.CallOption) (*berberimv1.ListScheduleBreaksResponse, error) {
+	return &berberimv1.ListScheduleBreaksResponse{}, nil
+}
+func (s *stubClient) CreateScheduleBreak(_ context.Context, _ *berberimv1.CreateScheduleBreakRequest, _ ...grpc.CallOption) (*berberimv1.CreateScheduleBreakResponse, error) {
+	return &berberimv1.CreateScheduleBreakResponse{}, nil
+}
+func (s *stubClient) UpdateScheduleBreak(_ context.Context, _ *berberimv1.UpdateScheduleBreakRequest, _ ...grpc.CallOption) (*berberimv1.UpdateScheduleBreakResponse, error) {
+	return &berberimv1.UpdateScheduleBreakResponse{}, nil
+}
+func (s *stubClient) DeleteScheduleBreak(_ context.Context, _ *berberimv1.DeleteScheduleBreakRequest, _ ...grpc.CallOption) (*berberimv1.DeleteScheduleBreakResponse, error) {
+	return &berberimv1.DeleteScheduleBreakResponse{}, nil
 }
 func (s *stubClient) ListTimeOffs(_ context.Context, _ *berberimv1.ListTimeOffsRequest, _ ...grpc.CallOption) (*berberimv1.ListTimeOffsResponse, error) {
 	return &berberimv1.ListTimeOffsResponse{}, nil

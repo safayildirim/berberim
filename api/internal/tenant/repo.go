@@ -3,10 +3,12 @@ package tenant
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
+	"github.com/berberim/api/internal/lockutil"
 	"github.com/berberim/api/internal/txctx"
 )
 
@@ -353,18 +355,18 @@ func (r *Repo) CreateTimeOff(ctx context.Context, t *TimeOff) error {
 	return r.dbForCtx(ctx).Create(t).Error
 }
 
-func (r *Repo) GetTimeOffByID(ctx context.Context, tenantID, timeOffID uuid.UUID) (*TimeOff, error) {
+func (r *Repo) GetTimeOffByID(ctx context.Context, tenantID, staffUserID, timeOffID uuid.UUID) (*TimeOff, error) {
 	var t TimeOff
-	err := r.dbForCtx(ctx).Where("tenant_id = ? AND id = ?", tenantID, timeOffID).First(&t).Error
+	err := r.dbForCtx(ctx).Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, timeOffID).First(&t).Error
 	if err != nil {
 		return nil, err
 	}
 	return &t, nil
 }
 
-func (r *Repo) UpdateTimeOff(ctx context.Context, tenantID, timeOffID uuid.UUID, updates map[string]interface{}) (*TimeOff, error) {
+func (r *Repo) UpdateTimeOff(ctx context.Context, tenantID, staffUserID, timeOffID uuid.UUID, updates map[string]interface{}) (*TimeOff, error) {
 	result := r.dbForCtx(ctx).Model(&TimeOff{}).
-		Where("tenant_id = ? AND id = ?", tenantID, timeOffID).
+		Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, timeOffID).
 		Updates(updates)
 	if result.Error != nil {
 		return nil, result.Error
@@ -372,12 +374,12 @@ func (r *Repo) UpdateTimeOff(ctx context.Context, tenantID, timeOffID uuid.UUID,
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return r.GetTimeOffByID(ctx, tenantID, timeOffID)
+	return r.GetTimeOffByID(ctx, tenantID, staffUserID, timeOffID)
 }
 
-func (r *Repo) DeleteTimeOff(ctx context.Context, tenantID, timeOffID uuid.UUID) error {
+func (r *Repo) DeleteTimeOff(ctx context.Context, tenantID, staffUserID, timeOffID uuid.UUID) error {
 	result := r.dbForCtx(ctx).
-		Where("tenant_id = ? AND id = ?", tenantID, timeOffID).
+		Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, timeOffID).
 		Delete(&TimeOff{})
 	if result.Error != nil {
 		return result.Error
@@ -386,6 +388,81 @@ func (r *Repo) DeleteTimeOff(ctx context.Context, tenantID, timeOffID uuid.UUID)
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+// ── Schedule Breaks ──────────────────────────────────────────────────────────
+
+func (r *Repo) ListScheduleBreaks(ctx context.Context, tenantID, staffUserID uuid.UUID) ([]ScheduleBreak, error) {
+	var breaks []ScheduleBreak
+	err := r.dbForCtx(ctx).
+		Where("tenant_id = ? AND staff_user_id = ?", tenantID, staffUserID).
+		Order("day_of_week, start_time").
+		Find(&breaks).Error
+	return breaks, err
+}
+
+func (r *Repo) ListScheduleBreaksByDay(ctx context.Context, tenantID, staffUserID uuid.UUID, dayOfWeek int) ([]ScheduleBreak, error) {
+	var breaks []ScheduleBreak
+	err := r.dbForCtx(ctx).
+		Where("tenant_id = ? AND staff_user_id = ? AND day_of_week = ?", tenantID, staffUserID, dayOfWeek).
+		Order("start_time").
+		Find(&breaks).Error
+	return breaks, err
+}
+
+func (r *Repo) CreateScheduleBreak(ctx context.Context, b *ScheduleBreak) error {
+	return r.dbForCtx(ctx).Create(b).Error
+}
+
+func (r *Repo) GetScheduleBreakByID(ctx context.Context, tenantID, staffUserID, breakID uuid.UUID) (*ScheduleBreak, error) {
+	var b ScheduleBreak
+	err := r.dbForCtx(ctx).Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, breakID).First(&b).Error
+	if err != nil {
+		return nil, err
+	}
+	return &b, nil
+}
+
+func (r *Repo) UpdateScheduleBreak(ctx context.Context, tenantID, staffUserID, breakID uuid.UUID, updates map[string]interface{}) (*ScheduleBreak, error) {
+	result := r.dbForCtx(ctx).Model(&ScheduleBreak{}).
+		Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, breakID).
+		Updates(updates)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	var updated ScheduleBreak
+	if err := r.dbForCtx(ctx).Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, breakID).First(&updated).Error; err != nil {
+		return nil, err
+	}
+	return &updated, nil
+}
+
+func (r *Repo) DeleteScheduleBreak(ctx context.Context, tenantID, staffUserID, breakID uuid.UUID) error {
+	result := r.dbForCtx(ctx).
+		Where("tenant_id = ? AND staff_user_id = ? AND id = ?", tenantID, staffUserID, breakID).
+		Delete(&ScheduleBreak{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
+// GetScheduleRuleByDay returns the schedule rule for a specific staff/day combination.
+func (r *Repo) GetScheduleRuleByDay(ctx context.Context, tenantID, staffUserID uuid.UUID, dayOfWeek int) (*ScheduleRule, error) {
+	var rule ScheduleRule
+	err := r.dbForCtx(ctx).
+		Where("tenant_id = ? AND staff_user_id = ? AND day_of_week = ?", tenantID, staffUserID, dayOfWeek).
+		First(&rule).Error
+	if err != nil {
+		return nil, err
+	}
+	return &rule, nil
 }
 
 // ── Staff Services ──────────────────────────────────────────────────────────
@@ -619,4 +696,26 @@ func (r *Repo) UpdateTenantUserStatus(ctx context.Context, tenantID, userID uuid
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+// AcquireStaffScheduleLock acquires a transaction-scoped advisory lock on
+// a staff member's scheduling state. Must be called within a transaction.
+func (r *Repo) AcquireStaffScheduleLock(ctx context.Context, staffUserID uuid.UUID) error {
+	return lockutil.AcquireStaffScheduleLock(r.dbForCtx(ctx), staffUserID)
+}
+
+// CountConflictingAppointments returns the number of active (confirmed/payment_received)
+// appointments that overlap with the given time range for a staff member.
+func (r *Repo) CountConflictingAppointments(ctx context.Context, tenantID, staffUserID uuid.UUID, from, to time.Time) (int64, error) {
+	var count int64
+	err := r.dbForCtx(ctx).Raw(`
+		SELECT COUNT(*)
+		FROM appointments
+		WHERE tenant_id = ?
+		  AND staff_user_id = ?
+		  AND status IN ('confirmed', 'payment_received')
+		  AND starts_at < ?
+		  AND blocked_until > ?
+	`, tenantID, staffUserID, to, from).Scan(&count).Error
+	return count, err
 }

@@ -136,7 +136,32 @@ export interface ScheduleRule {
   day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, matches JS Date.getDay()
   start_time: string; // "HH:mm:ss" stored as UTC
   end_time: string; // "HH:mm:ss" stored as UTC
+  slot_interval_minutes: number;
   is_working_day: boolean;
+}
+
+export interface ScheduleBreak {
+  id: string;
+  staff_user_id: string;
+  day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  start_time: string;
+  end_time: string;
+  label?: string;
+  created_at?: string;
+  is_inert?: boolean;
+  inert_reason?: 'non_working_day' | 'outside_working_hours';
+}
+
+export interface AvailabilitySettings {
+  notification_reminder_hours?: number;
+  cancellation_limit_hours?: number;
+  loyalty_enabled?: boolean;
+  walk_in_enabled?: boolean;
+  buffer_minutes: number;
+  same_day_booking_enabled: boolean;
+  min_advance_minutes: number;
+  max_advance_days: number;
+  max_weekly_customer_bookings?: number;
 }
 
 export interface TimeOff {

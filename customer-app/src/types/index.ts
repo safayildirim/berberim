@@ -70,6 +70,10 @@ export type Staff = {
   review_count: number;
 };
 
+export type BookingEntryPoint = 'services_first' | 'staff_first' | 'rebook';
+
+export type StaffChoice = 'any' | 'specific';
+
 export type StaffReview = {
   id: string;
   appointment_id: string;
@@ -85,16 +89,30 @@ export type StaffReview = {
 export type AvailabilitySlot = {
   starts_at: string;
   ends_at: string;
-  available_staff: {
-    staff_user_id: string;
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-    specialty?: string;
-    bio?: string;
-    avg_rating: number;
-    review_count: number;
-  }[];
+  available_staff: StaffOption[];
+  price_quote?: AvailabilityPriceQuote;
+  slot_key?: string;
+};
+
+export type StaffOption = {
+  staff_user_id: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string;
+  specialty?: string;
+  bio?: string;
+  avg_rating: number;
+  review_count: number;
+  total_price?: string;
+  price_delta?: string;
+};
+
+export type AvailabilityPriceQuote = {
+  currency?: string;
+  min_price?: string;
+  max_price?: string;
+  total_price?: string;
+  is_final?: boolean;
 };
 
 export type FilledSlot = {
@@ -102,11 +120,24 @@ export type FilledSlot = {
   ends_at: string;
 };
 
+export type DayAvailability = {
+  date: string;
+  slots: AvailabilitySlot[];
+  filled_slots: FilledSlot[];
+};
+
 export type RecommendedSlot = {
   starts_at: string;
   ends_at: string;
-  available_staff: AvailabilitySlot['available_staff'];
+  available_staff: StaffOption[];
   label: 'earliest' | 'preferred_time' | 'preferred_staff' | 'popular';
+  price_quote?: AvailabilityPriceQuote;
+  slot_key?: string;
+};
+
+export type MultiDayAvailabilityResponse = {
+  days: DayAvailability[];
+  recommendations: RecommendedSlot[];
 };
 
 export type AppointmentService = {

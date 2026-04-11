@@ -8,6 +8,7 @@ import {
   Staff,
   TenantConfig,
   User,
+  AvailabilitySettings,
 } from '../types';
 
 export interface CreateAppointmentRequest {
@@ -72,6 +73,23 @@ export const tenantService = {
 
   searchAvailability: async (data: any): Promise<any> => {
     return api.post('/tenant/availability/search', data);
+  },
+
+  getAvailabilitySettings: async (): Promise<AvailabilitySettings> => {
+    return api
+      .get<{ settings: AvailabilitySettings }>('/tenant/settings')
+      .then((res: any) => res.settings ?? res);
+  },
+
+  updateAvailabilitySettings: async (
+    data: AvailabilitySettings,
+  ): Promise<AvailabilitySettings> => {
+    return api
+      .patch<{ settings: AvailabilitySettings }>(
+        '/tenant/settings',
+        { settings: data },
+      )
+      .then((res: any) => res.settings ?? res);
   },
 
   listServices: async (params?: {

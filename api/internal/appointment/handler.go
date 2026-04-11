@@ -101,9 +101,9 @@ func (h *Handler) SearchAvailability(ctx context.Context, req *berberimv1.Search
 	return &berberimv1.SearchAvailabilityResponse{Slots: out, FilledSlots: outFilled}, nil
 }
 
-// ── GetSlotRecommendations ───────────────────────────────────────────────────
+// ── SearchMultiDayAvailability ───────────────────────────────────────────────
 
-func (h *Handler) GetSlotRecommendations(ctx context.Context, req *berberimv1.GetSlotRecommendationsRequest) (*berberimv1.GetSlotRecommendationsResponse, error) {
+func (h *Handler) SearchMultiDayAvailability(ctx context.Context, req *berberimv1.SearchMultiDayAvailabilityRequest) (*berberimv1.SearchMultiDayAvailabilityResponse, error) {
 	tenantID, err := resolveTenantID(ctx, req.TenantId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid or missing tenant_id")
@@ -119,18 +119,6 @@ func (h *Handler) GetSlotRecommendations(ctx context.Context, req *berberimv1.Ge
 		}
 		serviceIDs = append(serviceIDs, id)
 	}
-
-	// customer_id: prefer JWT identity (customer surface) over request body.
-	var customerID uuid.UUID
-	if rc, ok := identity.FromContext(ctx); ok && rc.TokenType == "customer" {
-		customerID = rc.UserID
-	} else if req.CustomerId != "" {
-		customerID, err = uuid.Parse(req.CustomerId)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid customer_id %q", req.CustomerId)
-		}
-	}
-
 	var staffUserID uuid.UUID
 	if req.StaffUserId != "" {
 		staffUserID, err = uuid.Parse(req.StaffUserId)
@@ -138,45 +126,91 @@ func (h *Handler) GetSlotRecommendations(ctx context.Context, req *berberimv1.Ge
 			return nil, status.Errorf(codes.InvalidArgument, "invalid staff_user_id %q", req.StaffUserId)
 		}
 	}
+	// customer_id: prefer JWT identity (customer surface) for personalized recommendations.
+	var customerID uuid.UUID
+	if rc, ok := identity.FromContext(ctx); ok && rc.TokenType == "customer" {
+		customerID = rc.UserID
+	}
 
-	recs, err := h.svc.GetSlotRecommendations(ctx, GetSlotRecommendationsRequest{
+	result, err := h.svc.SearchMultiDayAvailability(ctx, SearchMultiDayAvailabilityRequest{
 		TenantID:    tenantID,
 		ServiceIDs:  serviceIDs,
-		CustomerID:  customerID,
 		StaffUserID: staffUserID,
+		FromDate:    req.FromDate,
+		ToDate:      req.ToDate,
+		CustomerID:  customerID,
 	})
 	if err != nil {
 		return nil, mapErr(err)
 	}
 
-	out := make([]*berberimv1.RecommendedSlot, 0, len(recs))
-	for _, rec := range recs {
-		staffOptions := make([]*berberimv1.StaffOption, 0, len(rec.AvailableStaff))
-		for _, s := range rec.AvailableStaff {
-			opt := &berberimv1.StaffOption{
-				StaffUserId: s.ID.String(),
-				FirstName:   s.FirstName,
-				LastName:    s.LastName,
-				AvgRating:   s.AvgRating,
-				ReviewCount: int32(s.ReviewCount),
-			}
-			if s.AvatarKey != nil {
-				url := h.avatarCfg.PublicURL(*s.AvatarKey)
-				opt.AvatarUrl = &url
-			}
-			opt.Specialty = s.Specialty
-			opt.Bio = s.Bio
-			staffOptions = append(staffOptions, opt)
-		}
-		out = append(out, &berberimv1.RecommendedSlot{
+	days := make([]*berberimv1.DayAvailability, 0, len(result.Days))
+	for _, d := range result.Days {
+		days = append(days, &berberimv1.DayAvailability{
+			Date:        d.Date,
+			Slots:       h.slotsToProto(d.Slots),
+			FilledSlots: filledSlotsToProto(d.FilledSlots),
+		})
+	}
+	recs := make([]*berberimv1.RecommendedSlot, 0, len(result.Recommendations))
+	for _, rec := range result.Recommendations {
+		recs = append(recs, &berberimv1.RecommendedSlot{
 			StartsAt:       rec.StartsAt.UTC().Format(time.RFC3339),
 			EndsAt:         rec.EndsAt.UTC().Format(time.RFC3339),
-			AvailableStaff: staffOptions,
+			AvailableStaff: h.staffOptionsToProto(rec.AvailableStaff),
 			Label:          rec.Label,
 		})
 	}
+	return &berberimv1.SearchMultiDayAvailabilityResponse{Days: days, Recommendations: recs}, nil
+}
 
-	return &berberimv1.GetSlotRecommendationsResponse{Recommendations: out}, nil
+// ── SearchStaffAvailability ──────────────────────────────────────────────────
+
+func (h *Handler) SearchStaffAvailability(ctx context.Context, req *berberimv1.SearchStaffAvailabilityRequest) (*berberimv1.SearchStaffAvailabilityResponse, error) {
+	tenantID, err := resolveTenantID(ctx, req.TenantId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid or missing tenant_id")
+	}
+	if req.StaffUserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "staff_user_id is required")
+	}
+	staffUserID, err := uuid.Parse(req.StaffUserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_user_id %q", req.StaffUserId)
+	}
+	serviceIDs := make([]uuid.UUID, 0, len(req.ServiceIds))
+	for _, raw := range req.ServiceIds {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid service_id %q", raw)
+		}
+		serviceIDs = append(serviceIDs, id)
+	}
+
+	result, err := h.svc.SearchStaffAvailability(ctx, SearchStaffAvailabilityRequest{
+		TenantID:    tenantID,
+		StaffUserID: staffUserID,
+		ServiceIDs:  serviceIDs,
+		FromDate:    req.FromDate,
+		ToDate:      req.ToDate,
+	})
+	if err != nil {
+		return nil, mapErr(err)
+	}
+
+	days := make([]*berberimv1.StaffAvailabilityDay, 0, len(result.Days))
+	for _, d := range result.Days {
+		days = append(days, &berberimv1.StaffAvailabilityDay{
+			Date:        d.Date,
+			Slots:       h.slotsToProto(d.Slots),
+			FilledSlots: filledSlotsToProto(d.FilledSlots),
+		})
+	}
+	svcs := make([]*berberimv1.Service, 0, len(result.CompatibleServices))
+	for _, svc := range result.CompatibleServices {
+		svcs = append(svcs, serviceRecordToProto(&svc))
+	}
+	return &berberimv1.SearchStaffAvailabilityResponse{Days: days, CompatibleServices: svcs}, nil
 }
 
 // ── GetBookingLimitStatus ────────────────────────────────────────────────────
@@ -260,13 +294,14 @@ func (h *Handler) CreateAppointment(ctx context.Context, req *berberimv1.CreateA
 	}
 
 	appt, staff, err := h.svc.CreateAppointment(ctx, CreateAppointmentRequest{
-		TenantID:      rc.TenantID,
-		CustomerID:    customerID,
-		StaffUserID:   staffID,
-		ServiceIDs:    serviceIDs,
-		StartsAt:      startsAt,
-		NotesCustomer: req.NotesCustomer,
-		CreatedVia:    createdVia,
+		TenantID:       rc.TenantID,
+		CustomerID:     customerID,
+		StaffUserID:    staffID,
+		ServiceIDs:     serviceIDs,
+		StartsAt:       startsAt,
+		NotesCustomer:  req.NotesCustomer,
+		CreatedVia:     createdVia,
+		IdempotencyKey: req.IdempotencyKey,
 	})
 	if err != nil {
 		return nil, mapErr(err)
@@ -532,6 +567,9 @@ func mapErr(err error) error {
 		return status.Error(codes.AlreadyExists, err.Error())
 	case errors.Is(err, ErrWeeklyBookingLimitReached):
 		return status.Error(codes.ResourceExhausted, err.Error())
+	case errors.Is(err, ErrStaffUnavailableForService),
+		errors.Is(err, ErrOutsideWorkingHours):
+		return status.Error(codes.FailedPrecondition, err.Error())
 	case errors.Is(err, ErrTenantRequired),
 		errors.Is(err, ErrServiceRequired),
 		errors.Is(err, ErrStaffRequired),
@@ -634,6 +672,73 @@ func (h *Handler) apptToProto(a *Appointment, svcs []AppointmentService, staff *
 		if r.Comment != nil {
 			p.Review.Comment = *r.Comment
 		}
+	}
+	return p
+}
+
+// ── Slot mapping helpers ──────────────────────────────────────────────────────
+
+func (h *Handler) staffOptionsToProto(staff []StaffOption) []*berberimv1.StaffOption {
+	out := make([]*berberimv1.StaffOption, 0, len(staff))
+	for _, s := range staff {
+		opt := &berberimv1.StaffOption{
+			StaffUserId: s.ID.String(),
+			FirstName:   s.FirstName,
+			LastName:    s.LastName,
+			AvgRating:   s.AvgRating,
+			ReviewCount: int32(s.ReviewCount),
+			Specialty:   s.Specialty,
+			Bio:         s.Bio,
+		}
+		if s.AvatarKey != nil {
+			url := h.avatarCfg.PublicURL(*s.AvatarKey)
+			opt.AvatarUrl = &url
+		}
+		out = append(out, opt)
+	}
+	return out
+}
+
+func (h *Handler) slotsToProto(slots []AvailableSlot) []*berberimv1.AvailableSlot {
+	out := make([]*berberimv1.AvailableSlot, 0, len(slots))
+	for _, sl := range slots {
+		out = append(out, &berberimv1.AvailableSlot{
+			StartsAt:       sl.StartsAt.UTC().Format(time.RFC3339),
+			EndsAt:         sl.EndsAt.UTC().Format(time.RFC3339),
+			AvailableStaff: h.staffOptionsToProto(sl.AvailableStaff),
+		})
+	}
+	return out
+}
+
+func filledSlotsToProto(filled []FilledSlot) []*berberimv1.FilledSlot {
+	out := make([]*berberimv1.FilledSlot, 0, len(filled))
+	for _, fl := range filled {
+		out = append(out, &berberimv1.FilledSlot{
+			StartsAt: fl.StartsAt.UTC().Format(time.RFC3339),
+			EndsAt:   fl.EndsAt.UTC().Format(time.RFC3339),
+		})
+	}
+	return out
+}
+
+func serviceRecordToProto(s *ServiceRecord) *berberimv1.Service {
+	p := &berberimv1.Service{
+		Id:              s.ID.String(),
+		TenantId:        s.TenantID.String(),
+		Name:            s.Name,
+		DurationMinutes: int32(s.DurationMinutes),
+		BasePrice:       s.BasePrice,
+		PointsReward:    int32(s.PointsReward),
+		IsActive:        s.IsActive,
+		CreatedAt:       s.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:       s.UpdatedAt.UTC().Format(time.RFC3339),
+	}
+	if s.Description != nil {
+		p.Description = *s.Description
+	}
+	if s.CategoryName != nil {
+		p.CategoryName = *s.CategoryName
 	}
 	return p
 }

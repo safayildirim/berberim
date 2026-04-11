@@ -322,6 +322,64 @@ func (h *TenantHandler) DeleteScheduleRule(c *echo.Context) error {
 	return writeProto(c, resp)
 }
 
+// ── Staff schedule breaks ─────────────────────────────────────────────────────
+
+// GET /api/v1/tenant/staff/:id/schedule-breaks
+func (h *TenantHandler) ListScheduleBreaks(c *echo.Context) error {
+	req := &berberimv1.ListScheduleBreaksRequest{StaffId: c.Param("id")}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.ListScheduleBreaks(ctx, req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// POST /api/v1/tenant/staff/:id/schedule-breaks
+func (h *TenantHandler) CreateScheduleBreak(c *echo.Context) error {
+	var req berberimv1.CreateScheduleBreakRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	req.StaffId = c.Param("id")
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.CreateScheduleBreak(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// PATCH /api/v1/tenant/staff/:id/schedule-breaks/:breakId
+func (h *TenantHandler) UpdateScheduleBreak(c *echo.Context) error {
+	var req berberimv1.UpdateScheduleBreakRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	req.StaffId = c.Param("id")
+	req.BreakId = c.Param("breakId")
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.UpdateScheduleBreak(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// DELETE /api/v1/tenant/staff/:id/schedule-breaks/:breakId
+func (h *TenantHandler) DeleteScheduleBreak(c *echo.Context) error {
+	req := &berberimv1.DeleteScheduleBreakRequest{
+		StaffId: c.Param("id"),
+		BreakId: c.Param("breakId"),
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.DeleteScheduleBreak(ctx, req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
 // ── Staff time off ────────────────────────────────────────────────────────────
 
 // GET /api/v1/tenant/staff/:id/time-offs
@@ -495,6 +553,34 @@ func (h *TenantHandler) SearchAvailability(c *echo.Context) error {
 	}
 	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
 	resp, err := h.client.SearchAvailability(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// POST /api/v1/tenant/availability/search-multi-day
+func (h *TenantHandler) SearchMultiDayAvailability(c *echo.Context) error {
+	var req berberimv1.SearchMultiDayAvailabilityRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.SearchMultiDayAvailability(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
+// POST /api/v1/tenant/availability/search-staff
+func (h *TenantHandler) SearchStaffAvailability(c *echo.Context) error {
+	var req berberimv1.SearchStaffAvailabilityRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.SearchStaffAvailability(ctx, &req)
 	if err != nil {
 		return grpcErr(c, err)
 	}

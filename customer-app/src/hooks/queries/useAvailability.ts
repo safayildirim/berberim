@@ -1,36 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   appointmentService,
-  AvailabilitySearchRequest,
+  MultiDayAvailabilityRequest,
 } from '@/src/services/appointment.service';
 import { queryKeys } from '@/src/lib/query/keys';
 
-export const useAvailabilitySearch = (params: AvailabilitySearchRequest) => {
+export const useMultiDayAvailability = (
+  params: MultiDayAvailabilityRequest,
+) => {
   return useQuery({
-    queryKey: queryKeys.availability.search(params),
+    queryKey: queryKeys.availability.multiDay({
+      tenantId: params.tenant_id,
+      serviceIds: params.service_ids,
+      staffUserId: params.staff_user_id,
+      fromDate: params.from_date,
+      toDate: params.to_date,
+    }),
     queryFn: () => appointmentService.searchAvailability(params),
-    enabled: !!params.date && params.service_ids.length > 0,
+    enabled:
+      !!params.tenant_id &&
+      !!params.from_date &&
+      !!params.to_date &&
+      params.service_ids.length > 0,
     staleTime: 1000 * 60 * 2, // 2 minutes (it's volatile)
-  });
-};
-
-export const useAvailableDays = (params: any) => {
-  return useQuery({
-    queryKey: queryKeys.availability.days(params),
-    queryFn: () => appointmentService.getAvailableDays(params),
-    enabled: !!params.from && !!params.to && params.service_ids.length > 0,
-    staleTime: 1000 * 60 * 60, // 1 hour (daily availability list stable)
-  });
-};
-
-export const useSlotRecommendations = (params: {
-  service_ids: string[];
-  staff_user_id?: string;
-}) => {
-  return useQuery({
-    queryKey: queryKeys.availability.recommendations(params),
-    queryFn: () => appointmentService.getSlotRecommendations(params),
-    enabled: params.service_ids.length > 0,
-    staleTime: 1000 * 60 * 2, // 2 minutes (volatile)
+    placeholderData: (previousData) => previousData,
   });
 };

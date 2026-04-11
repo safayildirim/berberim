@@ -25,9 +25,13 @@ export const queryKeys = {
     list: (role?: UserRole) => ['staff', 'list', { role }] as const,
     detail: (id: string) => ['staff', 'detail', id] as const,
     schedule: (id: string) => ['staff', 'schedule', id] as const,
+    scheduleBreaks: (id: string) => ['staff', 'scheduleBreaks', id] as const,
     timeOff: (id: string) => ['staff', 'timeOff', id] as const,
     reviews: (id: string, page?: number) =>
       ['staff', 'reviews', id, { page }] as const,
+  },
+  availabilitySettings: {
+    detail: () => ['availabilitySettings'] as const,
   },
   loyalty: {
     settings: () => ['loyalty', 'settings'] as const,

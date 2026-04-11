@@ -14,19 +14,46 @@ export const queryKeys = {
   services: {
     list: (category?: string) => ['services', 'list', category].filter(Boolean),
     detail: (id: string) => ['services', 'detail', id],
+    staff: (staffId: string) => ['services', 'staff', staffId],
   },
   staff: {
-    list: ['staff', 'list'] as const,
+    list: (tenantId?: string) => ['staff', 'list', tenantId].filter(Boolean),
     detail: (id: string) => ['staff', 'detail', id],
   },
   availability: {
-    search: (params: any) => ['availability', 'search', params],
-    days: (params: any) => ['availability', 'days', params],
-    recommendations: (params: any) => [
-      'availability',
-      'recommendations',
-      params,
-    ],
+    all: ['availability'] as const,
+    multiDay: (params: {
+      tenantId: string;
+      serviceIds: string[];
+      staffUserId?: string | null;
+      fromDate: string;
+      toDate: string;
+    }) =>
+      [
+        'availability',
+        'multiDay',
+        params.tenantId,
+        [...params.serviceIds].sort(),
+        params.staffUserId || 'any',
+        params.fromDate,
+        params.toDate,
+      ] as const,
+    staff: (params: {
+      tenantId: string;
+      staffUserId: string;
+      serviceIds?: string[];
+      fromDate: string;
+      toDate: string;
+    }) =>
+      [
+        'availability',
+        'staff',
+        params.tenantId,
+        params.staffUserId,
+        [...(params.serviceIds || [])].sort(),
+        params.fromDate,
+        params.toDate,
+      ] as const,
   },
   appointments: {
     all: ['appointments'] as const,

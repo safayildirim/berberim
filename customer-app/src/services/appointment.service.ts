@@ -2,9 +2,7 @@ import { api } from '@/src/lib/api/client';
 import {
   Appointment,
   AppointmentStatus,
-  AvailabilitySlot,
-  FilledSlot,
-  RecommendedSlot,
+  MultiDayAvailabilityResponse,
 } from '@/src/types';
 
 export interface BookingLimitStatus {
@@ -15,17 +13,19 @@ export interface BookingLimitStatus {
 
 export interface CreateAppointmentRequest {
   service_ids: string[];
-  staff_user_id: string;
+  staff_user_id?: string;
   starts_at: string;
   notes_customer?: string;
-  tenant_id: string;
+  idempotency_key?: string;
 }
 
-export interface AvailabilitySearchRequest {
-  date: string;
+export interface MultiDayAvailabilityRequest {
   service_ids: string[];
+  from_date: string;
+  to_date: string;
   staff_user_id?: string;
   tenant_id: string;
+  customer_id?: string;
 }
 
 export interface AppointmentListResponse {
@@ -52,7 +52,9 @@ export const appointmentService = {
   },
 
   create: async (data: CreateAppointmentRequest): Promise<Appointment> => {
-    return api.post('/customer/appointments', data);
+    return api
+      .post<{ appointment: Appointment }>('/customer/appointments', data)
+      .then((res) => res.appointment);
   },
 
   reschedule: async (id: string, starts_at: string): Promise<Appointment> => {
@@ -62,38 +64,12 @@ export const appointmentService = {
   },
 
   searchAvailability: async (
-    params: AvailabilitySearchRequest,
-  ): Promise<{ slots: AvailabilitySlot[]; filled_slots: FilledSlot[] }> => {
-    return api.post('/public/availability/search', params);
-  },
-
-  getAvailableDays: async (params: {
-    from: string;
-    to: string;
-    service_ids: string[];
-    staff_id?: string;
-    tenant_id: string;
-  }): Promise<string[]> => {
-    return api.get('/public/availability/days', { params });
+    params: MultiDayAvailabilityRequest,
+  ): Promise<MultiDayAvailabilityResponse> => {
+    return api.post('/customer/availability/search-multi-day', params);
   },
 
   getBookingLimitStatus: async (): Promise<BookingLimitStatus> => {
     return api.get('/customer/booking-limit');
-  },
-
-  getSlotRecommendations: async (params: {
-    service_ids: string[];
-    staff_user_id?: string;
-  }): Promise<RecommendedSlot[]> => {
-    const res = await api.get<{ recommendations: RecommendedSlot[] }>(
-      '/customer/slot-recommendations',
-      {
-        params: {
-          service_ids: params.service_ids.join(','),
-          staff_user_id: params.staff_user_id,
-        },
-      },
-    );
-    return res.recommendations || [];
   },
 };

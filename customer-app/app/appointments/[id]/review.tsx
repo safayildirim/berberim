@@ -93,9 +93,11 @@ export default function AddReviewScreen() {
   return (
     <Screen
       headerTitle={
-        appointment?.staff
-          ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
-          : t('reviews.rate_experience')
+        review
+          ? t('reviews.update_review')
+          : appointment?.staff
+            ? `${appointment.staff.first_name} ${appointment.staff.last_name}`
+            : t('reviews.rate_experience')
       }
       showHeaderBack={true}
       loading={isLoading}

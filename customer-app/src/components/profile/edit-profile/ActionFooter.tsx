@@ -58,7 +58,7 @@ export const ActionFooter: React.FC<ActionFooterProps> = ({
             <View style={styles.row}>
               <Check size={22} color={textColor} strokeWidth={3} />
               <Typography style={[styles.buttonText, { color: textColor }]}>
-                {t('common.done')}
+                {t('profile.updateSuccessMsg')}
               </Typography>
             </View>
           ) : (

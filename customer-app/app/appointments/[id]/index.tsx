@@ -4,8 +4,16 @@ import { enUS, tr } from 'date-fns/locale';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, View, Linking } from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Linking,
+} from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
+import { Typography } from '@/src/components/ui';
 import { MyReviewSection } from '@/src/components/reviews/MyReviewSection';
 import {
   useCancelAppointment,
@@ -22,6 +30,7 @@ import { PolicyInfoCard } from '@/src/components/appointments/PolicyInfoCard';
 import { AppointmentStickyActions } from '@/src/components/appointments/AppointmentStickyActions';
 
 import { useTenantStore } from '@/src/store/useTenantStore';
+import { useBookingStore } from '@/src/store/useBookingStore';
 
 export default function AppointmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -38,6 +47,7 @@ export default function AppointmentDetailScreen() {
 
   const dateLocale = i18n.language.startsWith('tr') ? tr : enUS;
 
+  const startFlow = useBookingStore((state) => state.startFlow);
   const { mutate: cancelAppointment, isPending: isCancelling } =
     useCancelAppointment();
   const { mutateAsync: rebook } = useRebookAppointment();
@@ -72,6 +82,12 @@ export default function AppointmentDetailScreen() {
   const handleReschedule = async () => {
     await rebook(id as string);
     router.push('/booking/slots');
+  };
+
+  const handleBookWithStaff = () => {
+    if (!appointment?.staff) return;
+    startFlow('staff_first', appointment.staff);
+    router.push('/booking/services');
   };
 
   const handleDeleteReview = () => {
@@ -169,6 +185,25 @@ export default function AppointmentDetailScreen() {
                 duration={`${totalDuration} min`}
               />
 
+              {appointment.status === 'completed' && appointment.staff && (
+                <TouchableOpacity
+                  onPress={handleBookWithStaff}
+                  style={styles.bookWithStaffButton}
+                >
+                  <View style={styles.bookWithStaffContent}>
+                    <Typography
+                      variant="label"
+                      style={styles.bookWithStaffText}
+                    >
+                      {t('appointments.bookWithStaffAgain', {
+                        name: appointment.staff.first_name,
+                        defaultValue: `Book with ${appointment.staff.first_name} again`,
+                      })}
+                    </Typography>
+                  </View>
+                </TouchableOpacity>
+              )}
+
               <PolicyInfoCard />
 
               {/* My Review Section */}
@@ -212,5 +247,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 40,
+  },
+  bookWithStaffButton: {
+    marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: '#f59e0b',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  bookWithStaffContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  bookWithStaffText: {
+    color: '#000',
+    fontWeight: '800',
+    fontSize: 15,
   },
 });

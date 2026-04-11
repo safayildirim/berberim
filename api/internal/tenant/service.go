@@ -66,6 +66,9 @@ type TenantSettingsUpdate struct {
 	WalkInEnabled             bool
 	SameDayBookingEnabled     bool
 	MaxWeeklyCustomerBookings int32
+	BufferMinutes             int32
+	MinAdvanceMinutes         int32
+	MaxAdvanceDays            int32
 }
 
 type CreateServiceInput struct {
@@ -423,6 +426,9 @@ func (s *Service) UpdateTenantSettings(ctx context.Context, tenantID uuid.UUID, 
 		"walk_in_enabled":              in.WalkInEnabled,
 		"same_day_booking_enabled":     in.SameDayBookingEnabled,
 		"max_weekly_customer_bookings": in.MaxWeeklyCustomerBookings,
+		"buffer_minutes":               in.BufferMinutes,
+		"min_advance_minutes":          in.MinAdvanceMinutes,
+		"max_advance_days":             in.MaxAdvanceDays,
 	}
 	settings, err := s.repo.UpdateTenantSettings(ctx, tenantID, updates)
 	if err != nil {
@@ -737,8 +743,27 @@ func (s *Service) CreateTimeOff(ctx context.Context, in CreateTimeOffInput) (*Ti
 	if in.Reason != "" {
 		t.Reason = &in.Reason
 	}
-	if err := s.repo.CreateTimeOff(ctx, t); err != nil {
-		return nil, status.Errorf(codes.Internal, "create time off: %v", err)
+
+	// Wrap in transaction with advisory lock to prevent races with appointment creation.
+	if err := s.repo.RunInTx(ctx, func(txCtx context.Context) error {
+		// Acquire advisory lock on this staff member's schedule.
+		if err := s.repo.AcquireStaffScheduleLock(txCtx, in.StaffID); err != nil {
+			return fmt.Errorf("acquire staff lock: %w", err)
+		}
+
+		// Check for conflicting confirmed/payment_received appointments.
+		conflictCount, err := s.repo.CountConflictingAppointments(txCtx, in.TenantID, in.StaffID, startAt, endAt)
+		if err != nil {
+			return fmt.Errorf("check appointment conflicts: %w", err)
+		}
+		if conflictCount > 0 {
+			return status.Errorf(codes.FailedPrecondition,
+				"%d confirmed appointment(s) conflict with this time off — cancel them first", conflictCount)
+		}
+
+		return s.repo.CreateTimeOff(txCtx, t)
+	}); err != nil {
+		return nil, err
 	}
 	return t, nil
 }
@@ -753,42 +778,233 @@ type UpdateTimeOffInput struct {
 }
 
 func (s *Service) UpdateTimeOff(ctx context.Context, in UpdateTimeOffInput) (*TimeOff, error) {
-	updates := map[string]interface{}{}
-	if in.StartAt != "" {
-		startAt, err := time.Parse(time.RFC3339, in.StartAt)
+	var updated *TimeOff
+	if err := s.repo.RunInTx(ctx, func(txCtx context.Context) error {
+		if err := s.repo.AcquireStaffScheduleLock(txCtx, in.StaffID); err != nil {
+			return fmt.Errorf("acquire staff lock: %w", err)
+		}
+
+		existing, err := s.repo.GetTimeOffByID(txCtx, in.TenantID, in.StaffID, in.TimeOffID)
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid start_at: %v", err)
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return status.Error(codes.NotFound, "time off not found")
+			}
+			return fmt.Errorf("get time off: %w", err)
 		}
-		updates["start_at"] = startAt
-	}
-	if in.EndAt != "" {
-		endAt, err := time.Parse(time.RFC3339, in.EndAt)
+
+		startAt := existing.StartAt
+		endAt := existing.EndAt
+		updates := map[string]interface{}{}
+		if in.StartAt != "" {
+			parsed, err := time.Parse(time.RFC3339, in.StartAt)
+			if err != nil {
+				return status.Errorf(codes.InvalidArgument, "invalid start_at: %v", err)
+			}
+			startAt = parsed
+			updates["start_at"] = parsed
+		}
+		if in.EndAt != "" {
+			parsed, err := time.Parse(time.RFC3339, in.EndAt)
+			if err != nil {
+				return status.Errorf(codes.InvalidArgument, "invalid end_at: %v", err)
+			}
+			endAt = parsed
+			updates["end_at"] = parsed
+		}
+		if !endAt.After(startAt) {
+			return status.Error(codes.InvalidArgument, "end_at must be after start_at")
+		}
+		if in.Reason != "" {
+			updates["reason"] = in.Reason
+		}
+
+		conflictCount, err := s.repo.CountConflictingAppointments(txCtx, in.TenantID, in.StaffID, startAt, endAt)
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid end_at: %v", err)
+			return fmt.Errorf("check appointment conflicts: %w", err)
 		}
-		updates["end_at"] = endAt
-	}
-	if in.Reason != "" {
-		updates["reason"] = in.Reason
-	}
-	t, err := s.repo.UpdateTimeOff(ctx, in.TenantID, in.TimeOffID, updates)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "time off not found")
+		if conflictCount > 0 {
+			return status.Errorf(codes.FailedPrecondition,
+				"%d confirmed appointment(s) conflict with this time off — cancel them first", conflictCount)
 		}
-		return nil, status.Errorf(codes.Internal, "update time off: %v", err)
+
+		updated, err = s.repo.UpdateTimeOff(txCtx, in.TenantID, in.StaffID, in.TimeOffID, updates)
+		return err
+	}); err != nil {
+		return nil, err
 	}
-	return t, nil
+	return updated, nil
 }
 
-func (s *Service) DeleteTimeOff(ctx context.Context, tenantID, timeOffID uuid.UUID) error {
-	if err := s.repo.DeleteTimeOff(ctx, tenantID, timeOffID); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return status.Error(codes.NotFound, "time off not found")
+func (s *Service) DeleteTimeOff(ctx context.Context, tenantID, staffID, timeOffID uuid.UUID) error {
+	return s.repo.RunInTx(ctx, func(txCtx context.Context) error {
+		if err := s.repo.AcquireStaffScheduleLock(txCtx, staffID); err != nil {
+			return fmt.Errorf("acquire staff lock: %w", err)
 		}
-		return status.Errorf(codes.Internal, "delete time off: %v", err)
+		if err := s.repo.DeleteTimeOff(txCtx, tenantID, staffID, timeOffID); err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return status.Error(codes.NotFound, "time off not found")
+			}
+			return status.Errorf(codes.Internal, "delete time off: %v", err)
+		}
+		return nil
+	})
+}
+
+// ── Schedule Breaks ─────────────────────────────────────────────────────────
+
+func (s *Service) ListScheduleBreaks(ctx context.Context, tenantID, staffID uuid.UUID) ([]ScheduleBreak, error) {
+	return s.repo.ListScheduleBreaks(ctx, tenantID, staffID)
+}
+
+type CreateScheduleBreakInput struct {
+	TenantID  uuid.UUID
+	StaffID   uuid.UUID
+	DayOfWeek int
+	StartTime string
+	EndTime   string
+	Label     string
+}
+
+func (s *Service) CreateScheduleBreak(ctx context.Context, in CreateScheduleBreakInput) (*ScheduleBreak, error) {
+	if in.DayOfWeek < 0 || in.DayOfWeek > 6 {
+		return nil, status.Error(codes.InvalidArgument, "day_of_week must be 0-6")
 	}
-	return nil
+	if in.StartTime == "" || in.EndTime == "" {
+		return nil, status.Error(codes.InvalidArgument, "start_time and end_time are required")
+	}
+	if in.StartTime >= in.EndTime {
+		return nil, status.Error(codes.InvalidArgument, "start_time must be before end_time")
+	}
+
+	b := &ScheduleBreak{
+		ID:          uuid.New(),
+		TenantID:    in.TenantID,
+		StaffUserID: in.StaffID,
+		DayOfWeek:   in.DayOfWeek,
+		StartTime:   in.StartTime,
+		EndTime:     in.EndTime,
+	}
+	if in.Label != "" {
+		b.Label = &in.Label
+	}
+
+	if err := s.repo.RunInTx(ctx, func(txCtx context.Context) error {
+		if err := s.repo.AcquireStaffScheduleLock(txCtx, in.StaffID); err != nil {
+			return fmt.Errorf("acquire staff lock: %w", err)
+		}
+
+		// Validate: working schedule must exist for this day.
+		rule, err := s.repo.GetScheduleRuleByDay(txCtx, in.TenantID, in.StaffID, in.DayOfWeek)
+		if err != nil || !rule.IsWorkingDay {
+			return status.Error(codes.InvalidArgument, "no working schedule for this day")
+		}
+
+		// Validate: break must fit inside working hours.
+		if in.StartTime < rule.StartTime || in.EndTime > rule.EndTime {
+			return status.Error(codes.InvalidArgument, "break must fit inside working hours")
+		}
+
+		// Validate: no overlap with existing breaks on same day.
+		existing, err := s.repo.ListScheduleBreaksByDay(txCtx, in.TenantID, in.StaffID, in.DayOfWeek)
+		if err != nil {
+			return fmt.Errorf("list existing breaks: %w", err)
+		}
+		for _, eb := range existing {
+			if in.StartTime < eb.EndTime && in.EndTime > eb.StartTime {
+				return status.Error(codes.InvalidArgument, "break overlaps with an existing break")
+			}
+		}
+
+		return s.repo.CreateScheduleBreak(txCtx, b)
+	}); err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+type UpdateScheduleBreakInput struct {
+	TenantID  uuid.UUID
+	StaffID   uuid.UUID
+	BreakID   uuid.UUID
+	StartTime string
+	EndTime   string
+	Label     string
+}
+
+func (s *Service) UpdateScheduleBreak(ctx context.Context, in UpdateScheduleBreakInput) (*ScheduleBreak, error) {
+	if in.StartTime == "" || in.EndTime == "" {
+		return nil, status.Error(codes.InvalidArgument, "start_time and end_time are required")
+	}
+	if in.StartTime >= in.EndTime {
+		return nil, status.Error(codes.InvalidArgument, "start_time must be before end_time")
+	}
+
+	var updated *ScheduleBreak
+	if err := s.repo.RunInTx(ctx, func(txCtx context.Context) error {
+		if err := s.repo.AcquireStaffScheduleLock(txCtx, in.StaffID); err != nil {
+			return fmt.Errorf("acquire staff lock: %w", err)
+		}
+
+		// Fetch the existing break to get its day_of_week.
+		existing, err := s.repo.GetScheduleBreakByID(txCtx, in.TenantID, in.StaffID, in.BreakID)
+		if err != nil {
+			return status.Error(codes.NotFound, "break not found")
+		}
+
+		// Validate: break must fit inside working hours.
+		rule, err := s.repo.GetScheduleRuleByDay(txCtx, in.TenantID, in.StaffID, existing.DayOfWeek)
+		if err != nil || !rule.IsWorkingDay {
+			return status.Error(codes.InvalidArgument, "no working schedule for this day")
+		}
+		if in.StartTime < rule.StartTime || in.EndTime > rule.EndTime {
+			return status.Error(codes.InvalidArgument, "break must fit inside working hours")
+		}
+
+		// Validate: no overlap with other breaks on same day (excluding this one).
+		dayBreaks, err := s.repo.ListScheduleBreaksByDay(txCtx, in.TenantID, in.StaffID, existing.DayOfWeek)
+		if err != nil {
+			return fmt.Errorf("list breaks: %w", err)
+		}
+		for _, eb := range dayBreaks {
+			if eb.ID == in.BreakID {
+				continue
+			}
+			if in.StartTime < eb.EndTime && in.EndTime > eb.StartTime {
+				return status.Error(codes.InvalidArgument, "break overlaps with an existing break")
+			}
+		}
+
+		updates := map[string]interface{}{
+			"start_time": in.StartTime,
+			"end_time":   in.EndTime,
+		}
+		if in.Label != "" {
+			updates["label"] = in.Label
+		} else {
+			updates["label"] = nil
+		}
+
+		updated, err = s.repo.UpdateScheduleBreak(txCtx, in.TenantID, in.StaffID, in.BreakID, updates)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	return updated, nil
+}
+
+func (s *Service) DeleteScheduleBreak(ctx context.Context, tenantID, staffID, breakID uuid.UUID) error {
+	return s.repo.RunInTx(ctx, func(txCtx context.Context) error {
+		if err := s.repo.AcquireStaffScheduleLock(txCtx, staffID); err != nil {
+			return fmt.Errorf("acquire staff lock: %w", err)
+		}
+		if err := s.repo.DeleteScheduleBreak(txCtx, tenantID, staffID, breakID); err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return status.Error(codes.NotFound, "break not found")
+			}
+			return status.Errorf(codes.Internal, "delete break: %v", err)
+		}
+		return nil
+	})
 }
 
 // ── Staff Calendar ──────────────────────────────────────────────────────────

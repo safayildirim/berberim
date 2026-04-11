@@ -44,6 +44,9 @@ type TenantSettings struct {
 	WalkInEnabled             bool      `gorm:"not null;default:true"`
 	SameDayBookingEnabled     bool      `gorm:"not null;default:true"`
 	MaxWeeklyCustomerBookings int       `gorm:"not null;default:2"`
+	BufferMinutes             int       `gorm:"not null;default:0"`
+	MinAdvanceMinutes         int       `gorm:"not null;default:0"`
+	MaxAdvanceDays            int       `gorm:"not null;default:14"`
 	CreatedAt                 time.Time
 	UpdatedAt                 time.Time
 }
@@ -116,6 +119,20 @@ type TimeOff struct {
 }
 
 func (TimeOff) TableName() string { return "staff_time_offs" }
+
+// ScheduleBreak maps to the staff_schedule_breaks table.
+type ScheduleBreak struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	TenantID    uuid.UUID `gorm:"type:uuid;not null"`
+	StaffUserID uuid.UUID `gorm:"type:uuid;not null"`
+	DayOfWeek   int       `gorm:"not null"`
+	StartTime   string    `gorm:"type:time;not null"`
+	EndTime     string    `gorm:"type:time;not null"`
+	Label       *string   `gorm:"size:50"`
+	CreatedAt   time.Time
+}
+
+func (ScheduleBreak) TableName() string { return "staff_schedule_breaks" }
 
 // StaffServiceAssignment maps to the staff_services table.
 // ServiceName is populated via a JOIN with services when listing.

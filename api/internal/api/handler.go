@@ -245,6 +245,22 @@ func (h *Handler) DeleteScheduleRule(ctx context.Context, req *berberimv1.Delete
 	return h.tenant.DeleteScheduleRule(ctx, req)
 }
 
+func (h *Handler) ListScheduleBreaks(ctx context.Context, req *berberimv1.ListScheduleBreaksRequest) (*berberimv1.ListScheduleBreaksResponse, error) {
+	return h.tenant.ListScheduleBreaks(ctx, req)
+}
+
+func (h *Handler) CreateScheduleBreak(ctx context.Context, req *berberimv1.CreateScheduleBreakRequest) (*berberimv1.CreateScheduleBreakResponse, error) {
+	return h.tenant.CreateScheduleBreak(ctx, req)
+}
+
+func (h *Handler) UpdateScheduleBreak(ctx context.Context, req *berberimv1.UpdateScheduleBreakRequest) (*berberimv1.UpdateScheduleBreakResponse, error) {
+	return h.tenant.UpdateScheduleBreak(ctx, req)
+}
+
+func (h *Handler) DeleteScheduleBreak(ctx context.Context, req *berberimv1.DeleteScheduleBreakRequest) (*berberimv1.DeleteScheduleBreakResponse, error) {
+	return h.tenant.DeleteScheduleBreak(ctx, req)
+}
+
 // ── Time Off RPCs ───────────────────────────────────────────────────────────
 
 func (h *Handler) ListTimeOffs(ctx context.Context, req *berberimv1.ListTimeOffsRequest) (*berberimv1.ListTimeOffsResponse, error) {
@@ -297,8 +313,12 @@ func (h *Handler) SearchAvailability(ctx context.Context, req *berberimv1.Search
 	return h.appointment.SearchAvailability(ctx, req)
 }
 
-func (h *Handler) GetSlotRecommendations(ctx context.Context, req *berberimv1.GetSlotRecommendationsRequest) (*berberimv1.GetSlotRecommendationsResponse, error) {
-	return h.appointment.GetSlotRecommendations(ctx, req)
+func (h *Handler) SearchMultiDayAvailability(ctx context.Context, req *berberimv1.SearchMultiDayAvailabilityRequest) (*berberimv1.SearchMultiDayAvailabilityResponse, error) {
+	return h.appointment.SearchMultiDayAvailability(ctx, req)
+}
+
+func (h *Handler) SearchStaffAvailability(ctx context.Context, req *berberimv1.SearchStaffAvailabilityRequest) (*berberimv1.SearchStaffAvailabilityResponse, error) {
+	return h.appointment.SearchStaffAvailability(ctx, req)
 }
 
 func (h *Handler) GetBookingLimitStatus(ctx context.Context, req *berberimv1.GetBookingLimitStatusRequest) (*berberimv1.GetBookingLimitStatusResponse, error) {

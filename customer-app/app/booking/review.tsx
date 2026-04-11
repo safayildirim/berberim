@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TextInput,
   View,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -17,11 +16,13 @@ import { useBookingStore } from '@/src/store/useBookingStore';
 import { useCreateAppointment } from '@/src/hooks/mutations/useAppointmentMutations';
 import { useTenantStore } from '@/src/store/useTenantStore';
 import { BookingStickyFooter } from '@/src/components/booking/BookingStickyFooter';
-import { format, parseISO } from 'date-fns';
+import { addDays, format, parseISO, startOfDay } from 'date-fns';
 import { enUS, tr } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/src/components/common/Screen';
 import { StaffAvatar } from '@/src/components/common/StaffAvatar';
+import { useMultiDayAvailability } from '@/src/hooks/queries/useAvailability';
+import { AvailabilitySlot } from '@/src/types';
 
 export default function BookingReviewScreen() {
   const { t, i18n } = useTranslation();
@@ -31,16 +32,37 @@ export default function BookingReviewScreen() {
   const {
     selectedServices,
     selectedStaff,
+    selectedStaffChoice,
+    selectedStaffId,
     selectedSlot,
     notes,
     totalPrice,
     totalDuration,
     isRebookMode,
+    idempotencyKey,
+    setSlot,
+    setNotes,
   } = useBookingStore();
-
-  const [localNotes, setLocalNotes] = useState(notes);
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
   const { mutate: createAppointment, isPending } = useCreateAppointment();
   const dateLocale = i18n.language.startsWith('tr') ? tr : enUS;
+  const today = startOfDay(new Date());
+  const fromDate = format(today, 'yyyy-MM-dd');
+  const toDate = format(addDays(today, 13), 'yyyy-MM-dd');
+  const { data: availability, refetch: refetchAvailability } =
+    useMultiDayAvailability({
+      tenant_id: config?.id || '',
+      service_ids: selectedServices.map((s) => s.id),
+      staff_user_id:
+        selectedStaffChoice === 'specific'
+          ? selectedStaffId || undefined
+          : undefined,
+      from_date: fromDate,
+      to_date: toDate,
+    });
+
+  const recoverySlots: AvailabilitySlot[] =
+    availability?.days.flatMap((day) => day.slots).slice(0, 6) || [];
 
   const handleConfirm = () => {
     if (!selectedSlot || !config?.id) return;
@@ -49,9 +71,10 @@ export default function BookingReviewScreen() {
       {
         starts_at: selectedSlot.starts_at,
         service_ids: selectedServices.map((s) => s.id),
-        staff_user_id: selectedStaff?.id || '',
-        notes_customer: localNotes,
-        tenant_id: config.id,
+        staff_user_id:
+          selectedStaffChoice === 'specific' ? selectedStaff?.id : undefined,
+        notes_customer: notes,
+        idempotency_key: idempotencyKey,
       },
       {
         onSuccess: (data) => {
@@ -61,7 +84,24 @@ export default function BookingReviewScreen() {
           });
         },
         onError: (error: any) => {
-          Alert.alert(t('booking.bookingFailed'), error.message);
+          const message = String(error?.message || '').toLowerCase();
+          const code = String(error?.code || '').toLowerCase();
+          const isRecoverable =
+            code.includes('conflict') ||
+            code.includes('availability') ||
+            message.includes('available') ||
+            message.includes('conflict') ||
+            message.includes('advance') ||
+            message.includes('same-day') ||
+            message.includes('same day');
+
+          if (isRecoverable) {
+            setRecoveryMessage(error.message || t('booking.bookingFailed'));
+            refetchAvailability();
+            return;
+          }
+
+          setRecoveryMessage(error.message || t('booking.bookingFailed'));
         },
       },
     );
@@ -230,8 +270,8 @@ export default function BookingReviewScreen() {
               <TextInput
                 multiline
                 numberOfLines={4}
-                value={localNotes}
-                onChangeText={setLocalNotes}
+                value={notes}
+                onChangeText={setNotes}
                 placeholder={t('booking.notePlaceholderInput')}
                 placeholderTextColor="#71717a"
                 style={[
@@ -244,6 +284,60 @@ export default function BookingReviewScreen() {
                 ]}
               />
             </View>
+
+            {/* Policy */}
+            {recoveryMessage && (
+              <View
+                style={[
+                  styles.recoveryBox,
+                  {
+                    backgroundColor: isDark ? '#18181b' : '#fffbeb',
+                    borderColor: '#f59e0b',
+                  },
+                ]}
+              >
+                <Typography
+                  variant="h3"
+                  style={[styles.sectionTitle, { color: colors.text }]}
+                >
+                  {t('booking.slotNoLongerAvailable', {
+                    defaultValue: 'This time needs another look',
+                  })}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  style={{ color: colors.onSurfaceVariant }}
+                >
+                  {recoveryMessage}
+                </Typography>
+                {recoverySlots.length > 0 && (
+                  <View style={styles.recoverySlots}>
+                    {recoverySlots.map((slot) => (
+                      <TouchableOpacity
+                        key={slot.starts_at}
+                        onPress={() => {
+                          setSlot(slot);
+                          setRecoveryMessage(null);
+                        }}
+                        style={[
+                          styles.recoverySlot,
+                          { borderColor: colors.outlineVariant },
+                        ]}
+                      >
+                        <Typography
+                          variant="label"
+                          style={{ color: colors.text }}
+                        >
+                          {format(parseISO(slot.starts_at), 'EEE d MMM HH:mm', {
+                            locale: dateLocale,
+                          })}
+                        </Typography>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* Policy */}
             <View style={styles.policyRow}>
@@ -330,6 +424,24 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
     fontSize: 14,
+  },
+  recoveryBox: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 24,
+    gap: 12,
+  },
+  recoverySlots: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  recoverySlot: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   policyRow: { flexDirection: 'row', gap: 12, paddingRight: 20 },
   policyText: { color: '#71717a', lineHeight: 18 },

@@ -117,6 +117,20 @@ func (h *PublicHandler) SearchAvailability(c *echo.Context) error {
 	return writeProto(c, resp)
 }
 
+// POST /api/v1/public/availability/search-multi-day
+func (h *PublicHandler) SearchMultiDayAvailability(c *echo.Context) error {
+	var req berberimv1.SearchMultiDayAvailabilityRequest
+	if !bindBody(c, &req) {
+		return nil
+	}
+	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
+	resp, err := h.client.SearchMultiDayAvailability(ctx, &req)
+	if err != nil {
+		return grpcErr(c, err)
+	}
+	return writeProto(c, resp)
+}
+
 // GET /api/v1/public/availability/days?tenant_id=&service_ids=...&staff_id=&from=&to=
 func (h *PublicHandler) GetAvailabilityDays(c *echo.Context) error {
 	req := &berberimv1.GetAvailabilityDaysRequest{

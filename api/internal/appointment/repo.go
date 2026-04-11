@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/berberim/api/internal/lockutil"
 	"github.com/berberim/api/internal/txctx"
 )
 
@@ -33,7 +34,7 @@ func (r *Repo) RunInTx(ctx context.Context, fn func(ctx context.Context) error) 
 
 func (r *Repo) GetTenantTimezone(ctx context.Context, tenantID uuid.UUID) (string, error) {
 	var tz string
-	err := r.db.WithContext(ctx).
+	err := r.dbForCtx(ctx).
 		Table("tenants").
 		Where("id = ?", tenantID).
 		Pluck("timezone", &tz).Error
@@ -42,11 +43,30 @@ func (r *Repo) GetTenantTimezone(ctx context.Context, tenantID uuid.UUID) (strin
 
 func (r *Repo) GetMaxWeeklyCustomerBookings(ctx context.Context, tenantID uuid.UUID) (int, error) {
 	var limit int
-	err := r.db.WithContext(ctx).
+	err := r.dbForCtx(ctx).
 		Table("tenant_settings").
 		Where("tenant_id = ?", tenantID).
 		Pluck("max_weekly_customer_bookings", &limit).Error
 	return limit, err
+}
+
+// GetTenantBookingConfig consolidates all tenant-level booking settings into
+// a single query (replaces multiple individual Pluck calls).
+func (r *Repo) GetTenantBookingConfig(ctx context.Context, tenantID uuid.UUID) (*TenantBookingConfig, error) {
+	var cfg TenantBookingConfig
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT
+			t.timezone,
+			COALESCE(ts.buffer_minutes, 0) AS buffer_minutes,
+			COALESCE(ts.same_day_booking_enabled, true) AS same_day_booking_enabled,
+			COALESCE(ts.min_advance_minutes, 0) AS min_advance_minutes,
+			COALESCE(ts.max_advance_days, 14) AS max_advance_days,
+			COALESCE(ts.max_weekly_customer_bookings, 2) AS max_weekly_bookings
+		FROM tenants t
+		LEFT JOIN tenant_settings ts ON ts.tenant_id = t.id
+		WHERE t.id = ?
+	`, tenantID).Scan(&cfg).Error
+	return &cfg, err
 }
 
 func (r *Repo) CountCustomerAppointmentsInWeek(ctx context.Context, tenantID, customerID uuid.UUID, weekStart, weekEnd time.Time) (int64, error) {
@@ -94,7 +114,7 @@ func (r *Repo) ListStaffByService(ctx context.Context, tenantID, serviceID uuid.
 func (r *Repo) GetStaffMember(ctx context.Context, tenantID, staffUserID uuid.UUID) (*StaffMember, error) {
 	var s StaffMember
 	err := r.dbForCtx(ctx).Raw(`
-		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_key, tu.specialty, tu.bio,
+		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_key, tu.specialty, tu.bio, tu.status,
 			COALESCE(AVG(sr.rating), 0) AS avg_rating,
 			COUNT(DISTINCT sr.id) AS review_count
 		FROM tenant_users tu
@@ -133,8 +153,8 @@ func (r *Repo) GetCustomerInfo(ctx context.Context, tenantID, customerID uuid.UU
 
 func (r *Repo) ListStaffByServices(ctx context.Context, tenantID uuid.UUID, serviceIDs []uuid.UUID) ([]StaffMember, error) {
 	var staff []StaffMember
-	err := r.db.WithContext(ctx).Raw(`
-		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_key, tu.specialty, tu.bio,
+	err := r.dbForCtx(ctx).Raw(`
+		SELECT tu.id, tu.tenant_id, tu.first_name, tu.last_name, tu.avatar_key, tu.specialty, tu.bio, tu.status,
 			COALESCE(AVG(sr.rating), 0) AS avg_rating,
 			COUNT(DISTINCT sr.id) AS review_count
 		FROM tenant_users tu
@@ -152,7 +172,7 @@ func (r *Repo) ListStaffByServices(ctx context.Context, tenantID uuid.UUID, serv
 
 func (r *Repo) ListStaffScheduleRules(ctx context.Context, tenantID, staffUserID uuid.UUID) ([]ScheduleRule, error) {
 	var rules []ScheduleRule
-	err := r.db.WithContext(ctx).
+	err := r.dbForCtx(ctx).
 		Where("tenant_id = ? AND staff_user_id = ?", tenantID, staffUserID).
 		Find(&rules).Error
 	return rules, err
@@ -160,7 +180,7 @@ func (r *Repo) ListStaffScheduleRules(ctx context.Context, tenantID, staffUserID
 
 func (r *Repo) ListTimeOffs(ctx context.Context, tenantID, staffUserID uuid.UUID, from, to time.Time) ([]TimeOff, error) {
 	var offs []TimeOff
-	err := r.db.WithContext(ctx).
+	err := r.dbForCtx(ctx).
 		Where("tenant_id = ? AND staff_user_id = ? AND end_at > ? AND start_at < ?", tenantID, staffUserID, from, to).
 		Find(&offs).Error
 	return offs, err
@@ -168,15 +188,15 @@ func (r *Repo) ListTimeOffs(ctx context.Context, tenantID, staffUserID uuid.UUID
 
 func (r *Repo) ListBookedSlots(ctx context.Context, tenantID, staffUserID uuid.UUID, from, to time.Time) ([]BookedSlot, error) {
 	var slots []BookedSlot
-	err := r.db.WithContext(ctx).Raw(`
-		SELECT starts_at, ends_at
+	err := r.dbForCtx(ctx).Raw(`
+		SELECT id, starts_at, blocked_until
 		FROM appointments
 		WHERE tenant_id = ?
 		  AND staff_user_id = ?
-		  AND status IN ('confirmed')
-		  AND ends_at > ?
+		  AND status IN (?, ?)
+		  AND blocked_until > ?
 		  AND starts_at < ?
-	`, tenantID, staffUserID, from, to).Scan(&slots).Error
+	`, tenantID, staffUserID, StatusConfirmed, StatusPaymentReceived, from, to).Scan(&slots).Error
 	return slots, err
 }
 
@@ -403,4 +423,183 @@ func (r *Repo) GetTenantPopularHours(ctx context.Context, tenantID uuid.UUID, tz
 		result[i] = PopularHour{Hour: r.Hour, BookingCount: r.Cnt}
 	}
 	return result, nil
+}
+
+// ── Schedule breaks ──────────────────────────────────────────────────────────
+
+// ListScheduleBreaksByDay returns breaks for a single staff member on a specific day.
+// Used by the booking write path and admin break validation.
+func (r *Repo) ListScheduleBreaksByDay(ctx context.Context, tenantID, staffUserID uuid.UUID, dayOfWeek int) ([]ScheduleBreak, error) {
+	var breaks []ScheduleBreak
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND staff_user_id = ? AND day_of_week = ?", tenantID, staffUserID, dayOfWeek).
+		Order("start_time").
+		Find(&breaks).Error
+	return breaks, err
+}
+
+// ListScheduleBreaks returns all breaks for a single staff member across all days.
+// Used by SearchStaffAvailability and admin list APIs.
+func (r *Repo) ListScheduleBreaks(ctx context.Context, tenantID, staffUserID uuid.UUID) ([]ScheduleBreak, error) {
+	var breaks []ScheduleBreak
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND staff_user_id = ?", tenantID, staffUserID).
+		Order("day_of_week, start_time").
+		Find(&breaks).Error
+	return breaks, err
+}
+
+// ListAllStaffScheduleBreaks loads breaks for all given staff IDs in one query.
+// Used by SearchMultiDayAvailability batch engine.
+func (r *Repo) ListAllStaffScheduleBreaks(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID) (map[uuid.UUID][]ScheduleBreak, error) {
+	var breaks []ScheduleBreak
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND staff_user_id IN ?", tenantID, staffIDs).
+		Order("staff_user_id, day_of_week, start_time").
+		Find(&breaks).Error
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[uuid.UUID][]ScheduleBreak, len(staffIDs))
+	for _, b := range breaks {
+		result[b.StaffUserID] = append(result[b.StaffUserID], b)
+	}
+	return result, nil
+}
+
+// ── Batch availability queries (multi-day engine) ────────────────────────────
+
+// ListAllStaffScheduleRules loads schedule rules for all given staff IDs in one query.
+func (r *Repo) ListAllStaffScheduleRules(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID) (map[uuid.UUID][]ScheduleRule, error) {
+	var rules []ScheduleRule
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND staff_user_id IN ?", tenantID, staffIDs).
+		Order("staff_user_id, day_of_week").
+		Find(&rules).Error
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[uuid.UUID][]ScheduleRule, len(staffIDs))
+	for _, rule := range rules {
+		result[rule.StaffUserID] = append(result[rule.StaffUserID], rule)
+	}
+	return result, nil
+}
+
+// ListAllStaffTimeOffs loads time-offs for all given staff IDs across a date range.
+func (r *Repo) ListAllStaffTimeOffs(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from, to time.Time) (map[uuid.UUID][]TimeOff, error) {
+	var offs []TimeOff
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND staff_user_id IN ? AND end_at > ? AND start_at < ?", tenantID, staffIDs, from, to).
+		Find(&offs).Error
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[uuid.UUID][]TimeOff, len(staffIDs))
+	for _, off := range offs {
+		result[off.StaffUserID] = append(result[off.StaffUserID], off)
+	}
+	return result, nil
+}
+
+// ListAllStaffBookedSlots loads booked appointment slots for all given staff IDs across a date range.
+func (r *Repo) ListAllStaffBookedSlots(ctx context.Context, tenantID uuid.UUID, staffIDs []uuid.UUID, from, to time.Time) (map[uuid.UUID][]BookedSlot, error) {
+	type row struct {
+		ID           uuid.UUID `gorm:"column:id"`
+		StaffUserID  uuid.UUID `gorm:"column:staff_user_id"`
+		StartsAt     time.Time `gorm:"column:starts_at"`
+		BlockedUntil time.Time `gorm:"column:blocked_until"`
+	}
+	var rows []row
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT id, staff_user_id, starts_at, blocked_until
+		FROM appointments
+		WHERE tenant_id = ?
+		  AND staff_user_id IN ?
+		  AND status IN (?, ?)
+		  AND blocked_until > ?
+		  AND starts_at < ?
+	`, tenantID, staffIDs, StatusConfirmed, StatusPaymentReceived, from, to).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[uuid.UUID][]BookedSlot, len(staffIDs))
+	for _, r := range rows {
+		result[r.StaffUserID] = append(result[r.StaffUserID], BookedSlot{
+			ID:           r.ID,
+			StartsAt:     r.StartsAt,
+			BlockedUntil: r.BlockedUntil,
+		})
+	}
+	return result, nil
+}
+
+// ListStaffServicesByStaff returns all active services a specific staff member can perform.
+func (r *Repo) ListStaffServicesByStaff(ctx context.Context, tenantID, staffUserID uuid.UUID) ([]ServiceRecord, error) {
+	var services []ServiceRecord
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT s.id, s.tenant_id, s.name, s.description, s.duration_minutes,
+			s.base_price, s.points_reward, s.category_name, s.is_active
+		FROM services s
+		INNER JOIN staff_services ss ON ss.service_id = s.id AND ss.is_active = true
+		WHERE ss.staff_user_id = ? AND s.tenant_id = ? AND s.is_active = true
+	`, staffUserID, tenantID).Scan(&services).Error
+	return services, err
+}
+
+// GetStaffCustomPrice returns the custom price for a staff member performing a
+// specific service, or empty string if no custom price is set.
+func (r *Repo) GetStaffCustomPrice(ctx context.Context, staffUserID, serviceID uuid.UUID) (string, error) {
+	var price *string
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT custom_price FROM staff_services
+		WHERE staff_user_id = ? AND service_id = ? AND is_active = true AND custom_price IS NOT NULL
+	`, staffUserID, serviceID).Scan(&price).Error
+	if err != nil || price == nil {
+		return "", err
+	}
+	return *price, nil
+}
+
+// GetAppointmentByIdempotencyKey looks up an existing appointment by its idempotency key.
+func (r *Repo) GetAppointmentByIdempotencyKey(ctx context.Context, tenantID uuid.UUID, key string) (*Appointment, error) {
+	var a Appointment
+	err := r.db.WithContext(ctx).
+		Where("tenant_id = ? AND idempotency_key = ?", tenantID, key).
+		First(&a).Error
+	if err != nil {
+		return nil, err
+	}
+	return &a, nil
+}
+
+// ListConflictingAppointments returns active appointments that overlap with
+// a given time range for a staff member. Used by time-off creation to reject
+// conflicts.
+func (r *Repo) ListConflictingAppointments(ctx context.Context, tenantID, staffUserID uuid.UUID, from, to time.Time) ([]Appointment, error) {
+	var appts []Appointment
+	err := r.dbForCtx(ctx).
+		Where("tenant_id = ? AND staff_user_id = ? AND status IN (?, ?) AND starts_at < ? AND blocked_until > ?",
+			tenantID, staffUserID, StatusConfirmed, StatusPaymentReceived, to, from).
+		Find(&appts).Error
+	return appts, err
+}
+
+// CountStaffAppointmentsToday counts the number of active appointments for a
+// staff member on a given day. Used for least-loaded auto-assignment ranking.
+func (r *Repo) CountStaffAppointmentsToday(ctx context.Context, tenantID, staffUserID uuid.UUID, dayStart, dayEnd time.Time) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&Appointment{}).
+		Where("tenant_id = ? AND staff_user_id = ? AND status IN (?, ?) AND starts_at >= ? AND starts_at < ?",
+			tenantID, staffUserID, StatusConfirmed, StatusPaymentReceived, dayStart, dayEnd).
+		Count(&count).Error
+	return count, err
+}
+
+// AcquireStaffScheduleLock acquires a transaction-scoped advisory lock on
+// a staff member's scheduling state. Must be called within a transaction.
+func (r *Repo) AcquireStaffScheduleLock(ctx context.Context, staffUserID uuid.UUID) error {
+	db := r.dbForCtx(ctx)
+	return lockutil.AcquireStaffScheduleLock(db, staffUserID)
 }

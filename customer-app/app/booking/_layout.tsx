@@ -15,15 +15,13 @@ export default function BookingLayout() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
-  const { reset: resetBooking, isRebookMode } = useBookingStore();
+  const { reset: resetBooking, entryPoint } = useBookingStore();
 
-  // Stabilize steps based on initial mode to prevent progress bar flickering during reset
-  const initialIsRebookMode = React.useRef(isRebookMode).current;
   const steps = React.useMemo(() => {
-    return initialIsRebookMode
-      ? ['slots', 'review']
-      : ['services', 'slots', 'staff', 'review'];
-  }, [initialIsRebookMode]);
+    if (entryPoint === 'staff_first') return ['services', 'slots', 'review'];
+    if (entryPoint === 'rebook') return ['slots', 'staff', 'review'];
+    return ['services', 'slots', 'staff', 'review'];
+  }, [entryPoint]);
 
   const currentStepIndex = steps.findIndex((s) => pathname.includes(s));
   const isSuccessScreen = pathname.includes('success');

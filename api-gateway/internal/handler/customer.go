@@ -60,15 +60,15 @@ func (h *CustomerHandler) SearchAvailability(c *echo.Context) error {
 	return writeProto(c, resp)
 }
 
-// GET /api/v1/customer/slot-recommendations?service_ids=id1,id2&staff_user_id=
-func (h *CustomerHandler) GetSlotRecommendations(c *echo.Context) error {
-	req := &berberimv1.GetSlotRecommendationsRequest{
-		ServiceIds:  splitCSV(c.QueryParam("service_ids")),
-		StaffUserId: c.QueryParam("staff_user_id"),
-		// customer_id and tenant_id resolved from JWT metadata on backend
+// POST /api/v1/customer/availability/search-multi-day
+func (h *CustomerHandler) SearchMultiDayAvailability(c *echo.Context) error {
+	var req berberimv1.SearchMultiDayAvailabilityRequest
+	if !bindBody(c, &req) {
+		return nil
 	}
+	// tenant_id resolved from JWT metadata on backend
 	ctx := metadata.NewOutgoingContext(c.Request().Context(), withAuthMeta(c))
-	resp, err := h.client.GetSlotRecommendations(ctx, req)
+	resp, err := h.client.SearchMultiDayAvailability(ctx, &req)
 	if err != nil {
 		return grpcErr(c, err)
 	}

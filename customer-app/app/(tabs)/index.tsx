@@ -27,10 +27,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <PrimaryBooking
-          earliestAvailable={data.bookingData.earliestAvailable}
-          limitReached={data.bookingData.limitReached}
-        />
+        <PrimaryBooking limitReached={data.bookingData.limitReached} />
 
         {data.upcomingAppointment && (
           <UpcomingAppointment appointment={data.upcomingAppointment} />

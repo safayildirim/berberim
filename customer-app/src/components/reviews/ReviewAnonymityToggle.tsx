@@ -34,9 +34,7 @@ export const ReviewAnonymityToggle: React.FC<ReviewAnonymityToggleProps> = ({
           variant="label"
           style={[styles.title, { color: colors.onSurface }]}
         >
-          {t('reviews.submit_anonymously', {
-            defaultValue: 'Submit anonymously',
-          })}
+          {t('reviews.anonymous_review')}
         </Typography>
         <Typography
           variant="caption"

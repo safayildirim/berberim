@@ -50,6 +50,9 @@ CREATE TABLE tenant_settings (
   walk_in_enabled boolean not null default true,
   same_day_booking_enabled boolean not null default true,
   max_weekly_customer_bookings integer not null default 2,
+  buffer_minutes integer not null default 0,
+  min_advance_minutes integer not null default 0,
+  max_advance_days integer not null default 14,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -255,6 +258,20 @@ CREATE TABLE staff_schedule_rules (
   unique (staff_user_id, day_of_week)
 );
 
+CREATE TABLE staff_schedule_breaks (
+  id uuid PRIMARY KEY,
+  tenant_id uuid NOT NULL REFERENCES tenants(id),
+  staff_user_id uuid NOT NULL REFERENCES tenant_users(id),
+  day_of_week integer NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+  start_time time NOT NULL,
+  end_time time NOT NULL,
+  label varchar(50),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CHECK (end_time > start_time)
+);
+
+CREATE INDEX idx_staff_schedule_breaks_staff ON staff_schedule_breaks(staff_user_id, day_of_week);
+
 CREATE TABLE staff_time_offs (
   id uuid primary key,
   tenant_id uuid not null references tenants(id),
@@ -278,6 +295,7 @@ CREATE TABLE appointments (
   staff_user_id uuid not null references tenant_users(id),
   starts_at timestamptz not null,
   ends_at timestamptz not null,
+  blocked_until timestamptz not null,
   status varchar(30) not null CHECK (status IN ('confirmed', 'payment_received', 'completed', 'cancelled', 'no_show', 'rescheduled')),
   cancellation_reason text,
   cancelled_by_type varchar(30) CHECK (cancelled_by_type IN ('customer', 'staff', 'admin')),
@@ -286,10 +304,15 @@ CREATE TABLE appointments (
   notes_customer text,
   notes_internal text,
   rescheduled_from_appointment_id uuid references appointments(id),
+  idempotency_key varchar(64),
   created_via varchar(30) not null CHECK (created_via IN ('customer_app', 'admin_panel', 'walk_in')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  EXCLUDE USING gist (staff_user_id WITH =, tstzrange(starts_at, ends_at) WITH &&) WHERE (status = 'confirmed')
+  CHECK (blocked_until >= ends_at),
+  EXCLUDE USING gist (
+    staff_user_id WITH =,
+    tstzrange(starts_at, blocked_until) WITH &&
+  ) WHERE (status IN ('confirmed', 'payment_received'))
 );
 
 CREATE INDEX idx_appointments_tenant_starts_at ON appointments(tenant_id, starts_at);
@@ -304,6 +327,9 @@ CREATE INDEX idx_appointments_tenant_customer_active
     WHERE status IN ('confirmed', 'payment_received', 'completed');
 CREATE INDEX idx_appointments_tenant_starts_status
     ON appointments(tenant_id, starts_at, status);
+CREATE UNIQUE INDEX idx_appointments_idempotency
+    ON appointments(tenant_id, idempotency_key)
+    WHERE idempotency_key IS NOT NULL;
 
 CREATE TABLE appointment_services (
   id uuid primary key,

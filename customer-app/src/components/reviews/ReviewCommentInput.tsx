@@ -23,9 +23,7 @@ export const ReviewCommentInput: React.FC<ReviewCommentInputProps> = ({
         variant="label"
         style={[styles.label, { color: colors.onSurface }]}
       >
-        {t('reviews.experience_details', {
-          defaultValue: 'Experience Details',
-        })}
+        {t('reviews.comment_optional')}
       </Typography>
       <TextInput
         value={value}

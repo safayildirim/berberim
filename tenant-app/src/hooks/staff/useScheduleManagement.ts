@@ -1,8 +1,16 @@
 import { useMemo } from 'react';
-import { useStaffTimeOff } from '@/src/hooks/queries/useStaff';
+import {
+  useStaffSchedule,
+  useStaffScheduleBreaks,
+  useStaffTimeOff,
+} from '@/src/hooks/queries/useStaff';
+import { ScheduleBreak } from '@/src/types';
 
 export const useScheduleManagement = (staffId: string) => {
-  const { data: timeOffEntries, isLoading, refetch } = useStaffTimeOff(staffId);
+  const timeOffQuery = useStaffTimeOff(staffId);
+  const scheduleQuery = useStaffSchedule(staffId);
+  const breaksQuery = useStaffScheduleBreaks(staffId);
+  const timeOffEntries = timeOffQuery.data;
 
   const stats = useMemo(() => {
     if (!timeOffEntries)
@@ -37,12 +45,56 @@ export const useScheduleManagement = (staffId: string) => {
     };
   }, [timeOffEntries]);
 
+  const breaksByDay = useMemo(() => {
+    const scheduleBreaks = breaksQuery.data || [];
+    const rulesByDay = new Map(
+      (scheduleQuery.data || []).map((rule) => [rule.day_of_week, rule]),
+    );
+
+    return scheduleBreaks.reduce(
+      (acc, scheduleBreak) => {
+        const rule = rulesByDay.get(scheduleBreak.day_of_week);
+        const isInert =
+          !rule ||
+          !rule.is_working_day ||
+          scheduleBreak.start_time < rule.start_time ||
+          scheduleBreak.end_time > rule.end_time;
+
+        const dayBreak = {
+          ...scheduleBreak,
+          is_inert: isInert,
+          inert_reason:
+            !rule || !rule.is_working_day
+              ? ('non_working_day' as const)
+              : isInert
+                ? ('outside_working_hours' as const)
+                : undefined,
+        };
+
+        acc[scheduleBreak.day_of_week] = [
+          ...(acc[scheduleBreak.day_of_week] || []),
+          dayBreak,
+        ].sort((a, b) => a.start_time.localeCompare(b.start_time));
+        return acc;
+      },
+      {} as Record<number, ScheduleBreak[]>,
+    );
+  }, [breaksQuery.data, scheduleQuery.data]);
+
   return {
     entries: timeOffEntries || [],
+    scheduleRules: scheduleQuery.data || [],
+    breaks: breaksQuery.data || [],
+    breaksByDay,
     stats,
-    isLoading,
+    isLoading:
+      timeOffQuery.isLoading || scheduleQuery.isLoading || breaksQuery.isLoading,
     actions: {
-      refresh: refetch,
+      refresh: () => {
+        timeOffQuery.refetch();
+        scheduleQuery.refetch();
+        breaksQuery.refetch();
+      },
     },
   };
 };
