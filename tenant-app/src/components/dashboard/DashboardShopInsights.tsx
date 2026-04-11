@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 
 interface Props {
   revenue?: string;
@@ -15,28 +16,52 @@ export const DashboardShopInsights: React.FC<Props> = ({
   rating = '0',
 }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.insightsContainer}>
-      <Text style={styles.insightsLabel}>{t('dashboard.insights.title')}</Text>
+    <View
+      style={[
+        styles.insightsContainer,
+        { backgroundColor: colors.surfaceContainerLow },
+      ]}
+    >
+      <Text style={[styles.insightsLabel, { color: colors.secondary }]}>
+        {t('dashboard.insights.title').toUpperCase()}
+      </Text>
       <View style={styles.insightsRow}>
         <View style={styles.insightItem}>
-          <Text style={styles.insightValue}>{revenue}</Text>
-          <Text style={styles.insightSub}>
+          <Text style={[styles.insightValue, { color: colors.primary }]}>
+            {revenue}
+          </Text>
+          <Text style={[styles.insightSub, { color: colors.secondary }]}>
             {t('dashboard.insights.revToday')}
           </Text>
         </View>
-        <View style={styles.insightDivider} />
+        <View
+          style={[
+            styles.insightDivider,
+            { backgroundColor: colors.border + '20' },
+          ]}
+        />
         <View style={styles.insightItem}>
-          <Text style={styles.insightValue}>{utilization}</Text>
-          <Text style={styles.insightSub}>
+          <Text style={[styles.insightValue, { color: colors.primary }]}>
+            {utilization}
+          </Text>
+          <Text style={[styles.insightSub, { color: colors.secondary }]}>
             {t('dashboard.insights.utilization')}
           </Text>
         </View>
-        <View style={styles.insightDivider} />
+        <View
+          style={[
+            styles.insightDivider,
+            { backgroundColor: colors.border + '20' },
+          ]}
+        />
         <View style={styles.insightItem}>
-          <Text style={styles.insightValue}>{rating}</Text>
-          <Text style={styles.insightSub}>
+          <Text style={[styles.insightValue, { color: colors.primary }]}>
+            {rating}
+          </Text>
+          <Text style={[styles.insightSub, { color: colors.secondary }]}>
             {t('dashboard.insights.avgRating')}
           </Text>
         </View>
@@ -47,7 +72,6 @@ export const DashboardShopInsights: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   insightsContainer: {
-    backgroundColor: '#f2f4f6',
     padding: 32,
     alignItems: 'center',
     borderTopLeftRadius: 32,
@@ -55,9 +79,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   insightsLabel: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
     fontWeight: '900',
-    color: COLORS.secondary,
     letterSpacing: 2,
     marginBottom: 24,
   },
@@ -71,19 +95,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   insightValue: {
+    ...TYPOGRAPHY.h2,
     fontSize: 24,
-    fontWeight: '900',
-    color: COLORS.primary,
     marginBottom: 4,
   },
   insightSub: {
+    ...TYPOGRAPHY.caption,
     fontSize: 9,
     fontWeight: '800',
-    color: COLORS.secondary,
   },
   insightDivider: {
     width: 1,
     height: 32,
-    backgroundColor: 'rgba(0,0,0,0.05)',
   },
 });

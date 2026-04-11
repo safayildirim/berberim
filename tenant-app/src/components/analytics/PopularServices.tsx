@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text } from 'react-native';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface PopularServicesProps {
   popularServices: { name: string; count: number; progress: number }[];
@@ -9,8 +10,8 @@ interface PopularServicesProps {
 
 export const PopularServices = ({ popularServices }: PopularServicesProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
-  // Calculate median count
   const sortedCounts = [...popularServices]
     .map((s) => s.count)
     .sort((a, b) => a - b);
@@ -21,25 +22,24 @@ export const PopularServices = ({ popularServices }: PopularServicesProps) => {
       : (sortedCounts[mid - 1] + sortedCounts[mid]) / 2;
 
   const getBarColor = (count: number) => {
-    // Relative to median calculation using a single color with varying opacity
-    if (count > median * 1.2) return COLORS.primary; // High: 100% opacity
-    if (count >= median * 0.8) return COLORS.primary + '99'; // Around Median: ~60% opacity
-    return COLORS.primary + '4D'; // Below Median: ~30% opacity
+    if (count > median * 1.2) return colors.primary;
+    if (count >= median * 0.8) return colors.primary + '99';
+    return colors.primary + '4D';
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>
-        {t('analytics.popularServices.title')}
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        {t('analytics.popularServices.title').toUpperCase()}
       </Text>
-      <View style={styles.servicesList}>
+      <View style={[styles.servicesList, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
         {popularServices.slice(0, 3).map((service, index) => (
           <View key={index} style={styles.serviceRow}>
             <View style={styles.serviceHeader}>
-              <Text style={styles.serviceName}>{service.name}</Text>
-              <Text style={styles.serviceCount}>{service.count}</Text>
+              <Text style={[styles.serviceName, { color: colors.primary }]}>{service.name}</Text>
+              <Text style={[styles.serviceCount, { color: colors.primary }]}>{service.count}</Text>
             </View>
-            <View style={styles.serviceProgressTrack}>
+            <View style={[styles.serviceProgressTrack, { backgroundColor: colors.surfaceContainerLow }]}>
               <View
                 style={[
                   styles.serviceProgressBar,
@@ -65,26 +65,20 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...TYPOGRAPHY.label,
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1.5,
     paddingHorizontal: 4,
   },
   servicesList: {
-    gap: 20,
-    backgroundColor: COLORS.white,
+    gap: 24,
     borderRadius: 24,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '15',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 16,
-    elevation: 1,
+    ...SHADOWS.sm,
   },
   serviceRow: {
-    gap: 8,
+    gap: 10,
   },
   serviceHeader: {
     flexDirection: 'row',
@@ -95,23 +89,21 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.h3,
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -0.3,
   },
   serviceCount: {
     ...TYPOGRAPHY.h3,
     fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.primary,
+    fontWeight: '900',
   },
   serviceProgressTrack: {
-    height: 8, // Thicker bar as shown in image
-    backgroundColor: COLORS.surfaceContainer,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   serviceProgressBar: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 5,
   },
 });
+

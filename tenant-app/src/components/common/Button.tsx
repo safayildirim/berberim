@@ -6,7 +6,8 @@ import {
   ActivityIndicator,
   TouchableOpacityProps,
 } from 'react-native';
-import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -26,6 +27,7 @@ export const Button = ({
   style,
   ...props
 }: ButtonProps) => {
+  const { colors } = useTheme();
   const isOutline = variant === 'outline';
   const isGhost = variant === 'ghost';
   const isError = variant === 'error';
@@ -34,11 +36,15 @@ export const Button = ({
 
   const buttonStyle = [
     styles.base,
-    isPrimary && styles.primary,
-    isSecondary && styles.secondary,
-    isOutline && styles.outline,
+    isPrimary && { backgroundColor: colors.primary },
+    isSecondary && { backgroundColor: colors.surfaceContainerHighest },
+    isOutline && {
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+    },
     isGhost && styles.ghost,
-    isError && styles.error,
+    isError && { backgroundColor: colors.error },
     size === 'sm' && styles.sm,
     size === 'lg' && styles.lg,
     fullWidth && styles.fullWidth,
@@ -48,14 +54,28 @@ export const Button = ({
 
   const textStyle = [
     styles.text,
-    isPrimary && styles.primaryText,
-    isSecondary && styles.secondaryText,
-    isOutline && styles.outlineText,
-    isGhost && styles.ghostText,
-    isError && styles.errorText,
+    isPrimary && {
+      color:
+        variant === 'primary' ? colors.onPrimary || colors.white : colors.white,
+    },
+    isSecondary && { color: colors.text },
+    isOutline && { color: colors.primary },
+    isGhost && { color: colors.primary },
+    isError && { color: colors.white },
     size === 'sm' && styles.smText,
     size === 'lg' && styles.lgText,
   ];
+
+  // Resolve onPrimary if missing in DARK_COLORS update
+  const textColor = isPrimary
+    ? colors.onPrimary || colors.white
+    : isSecondary
+      ? colors.text
+      : isOutline
+        ? colors.primary
+        : isGhost
+          ? colors.primary
+          : colors.white;
 
   return (
     <TouchableOpacity
@@ -66,11 +86,11 @@ export const Button = ({
     >
       {loading ? (
         <ActivityIndicator
-          color={isOutline || isGhost ? COLORS.primary : COLORS.white}
+          color={isOutline || isGhost ? colors.primary : textColor}
           size="small"
         />
       ) : (
-        <Text style={textStyle}>{title}</Text>
+        <Text style={[textStyle, { color: textColor }]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -96,43 +116,14 @@ const styles = StyleSheet.create({
   fullWidth: {
     width: '100%',
   },
-  primary: {
-    backgroundColor: COLORS.primary,
-  },
-  secondary: {
-    backgroundColor: COLORS.surfaceContainerHighest,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-  },
   ghost: {
     backgroundColor: 'transparent',
-  },
-  error: {
-    backgroundColor: COLORS.error,
   },
   disabled: {
     opacity: 0.5,
   },
   text: {
     ...TYPOGRAPHY.bodyBold,
-  },
-  primaryText: {
-    color: COLORS.white,
-  },
-  secondaryText: {
-    color: COLORS.text,
-  },
-  outlineText: {
-    color: COLORS.primary,
-  },
-  ghostText: {
-    color: COLORS.primary,
-  },
-  errorText: {
-    color: COLORS.white,
   },
   smText: {
     ...TYPOGRAPHY.caption,

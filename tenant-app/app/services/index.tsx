@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Scissors } from 'lucide-react-native';
 import React from 'react';
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen } from '@/src/components/common/Screen';
 import { CatalogCategoryTabs } from '@/src/components/services/catalog/CatalogCategoryTabs';
@@ -9,17 +9,20 @@ import { CatalogServiceCard } from '@/src/components/services/catalog/CatalogSer
 import { CatalogStatsHUD } from '@/src/components/services/catalog/CatalogStatsHUD';
 import { useServiceCatalog } from '@/src/hooks/services/useServiceCatalog';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
+import { SHADOWS } from '@/src/constants/theme';
 
 export default function ServicesListScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { services, stats, categories, activeCategory, setActiveCategory } =
     useServiceCatalog();
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={t('settings.items.services')}
@@ -29,14 +32,14 @@ export default function ServicesListScreen() {
         data={services}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
-          <>
+          <View>
             <CatalogStatsHUD total={stats.total} active={stats.active} />
             <CatalogCategoryTabs
               activeCategory={activeCategory}
               categories={categories}
               onSelect={setActiveCategory}
             />
-          </>
+          </View>
         }
         renderItem={({ item }) => <CatalogServiceCard service={item} />}
         contentContainerStyle={styles.listContent}
@@ -44,11 +47,18 @@ export default function ServicesListScreen() {
       />
 
       <TouchableOpacity
-        style={[styles.fab, { bottom: 24 + insets.bottom }]}
+        style={[
+          styles.fab,
+          {
+            bottom: 24 + insets.bottom,
+            backgroundColor: colors.primary,
+            shadowColor: colors.primary,
+          },
+        ]}
         onPress={() => router.push('/services/create' as any)}
         activeOpacity={0.9}
       >
-        <Scissors size={28} color="#ffffff" />
+        <Scissors size={28} color={colors.onPrimary} />
       </TouchableOpacity>
     </Screen>
   );
@@ -56,7 +66,7 @@ export default function ServicesListScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f7f9fb',
+    flex: 1,
   },
   listContent: {
     paddingBottom: 120,
@@ -64,17 +74,12 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 24,
-    bottom: 24,
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: '#051125',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#051125',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    ...SHADOWS.md,
     elevation: 8,
   },
 });

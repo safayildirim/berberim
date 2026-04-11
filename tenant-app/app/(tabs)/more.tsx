@@ -36,10 +36,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen } from '@/src/components/common/Screen';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { useLogout } from '@/src/hooks/mutations/useAuthMutations';
 import { avatarService } from '@/src/services/avatar.service';
 import { useSessionStore } from '@/src/store/useSessionStore';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function MoreScreen() {
   const { t, i18n } = useTranslation();
@@ -47,6 +48,7 @@ export default function MoreScreen() {
   const router = useRouter();
   const { user, tenant, isAdmin, setUser } = useSessionStore();
   const { mutateAsync: logout } = useLogout();
+  const { colors, toggleTheme, isDark } = useTheme();
   const [avatarLocal, setAvatarLocal] = React.useState('');
 
   const handlePickAvatar = () => {
@@ -167,15 +169,30 @@ export default function MoreScreen() {
     children: React.ReactNode;
     style?: any;
   }) => (
-    <View style={[styles.bentoSection, style]}>
+    <View
+      style={[
+        styles.bentoSection,
+        { backgroundColor: colors.surfaceContainerLow },
+        style,
+      ]}
+    >
       <View style={styles.bentoHeader}>
-        <Text style={styles.bentoTitle}>{title}</Text>
+        <Text style={[styles.bentoTitle, { color: colors.primary }]}>
+          {title}
+        </Text>
         {badge ? (
-          <View style={styles.bentoBadge}>
-            <Text style={styles.bentoBadgeText}>{badge}</Text>
+          <View
+            style={[
+              styles.bentoBadge,
+              { backgroundColor: colors.primary + '20' },
+            ]}
+          >
+            <Text style={[styles.bentoBadgeText, { color: colors.primary }]}>
+              {badge}
+            </Text>
           </View>
         ) : Icon ? (
-          <Icon size={20} color={COLORS.secondary} opacity={0.5} />
+          <Icon size={20} color={colors.secondary} opacity={0.5} />
         ) : null}
       </View>
       <View style={styles.bentoContent}>{children}</View>
@@ -196,28 +213,41 @@ export default function MoreScreen() {
     small?: boolean;
   }) => (
     <TouchableOpacity
-      style={[styles.bentoItem, small && styles.bentoItemSmall]}
+      style={[
+        styles.bentoItem,
+        { backgroundColor: colors.background },
+        small && styles.bentoItemSmall,
+      ]}
       onPress={onPress}
     >
       <View style={styles.bentoItemMain}>
-        <View style={styles.bentoIconBox}>
-          <Icon size={18} color={COLORS.primary} />
+        <View
+          style={[
+            styles.bentoIconBox,
+            { backgroundColor: colors.primary + '15' },
+          ]}
+        >
+          <Icon size={18} color={colors.primary} />
         </View>
         <Text
-          style={[styles.bentoItemTitle, small && styles.bentoItemTitleSmall]}
+          style={[
+            styles.bentoItemTitle,
+            { color: colors.primary },
+            small && styles.bentoItemTitleSmall,
+          ]}
         >
           {small ? title.toUpperCase() : title}
         </Text>
       </View>
       {rightContent || (
-        <ChevronRight size={18} color={COLORS.secondary} opacity={0.5} />
+        <ChevronRight size={18} color={colors.secondary} opacity={0.5} />
       )}
     </TouchableOpacity>
   );
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={tenant?.name}
@@ -234,54 +264,78 @@ export default function MoreScreen() {
         {/* Profile Header Section */}
         <View style={styles.profileSection}>
           <View style={styles.avatarWrapper}>
-            <View style={styles.avatarBorder}>
+            <View
+              style={[
+                styles.avatarBorder,
+                { borderColor: colors.surfaceContainerLow },
+              ]}
+            >
               {avatarLocal || user?.avatar_url ? (
                 <Image
                   source={{ uri: avatarLocal || user?.avatar_url }}
                   style={styles.avatar}
                 />
               ) : (
-                <View style={styles.avatarPlaceholder}>
+                <View
+                  style={[
+                    styles.avatarPlaceholder,
+                    { backgroundColor: colors.surfaceContainerLow },
+                  ]}
+                >
                   <UserCircle
                     size={80}
-                    color={COLORS.primary}
+                    color={colors.primary}
                     strokeWidth={1}
                   />
                 </View>
               )}
             </View>
             <TouchableOpacity
-              style={styles.editAvatarBtn}
+              style={[
+                styles.editAvatarBtn,
+                {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.background,
+                },
+              ]}
               onPress={handlePickAvatar}
             >
-              <Edit2 size={14} color={COLORS.white} />
+              <Edit2 size={14} color={colors.onPrimary} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.profileInfo}>
             <View style={styles.nameRow}>
-              <Text style={styles.profileName}>
+              <Text style={[styles.profileName, { color: colors.primary }]}>
                 {user?.first_name} {user?.last_name}
               </Text>
               <View
                 style={[
                   styles.roleBadge,
                   user?.role === 'admin'
-                    ? styles.adminBadge
-                    : styles.staffBadge,
+                    ? { backgroundColor: colors.primary }
+                    : {
+                        backgroundColor: colors.surfaceContainerHigh,
+                        borderWidth: 1,
+                        borderColor: colors.border + '15',
+                      },
                 ]}
               >
                 {user?.role === 'admin' ? (
-                  <ShieldCheck size={12} color={COLORS.white} strokeWidth={3} />
+                  <ShieldCheck
+                    size={12}
+                    color={colors.onPrimary}
+                    strokeWidth={3}
+                  />
                 ) : (
-                  <User size={12} color={COLORS.primary} strokeWidth={3} />
+                  <User size={12} color={colors.primary} strokeWidth={3} />
                 )}
                 <Text
                   style={[
                     styles.roleText,
                     user?.role === 'admin'
-                      ? styles.adminText
-                      : styles.staffText,
+                      ? { color: colors.onPrimary }
+                      : { color: colors.primary },
                   ]}
                 >
                   {user?.role === 'admin' ? 'Admin' : 'Staff'}
@@ -290,20 +344,40 @@ export default function MoreScreen() {
             </View>
 
             <View style={styles.shopRow}>
-              <Store size={16} color={COLORS.secondary} />
-              <Text style={styles.shopName}>
+              <Store size={16} color={colors.secondary} />
+              <Text style={[styles.shopName, { color: colors.secondary }]}>
                 {tenant?.name || 'The Master Barber Atelier'}
               </Text>
             </View>
 
             <View style={styles.profileActions}>
-              <TouchableOpacity style={styles.primaryAction}>
-                <Text style={styles.primaryActionText}>
+              <TouchableOpacity
+                style={[
+                  styles.primaryAction,
+                  { backgroundColor: colors.primary },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.primaryActionText,
+                    { color: colors.onPrimary },
+                  ]}
+                >
                   {t('settings.editProfile')}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryAction}>
-                <Text style={styles.secondaryActionText}>
+              <TouchableOpacity
+                style={[
+                  styles.secondaryAction,
+                  { backgroundColor: colors.surfaceContainerHigh },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.secondaryActionText,
+                    { color: colors.primary },
+                  ]}
+                >
                   {t('settings.publicPage')}
                 </Text>
               </TouchableOpacity>
@@ -332,7 +406,7 @@ export default function MoreScreen() {
             <BentoSection
               title={t('settings.sections.business')}
               badge={t('settings.adminExclusive')}
-              style={styles.adminSection}
+              style={[styles.adminSection, { borderLeftColor: colors.primary }]}
             >
               <BentoItem
                 icon={Users}
@@ -377,9 +451,27 @@ export default function MoreScreen() {
             <BentoItem
               icon={Moon}
               title={t('settings.items.darkMode')}
+              onPress={toggleTheme}
               rightContent={
-                <View style={styles.toggleTrack}>
-                  <View style={styles.toggleThumb} />
+                <View
+                  style={[
+                    styles.toggleTrack,
+                    {
+                      backgroundColor: isDark
+                        ? colors.primary
+                        : colors.border + '30',
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.toggleThumb,
+                      {
+                        backgroundColor: colors.white,
+                        alignSelf: isDark ? 'flex-end' : 'flex-start',
+                      },
+                    ]}
+                  />
                 </View>
               }
             />
@@ -388,7 +480,7 @@ export default function MoreScreen() {
               title={t('settings.items.language')}
               onPress={toggleLanguage}
               rightContent={
-                <Text style={styles.langValue}>
+                <Text style={[styles.langValue, { color: colors.primary }]}>
                   {i18n.language.startsWith('tr')
                     ? 'Türkçe (TR)'
                     : 'English (US)'}
@@ -405,7 +497,7 @@ export default function MoreScreen() {
               rightContent={
                 <ExternalLink
                   size={16}
-                  color={COLORS.secondary}
+                  color={colors.secondary}
                   opacity={0.5}
                 />
               }
@@ -417,9 +509,14 @@ export default function MoreScreen() {
 
         {/* Logout Action */}
         <View style={styles.logoutWrapper}>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <LogOut size={20} color={'#93000b'} />
-            <Text style={styles.logoutText}>{t('settings.logout')}</Text>
+          <TouchableOpacity
+            style={[styles.logoutBtn, { backgroundColor: colors.error + '15' }]}
+            onPress={handleLogout}
+          >
+            <LogOut size={20} color={colors.error} />
+            <Text style={[styles.logoutText, { color: colors.error }]}>
+              {t('settings.logout')}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -429,7 +526,7 @@ export default function MoreScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.background,
+    flex: 1,
   },
   scrollContent: {
     paddingTop: 32,
@@ -449,7 +546,6 @@ const styles = StyleSheet.create({
     height: 128,
     borderRadius: 64,
     borderWidth: 4,
-    borderColor: COLORS.surfaceContainerLow,
     overflow: 'hidden',
     ...SHADOWS.md,
   },
@@ -460,7 +556,6 @@ const styles = StyleSheet.create({
   avatarPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.surfaceContainerLow,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -468,14 +563,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 4,
     right: 4,
-    backgroundColor: COLORS.primary,
     width: 32,
     height: 32,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: COLORS.background,
   },
   profileInfo: {
     alignItems: 'center',
@@ -487,9 +580,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   profileName: {
+    ...TYPOGRAPHY.h1,
     fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -1,
   },
   roleBadge: {
@@ -501,25 +593,11 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     ...SHADOWS.sm,
   },
-  adminBadge: {
-    backgroundColor: COLORS.primary,
-  },
-  staffBadge: {
-    backgroundColor: COLORS.primary + '15',
-    borderWidth: 1,
-    borderColor: COLORS.primary + '20',
-  },
   roleText: {
-    fontSize: 10,
+    ...TYPOGRAPHY.caption,
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-  },
-  adminText: {
-    color: COLORS.white,
-  },
-  staffText: {
-    color: COLORS.primary,
   },
   shopRow: {
     flexDirection: 'row',
@@ -528,35 +606,30 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   shopName: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.secondary,
   },
   profileActions: {
     flexDirection: 'row',
     gap: 12,
   },
   primaryAction: {
-    backgroundColor: COLORS.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 14,
     ...SHADOWS.sm,
   },
   primaryActionText: {
-    color: COLORS.white,
-    fontWeight: '800',
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
   },
   secondaryAction: {
-    backgroundColor: COLORS.surfaceContainerHigh,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 14,
   },
   secondaryActionText: {
-    color: COLORS.primary,
-    fontWeight: '800',
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
   },
   bentoGrid: {
@@ -564,13 +637,11 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   bentoSection: {
-    backgroundColor: COLORS.surfaceContainerLow,
     borderRadius: 32,
     padding: 24,
   },
   adminSection: {
     borderLeftWidth: 4,
-    borderLeftColor: '#2d0001',
   },
   bentoHeader: {
     flexDirection: 'row',
@@ -579,20 +650,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   bentoTitle: {
+    ...TYPOGRAPHY.h3,
     fontSize: 18,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   bentoBadge: {
-    backgroundColor: '#ffdad6',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   bentoBadgeText: {
-    fontSize: 9,
+    ...TYPOGRAPHY.caption,
     fontWeight: '900',
-    color: '#2d0001',
     letterSpacing: 1,
   },
   bentoContent: {
@@ -602,7 +670,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
     padding: 16,
     borderRadius: 16,
     marginBottom: 8,
@@ -616,14 +683,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: COLORS.primary + '08',
     justifyContent: 'center',
     alignItems: 'center',
   },
   bentoItemTitle: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.primary,
   },
   bentoItemSmall: {
     flexDirection: 'column',
@@ -635,26 +700,25 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   bentoItemTitleSmall: {
+    ...TYPOGRAPHY.caption,
     fontSize: 10,
     letterSpacing: 0.5,
   },
   toggleTrack: {
     width: 40,
     height: 20,
-    backgroundColor: COLORS.border,
     borderRadius: 10,
     padding: 2,
+    justifyContent: 'center',
   },
   toggleThumb: {
     width: 16,
     height: 16,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
   },
   langValue: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   logoutWrapper: {
     paddingVertical: 40,
@@ -664,15 +728,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#ffdad6',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 100,
   },
   logoutText: {
-    fontSize: 13,
+    ...TYPOGRAPHY.caption,
     fontWeight: '900',
-    color: '#410002',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },

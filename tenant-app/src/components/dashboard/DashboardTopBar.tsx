@@ -1,7 +1,7 @@
 import { Bell } from 'lucide-react-native';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   shopName: string;
@@ -9,10 +9,12 @@ interface Props {
 }
 
 export const DashboardTopBar: React.FC<Props> = ({ shopName, logoUrl }) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.topBar}>
+    <View style={[styles.topBar, { backgroundColor: colors.background + 'CC', borderBottomColor: colors.border + '15' }]}>
       <View style={styles.shopBranding}>
-        <View style={styles.logoContainer}>
+        <View style={[styles.logoContainer, { backgroundColor: colors.primaryContainer }]}>
           <Image
             source={{
               uri:
@@ -22,10 +24,10 @@ export const DashboardTopBar: React.FC<Props> = ({ shopName, logoUrl }) => {
             style={styles.logo}
           />
         </View>
-        <Text style={styles.shopName}>{shopName}</Text>
+        <Text style={[styles.shopName, { color: colors.primary }]}>{shopName}</Text>
       </View>
       <TouchableOpacity style={styles.iconButton}>
-        <Bell size={24} color={COLORS.primary} />
+        <Bell size={24} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -37,9 +39,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 24,
-    backgroundColor: 'rgba(248, 250, 252, 0.8)',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   shopBranding: {
     flexDirection: 'row',
@@ -49,7 +50,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: COLORS.primaryContainer,
     overflow: 'hidden',
     marginRight: 10,
   },
@@ -60,10 +60,10 @@ const styles = StyleSheet.create({
   shopName: {
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -0.5,
   },
   iconButton: {
     padding: 8,
   },
 });
+

@@ -26,7 +26,7 @@ import {
   View,
 } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS } from '@/src/constants/theme';
 import { useAppointments } from '@/src/hooks/queries/useAppointments';
 import { useStaffMutations } from '@/src/hooks/mutations/useStaffMutations';
 import {
@@ -36,6 +36,7 @@ import {
 import { useSessionStore } from '@/src/store/useSessionStore';
 import { TimeOff } from '@/src/types';
 import { toLocalRFC3339 } from '@/src/utils/datetime';
+import { useTheme } from '@/src/hooks/useTheme';
 
 const HOUR_HEIGHT = 96;
 const TIME_COLUMN_WIDTH = 70;
@@ -53,6 +54,7 @@ const addMinutesToTime = (time: string, minutes: number): string => {
 export default function CalendarScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const { tenant, user: staffUser } = useSessionStore();
   const [selectedDate, setSelectedDate] = useState(startOfToday());
   const flatListRef = useRef<FlatList>(null);
@@ -231,15 +233,27 @@ export default function CalendarScreen() {
       <TouchableOpacity
         style={[
           styles.dateCard,
-          isSelected ? styles.dateCardActive : styles.dateCardInactive,
+          isSelected
+            ? { backgroundColor: colors.primary }
+            : { backgroundColor: colors.surfaceContainerLow },
           isSelected && SHADOWS.md,
         ]}
         onPress={() => setSelectedDate(date)}
       >
-        <Text style={[styles.dateDayName, isSelected && styles.textWhite]}>
+        <Text
+          style={[
+            styles.dateDayName,
+            { color: isSelected ? colors.onPrimary : colors.secondary },
+          ]}
+        >
           {dayName.toUpperCase()}
         </Text>
-        <Text style={[styles.dateDayNumber, isSelected && styles.textWhite]}>
+        <Text
+          style={[
+            styles.dateDayNumber,
+            { color: isSelected ? colors.onPrimary : colors.primary },
+          ]}
+        >
           {dayNumber}
         </Text>
       </TouchableOpacity>
@@ -258,13 +272,19 @@ export default function CalendarScreen() {
       (startMin / 60) * HOUR_HEIGHT;
     const height = (duration / 60) * HOUR_HEIGHT - 8;
 
-    const colors: any = {
-      leave: { bg: '#FEF3C7', text: '#D97706', border: '#FCD34D' },
-      holiday: { bg: '#F3E8FF', text: '#7E22CE', border: '#E9D5FF' },
-      closure: { bg: '#FEE2E2', text: '#B91C1C', border: '#FECACA' },
+    const typeColors: any = {
+      leave: isDark
+        ? { bg: '#332b00', text: '#ffe082', border: '#ffe082' }
+        : { bg: '#FEF3C7', text: '#D97706', border: '#FCD34D' },
+      holiday: isDark
+        ? { bg: '#2d164d', text: '#e1d5e7', border: '#e1d5e7' }
+        : { bg: '#F3E8FF', text: '#7E22CE', border: '#E9D5FF' },
+      closure: isDark
+        ? { bg: '#3e0000', text: '#ffb4ab', border: '#ffb4ab' }
+        : { bg: '#FEE2E2', text: '#B91C1C', border: '#FECACA' },
     };
 
-    const config = colors[timeOff.type] || colors.leave;
+    const config = typeColors[timeOff.type] || typeColors.leave;
 
     return (
       <View
@@ -300,6 +320,7 @@ export default function CalendarScreen() {
       </View>
     );
   };
+
   const AppointmentBlock = ({ appointment }: { appointment: any }) => {
     const start = parseISO(appointment.starts_at);
     const end = parseISO(appointment.ends_at);
@@ -316,29 +337,29 @@ export default function CalendarScreen() {
 
     const statusConfig: any = {
       confirmed: {
-        bg: COLORS.success + '15',
-        text: COLORS.success,
-        border: COLORS.success,
+        bg: colors.success + '15',
+        text: colors.success,
+        border: colors.success,
       },
       pending: {
-        bg: COLORS.pending + '15',
-        text: COLORS.pending,
-        border: COLORS.pending,
+        bg: colors.pending + '15',
+        text: colors.pending,
+        border: colors.pending,
       },
       completed: {
-        bg: COLORS.completed + '15',
-        text: COLORS.completed,
-        border: COLORS.completed,
+        bg: colors.completed + '15',
+        text: colors.completed,
+        border: colors.completed,
       },
       cancelled: {
-        bg: COLORS.cancelled + '15',
-        text: COLORS.cancelled,
-        border: COLORS.cancelled,
+        bg: colors.cancelled + '15',
+        text: colors.cancelled,
+        border: colors.cancelled,
       },
       no_show: {
-        bg: COLORS.no_show + '15',
-        text: COLORS.no_show,
-        border: COLORS.no_show,
+        bg: colors.no_show + '15',
+        text: colors.no_show,
+        border: colors.no_show,
       },
     };
 
@@ -346,7 +367,15 @@ export default function CalendarScreen() {
 
     return (
       <TouchableOpacity
-        style={[styles.appointmentItem, { top: top + 8, height }, SHADOWS.sm]}
+        style={[
+          styles.appointmentItem,
+          {
+            backgroundColor: colors.surfaceContainerLowest,
+            borderColor: colors.border + '30',
+          },
+          { top: top + 8, height },
+          SHADOWS.sm,
+        ]}
         onPress={() =>
           router.push({
             pathname: '/appointments/[id]',
@@ -359,20 +388,26 @@ export default function CalendarScreen() {
             styles.statusLine,
             {
               backgroundColor:
-                config.border === COLORS.success
-                  ? COLORS.success
-                  : COLORS.primary,
+                config.border === colors.success
+                  ? colors.success
+                  : colors.primary,
             },
           ]}
         />
         <View style={styles.appointmentBody}>
           <View style={styles.appointmentHeader}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.clientName} numberOfLines={1}>
+              <Text
+                style={[styles.clientName, { color: colors.primary }]}
+                numberOfLines={1}
+              >
                 {appointment.customer?.first_name}{' '}
                 {appointment.customer?.last_name}
               </Text>
-              <Text style={styles.serviceText} numberOfLines={1}>
+              <Text
+                style={[styles.serviceText, { color: colors.secondary }]}
+                numberOfLines={1}
+              >
                 {appointment.services?.[0]?.service_name || 'Service'}
               </Text>
             </View>
@@ -386,8 +421,10 @@ export default function CalendarScreen() {
           {height > 80 && (
             <View style={styles.appointmentFooter}>
               <View style={styles.timeInfo}>
-                <Clock size={12} color={COLORS.secondary} />
-                <Text style={styles.timeRangeText}>
+                <Clock size={12} color={colors.secondary} />
+                <Text
+                  style={[styles.timeRangeText, { color: colors.secondary }]}
+                >
                   {format(start, 'HH:mm', { locale: dateLocale })} -{' '}
                   {format(end, 'HH:mm', { locale: dateLocale })}
                 </Text>
@@ -401,7 +438,7 @@ export default function CalendarScreen() {
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={tenant?.name}
@@ -409,11 +446,18 @@ export default function CalendarScreen() {
       showNotification
     >
       {/* Sticky Header Section */}
-      <View style={styles.stickyHeader}>
+      <View
+        style={[
+          styles.stickyHeader,
+          { backgroundColor: colors.background + 'F2' },
+        ]}
+      >
         <View style={styles.calendarHeader}>
           <View style={styles.headerTitle}>
-            <Text style={styles.headerTitleText}>{t('calendar.schedule')}</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitleText, { color: colors.primary }]}>
+              {t('calendar.schedule')}
+            </Text>
+            <Text style={[styles.headerSubtitle, { color: colors.secondary }]}>
               {format(selectedDate, 'MMMM yyyy', {
                 locale: dateLocale,
               }).toUpperCase()}
@@ -424,23 +468,25 @@ export default function CalendarScreen() {
               onPress={handlePrevDay}
               style={[
                 styles.navButton,
+                { backgroundColor: colors.primary + '10' },
                 isSameDay(selectedDate, dates[0]) && { opacity: 0.3 },
               ]}
               disabled={isSameDay(selectedDate, dates[0])}
             >
-              <ChevronLeft size={16} color={COLORS.secondary} />
+              <ChevronLeft size={16} color={colors.secondary} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleNextDay}
               style={[
                 styles.navButton,
+                { backgroundColor: colors.primary + '10' },
                 isSameDay(selectedDate, dates[dates.length - 1]) && {
                   opacity: 0.3,
                 },
               ]}
               disabled={isSameDay(selectedDate, dates[dates.length - 1])}
             >
-              <ChevronRight size={16} color={COLORS.secondary} />
+              <ChevronRight size={16} color={colors.secondary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -469,13 +515,19 @@ export default function CalendarScreen() {
           <RefreshControl
             refreshing={isLoadingAppointments || isLoadingTimeOffs}
             onRefresh={handleRefresh}
+            tintColor={colors.primary}
           />
         }
       >
         {/* Calendar Grid Section */}
         <View style={styles.gridContainer}>
           {/* Vertical Timeline Line */}
-          <View style={styles.timelineLine} />
+          <View
+            style={[
+              styles.timelineLine,
+              { backgroundColor: colors.border + '30' },
+            ]}
+          />
 
           {/* Time Slots */}
           <View style={styles.timeSlotsColumn}>
@@ -484,13 +536,22 @@ export default function CalendarScreen() {
                 key={time}
                 style={({ pressed }) => [
                   styles.timeSlotRow,
-                  pressed && styles.timeSlotRowPressed,
+                  pressed && { backgroundColor: colors.primary + '0A' },
                 ]}
                 onLongPress={() => handleTimeSlotLongPress(time)}
                 delayLongPress={400}
               >
-                <Text style={styles.timeSlotLabel}>{time}</Text>
-                <View style={styles.slotBorder} />
+                <Text
+                  style={[styles.timeSlotLabel, { color: colors.secondary }]}
+                >
+                  {time}
+                </Text>
+                <View
+                  style={[
+                    styles.slotBorder,
+                    { borderColor: colors.border + '20' },
+                  ]}
+                />
               </Pressable>
             ))}
           </View>
@@ -520,41 +581,64 @@ export default function CalendarScreen() {
           activeOpacity={1}
           onPress={() => setSlotActionPicker(null)}
         >
-          <View style={styles.actionSheet}>
-            <View style={styles.durationHandle} />
-            <Text style={styles.actionSheetTitle}>
+          <View style={[styles.actionSheet, { backgroundColor: colors.card }]}>
+            <View
+              style={[
+                styles.durationHandle,
+                { backgroundColor: colors.surfaceContainerHighest },
+              ]}
+            />
+            <Text style={[styles.actionSheetTitle, { color: colors.primary }]}>
               {slotActionPicker} •{' '}
               {format(selectedDate, 'MMM d', { locale: dateLocale })}
             </Text>
-            <Text style={styles.actionSheetSubtitle}>
+            <Text
+              style={[styles.actionSheetSubtitle, { color: colors.secondary }]}
+            >
               {t('calendar.selectAction')}
             </Text>
 
             <View style={styles.actionButtons}>
               <TouchableOpacity
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: colors.surfaceContainerLow },
+                ]}
                 onPress={handleCreateAppointment}
               >
                 <View
-                  style={[styles.actionIcon, { backgroundColor: '#DBEAFE' }]}
+                  style={[
+                    styles.actionIcon,
+                    { backgroundColor: colors.primary + '20' },
+                  ]}
                 >
-                  <Plus size={24} color="#2563EB" />
+                  <Plus size={24} color={colors.primary} />
                 </View>
-                <Text style={styles.actionButtonText}>
+                <Text
+                  style={[styles.actionButtonText, { color: colors.primary }]}
+                >
                   {t('calendar.createAppointment')}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: colors.surfaceContainerLow },
+                ]}
                 onPress={handleAddTimeOff}
               >
                 <View
-                  style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}
+                  style={[
+                    styles.actionIcon,
+                    { backgroundColor: colors.pending + '20' },
+                  ]}
                 >
-                  <Clock size={24} color="#D97706" />
+                  <Clock size={24} color={colors.pending} />
                 </View>
-                <Text style={styles.actionButtonText}>
+                <Text
+                  style={[styles.actionButtonText, { color: colors.primary }]}
+                >
                   {t('calendar.addTimeOff')}
                 </Text>
               </TouchableOpacity>
@@ -564,7 +648,11 @@ export default function CalendarScreen() {
               style={styles.actionCancelBtn}
               onPress={() => setSlotActionPicker(null)}
             >
-              <Text style={styles.actionCancelText}>{t('common.cancel')}</Text>
+              <Text
+                style={[styles.actionCancelText, { color: colors.outline }]}
+              >
+                {t('common.cancel')}
+              </Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -582,21 +670,38 @@ export default function CalendarScreen() {
           activeOpacity={1}
           onPress={handleDurationCancel}
         >
-          <TouchableOpacity activeOpacity={1} style={styles.durationSheet}>
-            <View style={styles.durationHandle} />
+          <TouchableOpacity
+            activeOpacity={1}
+            style={[styles.durationSheet, { backgroundColor: colors.card }]}
+          >
+            <View
+              style={[
+                styles.durationHandle,
+                { backgroundColor: colors.surfaceContainerHighest },
+              ]}
+            />
 
             <View style={styles.durationHeader}>
-              <Text style={styles.durationSheetTitle}>
+              <Text
+                style={[styles.durationSheetTitle, { color: colors.primary }]}
+              >
                 {durationPicker?.startTime} → {durationPicker?.endTime}
               </Text>
-              <Text style={styles.durationSheetSubtitle}>
+              <Text
+                style={[
+                  styles.durationSheetSubtitle,
+                  { color: colors.secondary },
+                ]}
+              >
                 {format(selectedDate, 'EEEE, MMMM d, yyyy', {
                   locale: dateLocale,
                 })}
               </Text>
             </View>
 
-            <Text style={styles.durationChipsLabel}>
+            <Text
+              style={[styles.durationChipsLabel, { color: colors.secondary }]}
+            >
               {t('calendar.selectEndTime')}
             </Text>
 
@@ -617,14 +722,16 @@ export default function CalendarScreen() {
                     key={offset}
                     style={[
                       styles.durationChip,
-                      isActive && styles.durationChipActive,
+                      { backgroundColor: colors.surfaceContainerLow },
+                      isActive && { backgroundColor: colors.primary },
                     ]}
                     onPress={() => handleEndTimeSelect(endTime)}
                   >
                     <Text
                       style={[
                         styles.durationChipTime,
-                        isActive && styles.durationChipTextActive,
+                        { color: colors.primary },
+                        isActive && { color: colors.onPrimary },
                       ]}
                     >
                       {endTime}
@@ -632,7 +739,8 @@ export default function CalendarScreen() {
                     <Text
                       style={[
                         styles.durationChipDuration,
-                        isActive && styles.durationChipTextActive,
+                        { color: colors.secondary },
+                        isActive && { color: colors.onPrimary },
                       ]}
                     >
                       {(() => {
@@ -659,7 +767,7 @@ export default function CalendarScreen() {
 
             {durationPicker?.mode === 'timeOff' && (
               <View style={styles.timeOffFields}>
-                <Text style={styles.fieldLabel}>
+                <Text style={[styles.fieldLabel, { color: colors.secondary }]}>
                   {t('calendar.timeOffType')}
                 </Text>
                 <ScrollView
@@ -673,7 +781,14 @@ export default function CalendarScreen() {
                       key={type}
                       style={[
                         styles.typeChip,
-                        durationPicker.type === type && styles.typeChipActive,
+                        {
+                          backgroundColor: colors.surfaceContainerLow,
+                          borderColor: colors.outlineVariant,
+                        },
+                        durationPicker.type === type && {
+                          backgroundColor: colors.primary,
+                          borderColor: colors.primary,
+                        },
                       ]}
                       onPress={() =>
                         setDurationPicker((p) => (p ? { ...p, type } : null))
@@ -682,8 +797,10 @@ export default function CalendarScreen() {
                       <Text
                         style={[
                           styles.typeChipText,
-                          durationPicker.type === type &&
-                            styles.typeChipTextActive,
+                          { color: colors.primary },
+                          durationPicker.type === type && {
+                            color: colors.onPrimary,
+                          },
                         ]}
                       >
                         {t(
@@ -694,12 +811,19 @@ export default function CalendarScreen() {
                   ))}
                 </ScrollView>
 
-                <Text style={styles.fieldLabel}>
+                <Text style={[styles.fieldLabel, { color: colors.secondary }]}>
                   {t('calendar.timeOffReason')}
                 </Text>
                 <TextInput
-                  style={styles.reasonInput}
+                  style={[
+                    styles.reasonInput,
+                    {
+                      backgroundColor: colors.surfaceContainerLow,
+                      color: colors.primary,
+                    },
+                  ]}
                   placeholder={t('calendar.timeOffReason')}
+                  placeholderTextColor={colors.outline}
                   value={durationPicker.reason}
                   onChangeText={(reason) =>
                     setDurationPicker((p) => (p ? { ...p, reason } : null))
@@ -712,18 +836,31 @@ export default function CalendarScreen() {
 
             <View style={styles.durationActions}>
               <TouchableOpacity
-                style={styles.durationCancelBtn}
+                style={[
+                  styles.durationCancelBtn,
+                  { backgroundColor: colors.surfaceContainerHigh },
+                ]}
                 onPress={handleDurationCancel}
               >
-                <Text style={styles.durationCancelText}>
+                <Text
+                  style={[styles.durationCancelText, { color: colors.primary }]}
+                >
                   {t('common.cancel')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.durationConfirmBtn}
+                style={[
+                  styles.durationConfirmBtn,
+                  { backgroundColor: colors.primary },
+                ]}
                 onPress={handleConfirmEndTime}
               >
-                <Text style={styles.durationConfirmText}>
+                <Text
+                  style={[
+                    styles.durationConfirmText,
+                    { color: colors.onPrimary },
+                  ]}
+                >
                   {durationPicker?.mode === 'timeOff'
                     ? t('common.approve')
                     : t('calendar.confirmTime')}
@@ -739,14 +876,12 @@ export default function CalendarScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.background,
+    flex: 1,
   },
   scrollContent: {
     paddingBottom: 120,
   },
-  textWhite: { color: '#FFF' },
   stickyHeader: {
-    backgroundColor: 'rgba(247, 249, 251, 0.95)',
     paddingBottom: 8,
   },
   calendarHeader: {
@@ -765,7 +900,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(5, 17, 37, 0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -777,13 +911,11 @@ const styles = StyleSheet.create({
   headerTitleText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.primary,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.secondary,
     letterSpacing: 1.5,
     marginTop: 4,
   },
@@ -800,22 +932,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  dateCardActive: {
-    backgroundColor: COLORS.primary,
-  },
-  dateCardInactive: {
-    backgroundColor: COLORS.surfaceContainerLow,
-  },
   dateDayName: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.secondary,
     letterSpacing: 0.5,
   },
   dateDayNumber: {
     fontSize: 20,
     fontWeight: '800',
-    color: COLORS.primary,
   },
   gridContainer: {
     paddingVertical: 12,
@@ -828,7 +952,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 1,
-    backgroundColor: 'rgba(197, 198, 205, 0.3)',
   },
   timeSlotsColumn: {
     gap: 0,
@@ -837,14 +960,10 @@ const styles = StyleSheet.create({
     height: HOUR_HEIGHT,
     flexDirection: 'row',
   },
-  timeSlotRowPressed: {
-    backgroundColor: 'rgba(5, 17, 37, 0.04)',
-  },
   timeSlotLabel: {
     width: TIME_COLUMN_WIDTH,
     fontSize: 11,
     fontWeight: 'bold',
-    color: COLORS.secondary,
     textAlign: 'right',
     paddingRight: 16,
     top: -8,
@@ -852,7 +971,6 @@ const styles = StyleSheet.create({
   slotBorder: {
     flex: 1,
     borderTopWidth: 1,
-    borderColor: 'rgba(197, 198, 205, 0.15)',
   },
   appointmentsLayer: {
     position: 'absolute',
@@ -865,12 +983,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 8,
     right: 0,
-    backgroundColor: COLORS.surfaceContainerLowest,
     borderRadius: 8,
     flexDirection: 'row',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(197, 198, 205, 0.2)',
   },
   statusLine: {
     width: 4,
@@ -889,12 +1005,10 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: COLORS.primary,
   },
   serviceText: {
     fontSize: 10,
     fontWeight: '500',
-    color: COLORS.secondary,
     marginTop: 2,
   },
   statusBadge: {
@@ -917,7 +1031,6 @@ const styles = StyleSheet.create({
   timeRangeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.secondary,
   },
   durationBackdrop: {
     flex: 1,
@@ -925,7 +1038,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   durationSheet: {
-    backgroundColor: COLORS.white,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 16,
@@ -935,7 +1047,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.surfaceContainerHighest,
     alignSelf: 'center',
     marginBottom: 24,
   },
@@ -947,19 +1058,16 @@ const styles = StyleSheet.create({
   durationSheetTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -0.5,
     marginBottom: 6,
   },
   durationSheetSubtitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.secondary,
   },
   durationChipsLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.secondary,
     letterSpacing: 2,
     textAlign: 'center',
     marginBottom: 16,
@@ -976,25 +1084,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 12,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerLow,
     alignItems: 'center',
-  },
-  durationChipActive: {
-    backgroundColor: COLORS.primary,
   },
   durationChipTime: {
     fontSize: 17,
     fontWeight: '800',
-    color: COLORS.primary,
     marginBottom: 2,
   },
   durationChipDuration: {
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.secondary,
-  },
-  durationChipTextActive: {
-    color: COLORS.white,
   },
   durationActions: {
     flexDirection: 'row',
@@ -1005,28 +1104,23 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerHigh,
     alignItems: 'center',
   },
   durationCancelText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.primary,
   },
   durationConfirmBtn: {
     flex: 2,
     paddingVertical: 16,
     borderRadius: 20,
-    backgroundColor: COLORS.primary,
     alignItems: 'center',
   },
   durationConfirmText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.white,
   },
   actionSheet: {
-    backgroundColor: COLORS.white,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 16,
@@ -1036,14 +1130,12 @@ const styles = StyleSheet.create({
   actionSheetTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: COLORS.primary,
     textAlign: 'center',
     marginBottom: 4,
   },
   actionSheetSubtitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.secondary,
     textAlign: 'center',
     marginBottom: 32,
     letterSpacing: 0.5,
@@ -1055,7 +1147,6 @@ const styles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLow,
     padding: 16,
     borderRadius: 24,
     gap: 16,
@@ -1070,7 +1161,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.primary,
   },
   actionCancelBtn: {
     alignItems: 'center',
@@ -1079,7 +1169,6 @@ const styles = StyleSheet.create({
   actionCancelText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.outline,
   },
   timeOffFields: {
     paddingHorizontal: 24,
@@ -1088,7 +1177,6 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.secondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 8,
@@ -1103,28 +1191,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-  },
-  typeChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
   },
   typeChipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
-  },
-  typeChipTextActive: {
-    color: COLORS.white,
   },
   reasonInput: {
-    backgroundColor: COLORS.surfaceContainerLow,
     borderRadius: 16,
     padding: 12,
     fontSize: 15,
-    color: COLORS.primary,
     minHeight: 60,
     textAlignVertical: 'top',
   },

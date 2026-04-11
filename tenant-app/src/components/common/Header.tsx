@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft, Bell } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface HeaderProps {
   title?: string;
@@ -24,6 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
   showNotification = false,
 }) => {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
 
   const handleBack = () => {
     if (onBack) {
@@ -34,13 +36,29 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background,
+          borderBottomColor: isDark
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(0,0,0,0.05)',
+        },
+      ]}
+    >
       <View style={styles.leftContainer}>
         {leftElement ? (
           leftElement
         ) : showBack ? (
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ChevronLeft size={24} color={COLORS.primary} strokeWidth={2.5} />
+          <TouchableOpacity
+            style={[
+              styles.backButton,
+              { backgroundColor: colors.surfaceContainerLow },
+            ]}
+            onPress={handleBack}
+          >
+            <ChevronLeft size={24} color={colors.primary} strokeWidth={2.5} />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -48,11 +66,17 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.centerContainer}>
         {title && (
           <View style={styles.titleContainer}>
-            <Text style={styles.title} numberOfLines={1}>
+            <Text
+              style={[styles.title, { color: colors.primary }]}
+              numberOfLines={1}
+            >
               {title}
             </Text>
             {subtitle && (
-              <Text style={styles.subtitle} numberOfLines={1}>
+              <Text
+                style={[styles.subtitle, { color: colors.secondary }]}
+                numberOfLines={1}
+              >
                 {subtitle}
               </Text>
             )}
@@ -65,8 +89,13 @@ export const Header: React.FC<HeaderProps> = ({
           rightElement
         ) : showNotification ? (
           <TouchableOpacity style={styles.notificationButton}>
-            <Bell size={22} color={COLORS.primary} strokeWidth={2} />
-            <View style={styles.notificationDot} />
+            <Bell size={22} color={colors.primary} strokeWidth={2} />
+            <View
+              style={[
+                styles.notificationDot,
+                { borderColor: colors.background },
+              ]}
+            />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -81,9 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SIZES.padding,
     height: 48,
-    backgroundColor: COLORS.background,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   leftContainer: {
     width: 44,
@@ -102,13 +129,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.secondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: -2,
@@ -117,7 +142,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: COLORS.surfaceContainerLow,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -135,8 +159,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.error,
+    backgroundColor: '#ba1a1a', // Keep error red or use colors.error
     borderWidth: 1.5,
-    borderColor: COLORS.background,
   },
 });

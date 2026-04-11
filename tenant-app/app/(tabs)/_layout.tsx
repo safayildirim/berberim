@@ -9,18 +9,26 @@ import {
 } from 'lucide-react-native';
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { COLORS, SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.primaryDim,
-        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.secondary,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: colors.card + 'F0',
+            borderTopColor: colors.border + '40',
+          },
+        ],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
         tabBarHideOnKeyboard: true,
@@ -85,13 +93,11 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: COLORS.white + 'F0', // Slight transparency for glass effect
     borderTopWidth: 1,
-    borderTopColor: COLORS.surfaceContainerHighest + '40',
     height: Platform.OS === 'ios' ? 96 : 72,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    position: 'absolute', // Make it float to show rounded corners better
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,

@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Check, ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
+import { TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
 import { Customer } from '@/src/types';
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   customer: Customer;
@@ -14,6 +15,7 @@ interface Props {
 
 export const CustomerCard = ({ customer, isSelected, onSelect }: Props) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const lastVisitText = customer.last_appointment_at
     ? formatDistanceToNow(parseISO(customer.last_appointment_at))
@@ -23,7 +25,10 @@ export const CustomerCard = ({ customer, isSelected, onSelect }: Props) => {
     <TouchableOpacity
       style={[
         styles.container,
-        isSelected && styles.selectedContainer,
+        {
+          borderColor: isSelected ? colors.primary : 'transparent',
+          backgroundColor: colors.surfaceContainerLowest,
+        },
         !isSelected && SHADOWS.sm,
       ]}
       onPress={() => onSelect(customer)}
@@ -36,12 +41,12 @@ export const CustomerCard = ({ customer, isSelected, onSelect }: Props) => {
               styles.avatar,
               {
                 backgroundColor: isSelected
-                  ? COLORS.primaryFixed
-                  : COLORS.secondaryFixed,
+                  ? colors.primary + '20'
+                  : colors.surfaceContainerHigh,
               },
             ]}
           >
-            {customer.last_name === 'AvatarImagePlaceholder' ? ( // logic to handle images if we had them or use initials
+            {customer.last_name === 'AvatarImagePlaceholder' ? (
               <Image
                 source={{
                   uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDt0i6Iav09a9wp2gV4sGlVLc6yzW_O6AGdh1TjAzBc1tdEUDk93HtJrck5RTFExsDlop2BtcNUQ3GW1c2eAHsijbnn0m_gR6t6sd761GQ_khlWyJpIMBJtsl2PhnzVSiC9qW5n3LfvbHh_eCkPc_qwrBqAEEv_H7yw6wqt6J2oxZ6XtV_N545jqI5SJ3I4fYSMsv0yJ2alZo1IUwUCMQt3YPokOZajwxRgrV46u15QMN4iGZQ_D-E-rp42hI9SEir0LxbFmSFxwYqq',
@@ -49,34 +54,45 @@ export const CustomerCard = ({ customer, isSelected, onSelect }: Props) => {
                 style={styles.avatarImage}
               />
             ) : (
-              <Text style={styles.avatarText}>
+              <Text style={[styles.avatarText, { color: colors.primary }]}>
                 {customer.first_name[0]}
                 {customer.last_name[0]}
               </Text>
             )}
           </View>
           <View>
-            <Text style={styles.name}>
+            <Text style={[styles.name, { color: colors.primary }]}>
               {customer.first_name} {customer.last_name}
             </Text>
-            <Text style={styles.phone}>{customer.phone_number}</Text>
+            <Text style={[styles.phone, { color: colors.secondary }]}>
+              {customer.phone_number}
+            </Text>
           </View>
         </View>
 
         {isSelected ? (
-          <View style={styles.checkBadge}>
-            <Check size={18} color={COLORS.white} strokeWidth={3} />
+          <View
+            style={[styles.checkBadge, { backgroundColor: colors.primary }]}
+          >
+            <Check size={18} color={colors.onPrimary} strokeWidth={3} />
           </View>
         ) : (
-          <ChevronRight size={20} color={COLORS.outline} />
+          <ChevronRight size={20} color={colors.outline} />
         )}
       </View>
 
       {isSelected && (
-        <View style={styles.tagSection}>
+        <View
+          style={[styles.tagSection, { borderTopColor: colors.border + '15' }]}
+        >
           {lastVisitText && (
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>
+            <View
+              style={[
+                styles.tag,
+                { backgroundColor: colors.surfaceContainerHigh },
+              ]}
+            >
+              <Text style={[styles.tagText, { color: colors.primary }]}>
                 {t('appointmentCreate.lastVisitByTime', {
                   time: lastVisitText,
                 })}
@@ -84,8 +100,13 @@ export const CustomerCard = ({ customer, isSelected, onSelect }: Props) => {
             </View>
           )}
           {customer.visit_count > 5 && (
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>
+            <View
+              style={[
+                styles.tag,
+                { backgroundColor: colors.surfaceContainerHigh },
+              ]}
+            >
+              <Text style={[styles.tagText, { color: colors.primary }]}>
                 {t('appointmentCreate.vipClient')}
               </Text>
             </View>
@@ -98,16 +119,10 @@ export const CustomerCard = ({ customer, isSelected, onSelect }: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.surfaceContainerLowest,
     padding: SIZES.md + 4,
-    borderRadius: SIZES.radius + 12, // 20 in web -> around 16+ radius in mobile
+    borderRadius: SIZES.radius + 12,
     marginBottom: SIZES.md,
     borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedContainer: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.surfaceContainerLowest,
   },
   topRow: {
     flexDirection: 'row',
@@ -134,24 +149,20 @@ const styles = StyleSheet.create({
   avatarText: {
     ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-    color: '#0d1c2e', // on-secondary-fixed
   },
   name: {
     ...TYPOGRAPHY.h3,
     fontWeight: '800',
-    color: COLORS.onSurface,
   },
   phone: {
     ...TYPOGRAPHY.body,
     fontSize: 13,
-    color: COLORS.onSurfaceVariant,
     marginTop: 2,
   },
   checkBadge: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -159,13 +170,11 @@ const styles = StyleSheet.create({
     marginTop: SIZES.md,
     paddingTop: SIZES.sm,
     borderTopWidth: 1,
-    borderTopColor: COLORS.surfaceContainer,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: SIZES.sm,
   },
   tag: {
-    backgroundColor: COLORS.surfaceContainerLow,
     paddingHorizontal: SIZES.sm,
     paddingVertical: SIZES.xs,
     borderRadius: SIZES.xs + 2,
@@ -174,7 +183,6 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.caption,
     fontSize: 10,
     fontWeight: '800',
-    color: COLORS.onSecondaryContainer,
     textTransform: 'uppercase',
   },
 });

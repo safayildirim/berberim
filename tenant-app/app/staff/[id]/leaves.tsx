@@ -11,8 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '@/src/components/common/Screen';
-import { ScheduleStatsBanner } from '@/src/components/staff/schedule/ScheduleStatsBanner';
-import { LeaveList } from '@/src/components/staff/schedule/LeaveList';
+import { LeaveStatsBanner } from '@/src/components/staff/leave/ScheduleStatsBanner';
+import { LeaveList } from '@/src/components/staff/leave/LeaveList';
 import { COLORS, SHADOWS } from '@/src/constants/theme';
 import { useScheduleManagement } from '@/src/hooks/staff/useScheduleManagement';
 import { useSessionStore } from '@/src/store/useSessionStore';
@@ -55,7 +55,7 @@ export default function LeavesScreen() {
           </View>
         ) : (
           <>
-            <ScheduleStatsBanner stats={stats} />
+            <LeaveStatsBanner stats={stats} />
             <LeaveList entries={entries} />
           </>
         )}

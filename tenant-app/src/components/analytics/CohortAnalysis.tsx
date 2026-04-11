@@ -2,8 +2,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { Users } from 'lucide-react-native';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { CohortMonth } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface CohortAnalysisProps {
   cohorts: CohortMonth[];
@@ -15,32 +16,32 @@ export const CohortAnalysisSection = ({
   isLoading,
 }: CohortAnalysisProps) => {
   const { t } = useTranslation();
+  const { colors, isDark } = useTheme();
 
   if (isLoading || cohorts.length === 0) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>{t('analytics.cohorts.title')}</Text>
-          <Users size={20} color={COLORS.primary} />
+          <Text style={[styles.title, { color: colors.primary }]}>{t('analytics.cohorts.title')}</Text>
+          <Users size={20} color={colors.primary} />
         </View>
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, { color: colors.secondary }]}>
           {isLoading ? t('common.loading') : t('analytics.cohorts.noData')}
         </Text>
       </View>
     );
   }
 
-  // Find max periods for columns
   const maxPeriods = Math.max(...cohorts.map((c) => c.periods?.length ?? 0), 1);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <Text style={styles.title}>{t('analytics.cohorts.title')}</Text>
-          <Text style={styles.subtitle}>{t('analytics.cohorts.subtitle')}</Text>
+          <Text style={[styles.title, { color: colors.primary }]}>{t('analytics.cohorts.title')}</Text>
+          <Text style={[styles.subtitle, { color: colors.secondary }]}>{t('analytics.cohorts.subtitle')}</Text>
         </View>
-        <Users size={24} color={COLORS.primary + '60'} />
+        <Users size={24} color={colors.primary + '60'} />
       </View>
 
       <ScrollView
@@ -51,14 +52,14 @@ export const CohortAnalysisSection = ({
         <View style={styles.tableContainer}>
           {/* Header Row */}
           <View style={styles.tableRow}>
-            <Text style={[styles.headerCell, styles.cohortColumn]}>
+            <Text style={[styles.headerCell, styles.cohortColumn, { color: colors.secondary }]}>
               {t('analytics.cohorts.cohort')}
             </Text>
-            <Text style={[styles.headerCell, styles.sizeColumn]}>
+            <Text style={[styles.headerCell, styles.sizeColumn, { color: colors.secondary }]}>
               {t('analytics.cohorts.size')}
             </Text>
             {Array.from({ length: maxPeriods }, (_, i) => (
-              <Text key={i} style={[styles.headerCell, styles.periodColumn]}>
+              <Text key={i} style={[styles.headerCell, styles.periodColumn, { color: colors.secondary }]}>
                 {t('analytics.cohorts.monthN', { n: i })}
               </Text>
             ))}
@@ -67,10 +68,10 @@ export const CohortAnalysisSection = ({
           {/* Data Rows */}
           {cohorts.map((cohort, index) => (
             <View key={cohort.cohort || index} style={styles.tableRow}>
-              <Text style={[styles.cohortText, styles.cohortColumn]}>
+              <Text style={[styles.cohortText, styles.cohortColumn, { color: colors.primary }]}>
                 {cohort.cohort}
               </Text>
-              <Text style={[styles.sizeText, styles.sizeColumn]}>
+              <Text style={[styles.sizeText, styles.sizeColumn, { color: colors.secondary }]}>
                 {cohort.cohort_size}
               </Text>
               {Array.from({ length: maxPeriods }, (_, i) => {
@@ -79,8 +80,8 @@ export const CohortAnalysisSection = ({
                 );
                 if (!period) {
                   return (
-                    <View key={i} style={[styles.periodCell, styles.emptyCell]}>
-                      <Text style={styles.emptyCellText}>-</Text>
+                    <View key={i} style={[styles.periodCell, { backgroundColor: colors.surfaceContainerLow }]}>
+                      <Text style={[styles.emptyCellText, { color: colors.outline + '40' }]}>-</Text>
                     </View>
                   );
                 }
@@ -90,10 +91,10 @@ export const CohortAnalysisSection = ({
                     key={i}
                     style={[
                       styles.periodCell,
-                      { backgroundColor: getRetentionColor(rate) },
+                      { backgroundColor: getRetentionColor(rate, colors.success, isDark) },
                     ]}
                   >
-                    <Text style={styles.rateText}>{rate}%</Text>
+                    <Text style={[styles.rateText, { color: isDark ? colors.onPrimary : colors.primary }]}>{rate}%</Text>
                   </View>
                 );
               })}
@@ -105,31 +106,23 @@ export const CohortAnalysisSection = ({
   );
 };
 
-function getRetentionColor(rate: number): string {
-  // Using the emerald-based scale from HTML: #e0f7ef
-  if (rate >= 100) return '#e0f7ef';
-  if (rate >= 80) return 'rgba(224, 247, 239, 0.8)';
-  if (rate >= 60) return 'rgba(224, 247, 239, 0.6)';
-  if (rate >= 40) return 'rgba(224, 247, 239, 0.4)';
-  if (rate >= 20) return 'rgba(224, 247, 239, 0.2)';
-  return '#eceef0';
+function getRetentionColor(rate: number, baseColor: string, isDark: boolean): string {
+  if (rate >= 100) return baseColor;
+  if (rate >= 80) return baseColor + (isDark ? 'CC' : 'B3');
+  if (rate >= 60) return baseColor + (isDark ? '99' : '80');
+  if (rate >= 40) return baseColor + (isDark ? '66' : '4D');
+  if (rate >= 20) return baseColor + (isDark ? '33' : '26');
+  return isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
     marginHorizontal: SIZES.md,
     marginTop: SIZES.lg,
     borderRadius: 32,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '10',
-    // shadow is handled via style if needed but normally we use shadows.sm or similar
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 32,
-    elevation: 2,
+    ...SHADOWS.sm,
   },
   header: {
     flexDirection: 'row',
@@ -145,19 +138,15 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.h2,
     fontSize: 22,
     fontWeight: '900',
-    color: COLORS.primary,
     marginBottom: 4,
   },
   subtitle: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontSize: 13,
-    fontWeight: '500',
-    color: COLORS.onSurfaceVariant + 'CC',
     lineHeight: 16,
   },
   emptyText: {
     ...TYPOGRAPHY.body,
-    color: COLORS.muted,
     textAlign: 'center',
     paddingVertical: SIZES.lg,
   },
@@ -173,10 +162,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   headerCell: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 11,
+    ...TYPOGRAPHY.label,
+    fontSize: 10,
     fontWeight: '800',
-    color: COLORS.secondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -195,35 +183,29 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.label,
     fontSize: 15,
     fontWeight: '800',
-    color: COLORS.primary,
   },
   sizeText: {
     ...TYPOGRAPHY.label,
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.primary,
     textAlign: 'center',
   },
   periodCell: {
     width: 64,
-    height: 44, // Matches the high-density feel
+    height: 44,
     marginHorizontal: 4,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 12,
   },
-  emptyCell: {
-    backgroundColor: 'rgba(236, 238, 240, 0.4)',
-  },
   emptyCellText: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontWeight: '800',
-    color: COLORS.onSurfaceVariant + '40',
   },
   rateText: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontSize: 14,
     fontWeight: '900',
-    color: COLORS.primary,
   },
 });
+

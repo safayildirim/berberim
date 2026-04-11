@@ -20,15 +20,17 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen } from '@/src/components/common/Screen';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { useStaff } from '@/src/hooks/queries/useStaff';
 import { useSessionStore } from '@/src/store/useSessionStore';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function StaffManagementScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isAdmin } = useSessionStore();
+  const { colors } = useTheme();
 
   const { data: staffMembers, isLoading, isError } = useStaff();
 
@@ -40,7 +42,7 @@ export default function StaffManagementScreen() {
     return (
       <Screen style={styles.container}>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </Screen>
     );
@@ -50,7 +52,9 @@ export default function StaffManagementScreen() {
     return (
       <Screen style={styles.container}>
         <View style={styles.center}>
-          <Text style={styles.errorText}>Failed to load staff</Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>
+            Failed to load staff
+          </Text>
         </View>
       </Screen>
     );
@@ -58,7 +62,7 @@ export default function StaffManagementScreen() {
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={t('settings.items.staff')}
@@ -71,165 +75,283 @@ export default function StaffManagementScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Pro HUD */}
+        {/* Pro HUD (Glass Effect) */}
         <View style={styles.hudContainer}>
-          <View style={styles.hudGlass}>
+          <View
+            style={[
+              styles.hudGlass,
+              {
+                backgroundColor: colors.surfaceContainerLow,
+                borderColor: colors.border + '15',
+              },
+            ]}
+          >
             <View style={styles.hudStat}>
-              <Text style={styles.hudLabel}>
-                {t('settings.staff.totalStaff')}
+              <Text style={[styles.hudLabel, { color: colors.secondary }]}>
+                {t('settings.staff.totalStaff').toUpperCase()}
               </Text>
-              <Text style={styles.hudValue}>{totalCount}</Text>
+              <Text style={[styles.hudValue, { color: colors.primary }]}>
+                {totalCount}
+              </Text>
             </View>
-            <View style={styles.hudDivider} />
+            <View
+              style={[
+                styles.hudDivider,
+                { backgroundColor: colors.border + '15' },
+              ]}
+            />
             <View style={styles.hudStat}>
-              <Text style={styles.hudLabel}>
-                {t('settings.staff.activeNow')}
+              <Text style={[styles.hudLabel, { color: colors.secondary }]}>
+                {t('settings.staff.activeNow').toUpperCase()}
               </Text>
-              <Text style={styles.hudValue}>{activeCount}</Text>
+              <Text style={[styles.hudValue, { color: colors.primary }]}>
+                {activeCount}
+              </Text>
             </View>
-            <View style={styles.hudDivider} />
+            <View
+              style={[
+                styles.hudDivider,
+                { backgroundColor: colors.border + '15' },
+              ]}
+            />
             <View style={styles.hudStat}>
-              <Text style={styles.hudLabel}>
-                {t('settings.staff.todaysLoad')}
+              <Text style={[styles.hudLabel, { color: colors.secondary }]}>
+                {t('settings.staff.todaysLoad').toUpperCase()}
               </Text>
-              <Text style={styles.hudValue}>--</Text>
+              <Text style={[styles.hudValue, { color: colors.primary }]}>
+                --
+              </Text>
             </View>
           </View>
         </View>
 
         {/* Search & Filter */}
         <View style={styles.controlsRow}>
-          <View style={styles.searchBox}>
-            <Search size={20} color={COLORS.secondary} />
+          <View
+            style={[
+              styles.searchBox,
+              { backgroundColor: colors.surfaceContainerLow },
+            ]}
+          >
+            <Search size={20} color={colors.secondary} />
             <TextInput
               placeholder="Search staff..."
-              placeholderTextColor={COLORS.secondary + '80'}
-              style={styles.searchInput}
+              placeholderTextColor={colors.secondary + '80'}
+              style={[styles.searchInput, { color: colors.primary }]}
             />
           </View>
           <View style={styles.filterGroup}>
-            <TouchableOpacity style={styles.iconActionBtn}>
-              <Filter size={20} color={COLORS.primary} />
+            <TouchableOpacity
+              style={[
+                styles.iconActionBtn,
+                {
+                  backgroundColor: colors.surfaceContainerLow,
+                  borderColor: colors.border + '15',
+                },
+              ]}
+            >
+              <Filter size={20} color={colors.primary} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Staff Grid */}
         <View style={styles.staffGrid}>
-          {staffMembers?.map((staff) => (
-            <TouchableOpacity
-              key={staff.id}
-              style={styles.staffCard}
-              onPress={() => router.push(`/staff/${staff.id}` as any)}
-            >
-              {staff.status === 'active' && <View style={styles.activeLine} />}
-              <View style={styles.cardHeader}>
-                <View style={styles.imageWrapper}>
-                  {staff.avatar_url ? (
-                    <Image
-                      source={{ uri: staff.avatar_url }}
-                      style={[
-                        styles.staffImage,
-                        staff.status !== 'active' && styles.inactiveImage,
-                      ]}
-                    />
-                  ) : (
-                    <View style={styles.avatarPlaceholder}>
-                      <Text style={styles.avatarInitial}>
-                        {staff.first_name[0]}
-                      </Text>
-                    </View>
-                  )}
-                  {staff.status === 'active' && (
-                    <View style={styles.onlineDot} />
-                  )}
-                </View>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    staff.status !== 'active' && styles.inactiveBadge,
-                  ]}
-                >
-                  <Text
+          {staffMembers?.map((staff) => {
+            const isActive = staff.status === 'active';
+            return (
+              <TouchableOpacity
+                key={staff.id}
+                style={[
+                  styles.staffCard,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.border + '10',
+                  },
+                ]}
+                onPress={() => router.push(`/staff/${staff.id}` as any)}
+              >
+                {isActive && (
+                  <View
                     style={[
-                      styles.statusText,
-                      staff.status !== 'active' && styles.inactiveStatusText,
+                      styles.activeLine,
+                      { backgroundColor: colors.success },
+                    ]}
+                  />
+                )}
+                <View style={styles.cardHeader}>
+                  <View style={styles.imageWrapper}>
+                    {staff.avatar_url ? (
+                      <Image
+                        source={{ uri: staff.avatar_url }}
+                        style={[
+                          styles.staffImage,
+                          !isActive && styles.inactiveImage,
+                        ]}
+                      />
+                    ) : (
+                      <View
+                        style={[
+                          styles.avatarPlaceholder,
+                          { backgroundColor: colors.surfaceContainerHigh },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.avatarInitial,
+                            { color: colors.primary },
+                          ]}
+                        >
+                          {staff.first_name[0]}
+                        </Text>
+                      </View>
+                    )}
+                    {isActive && (
+                      <View
+                        style={[
+                          styles.onlineDot,
+                          {
+                            backgroundColor: colors.success,
+                            borderColor: colors.card,
+                          },
+                        ]}
+                      />
+                    )}
+                  </View>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      {
+                        backgroundColor: isActive
+                          ? colors.success + '15'
+                          : colors.surfaceContainerHigh,
+                      },
                     ]}
                   >
-                    {staff.status === 'active' ? 'ACTIVE' : 'OFF-DUTY'}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.cardInfo}>
-                <Text style={styles.staffName}>
-                  {staff.first_name} {staff.last_name}
-                </Text>
-                <Text style={styles.staffRole}>
-                  {staff.role === 'admin' ? 'Administrator' : 'Staff Member'}
-                </Text>
-
-                <View style={styles.statsGrid}>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statLabel}>EMAIL</Text>
-                    <Text style={styles.statValue} numberOfLines={1}>
-                      {staff.email}
+                    <Text
+                      style={[
+                        styles.statusText,
+                        { color: isActive ? colors.success : colors.secondary },
+                      ]}
+                    >
+                      {isActive ? 'ACTIVE' : 'OFF-DUTY'}
                     </Text>
                   </View>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statLabel}>RATING</Text>
-                    <View style={styles.ratingValueRow}>
-                      <Star
-                        size={14}
-                        fill={COLORS.warning}
-                        color={COLORS.warning}
-                        strokeWidth={0}
-                      />
-                      <Text style={styles.statValue}>
-                        {staff.avg_rating?.toFixed(1) || '0.0'} (
-                        {staff.review_count || 0})
+                </View>
+
+                <View style={styles.cardInfo}>
+                  <Text style={[styles.staffName, { color: colors.primary }]}>
+                    {staff.first_name} {staff.last_name}
+                  </Text>
+                  <Text style={[styles.staffRole, { color: colors.secondary }]}>
+                    {staff.role === 'admin' ? 'Administrator' : 'Staff Member'}
+                  </Text>
+
+                  <View
+                    style={[
+                      styles.statsGrid,
+                      { borderTopColor: colors.border + '10' },
+                    ]}
+                  >
+                    <View style={styles.statItem}>
+                      <Text
+                        style={[styles.statLabel, { color: colors.secondary }]}
+                      >
+                        EMAIL
                       </Text>
+                      <Text
+                        style={[styles.statValue, { color: colors.primary }]}
+                        numberOfLines={1}
+                      >
+                        {staff.email}
+                      </Text>
+                    </View>
+                    <View style={styles.statItem}>
+                      <Text
+                        style={[styles.statLabel, { color: colors.secondary }]}
+                      >
+                        RATING
+                      </Text>
+                      <View style={styles.ratingValueRow}>
+                        <Star
+                          size={14}
+                          fill={colors.warning}
+                          color={colors.warning}
+                          strokeWidth={0}
+                        />
+                        <Text
+                          style={[styles.statValue, { color: colors.primary }]}
+                        >
+                          {staff.avg_rating?.toFixed(1) || '0.0'} (
+                          {staff.review_count || 0})
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
 
-              <View style={styles.cardActions}>
-                {isAdmin() && (
+                <View style={styles.cardActions}>
+                  {isAdmin() && (
+                    <TouchableOpacity
+                      style={[
+                        styles.manageBtn,
+                        { backgroundColor: colors.surfaceContainerHigh },
+                      ]}
+                      onPress={() =>
+                        router.push(`/staff/${staff.id}/edit` as any)
+                      }
+                    >
+                      <Text
+                        style={[
+                          styles.manageBtnText,
+                          { color: colors.primary },
+                        ]}
+                      >
+                        MANAGE
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity
-                    style={styles.manageBtn}
+                    style={[
+                      styles.reviewsBtn,
+                      { backgroundColor: colors.surfaceContainerHigh },
+                    ]}
                     onPress={() =>
-                      router.push(`/staff/${staff.id}/edit` as any)
+                      router.push(`/staff/${staff.id}/reviews` as any)
                     }
                   >
-                    <Text style={styles.manageBtnText}>MANAGE</Text>
+                    <Star size={18} color={colors.primary} />
                   </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                  style={styles.reviewsBtn}
-                  onPress={() =>
-                    router.push(`/staff/${staff.id}/reviews` as any)
-                  }
-                >
-                  <Star size={18} color={COLORS.primary} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.moreBtn}>
-                  <MoreHorizontal size={20} color={COLORS.primary} />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
+                  <TouchableOpacity
+                    style={[
+                      styles.moreBtn,
+                      { backgroundColor: colors.surfaceContainerHigh },
+                    ]}
+                  >
+                    <MoreHorizontal size={20} color={colors.primary} />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
 
       {/* FAB */}
       {isAdmin() && (
         <TouchableOpacity
-          style={[styles.fab, { bottom: 24 + insets.bottom }]}
+          style={[
+            styles.fab,
+            {
+              bottom: 24 + insets.bottom,
+              backgroundColor: colors.primary,
+              shadowColor: colors.primary,
+            },
+          ]}
           onPress={() => router.push('/staff/create' as any)}
           activeOpacity={0.9}
         >
-          <UserPlus size={28} color={COLORS.white} />
+          <UserPlus size={28} color={colors.onPrimary} />
         </TouchableOpacity>
       )}
     </Screen>
@@ -238,7 +360,7 @@ export default function StaffManagementScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.background,
+    flex: 1,
   },
   scrollContent: {
     paddingTop: 16,
@@ -249,11 +371,9 @@ const styles = StyleSheet.create({
   },
   hudGlass: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 24,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
     alignItems: 'center',
     justifyContent: 'space-between',
     ...SHADOWS.sm,
@@ -263,23 +383,19 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   hudLabel: {
+    ...TYPOGRAPHY.label,
     fontSize: 9,
-    fontWeight: '900',
-    color: COLORS.secondary,
     letterSpacing: 1.2,
     marginBottom: 4,
   },
   hudValue: {
+    ...TYPOGRAPHY.h3,
     fontSize: 20,
-    fontWeight: '900',
-    color: COLORS.primary,
   },
   hudDivider: {
     width: 1,
     height: 32,
-    backgroundColor: COLORS.border,
     marginHorizontal: 16,
-    opacity: 0.3,
   },
   controlsRow: {
     flexDirection: 'row',
@@ -291,7 +407,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLow,
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 48,
@@ -299,9 +414,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.primary,
   },
   filterGroup: {
     flexDirection: 'row',
@@ -311,11 +425,9 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.surfaceContainerHigh,
   },
   staffGrid: {
     paddingHorizontal: 20,
@@ -324,14 +436,12 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   staffCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 32,
     padding: 24,
     width: '100%',
     position: 'relative',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
     ...SHADOWS.sm,
   },
   activeLine: {
@@ -340,7 +450,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 6,
-    backgroundColor: '#10b981',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -355,7 +464,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerLow,
   },
   inactiveImage: {
     opacity: 0.5,
@@ -364,14 +472,12 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerLow,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarInitial: {
+    ...TYPOGRAPHY.h1,
     fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   onlineDot: {
     position: 'absolute',
@@ -380,63 +486,48 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#10b981',
     borderWidth: 4,
-    borderColor: COLORS.white,
   },
   statusBadge: {
-    backgroundColor: COLORS.primary + '10',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 100,
   },
-  inactiveBadge: {
-    backgroundColor: COLORS.surfaceContainerHigh,
-  },
   statusText: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.primary,
     letterSpacing: 1,
-  },
-  inactiveStatusText: {
-    color: COLORS.secondary,
   },
   cardInfo: {
     marginBottom: 24,
   },
   staffName: {
+    ...TYPOGRAPHY.h2,
     fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.primary,
     marginBottom: 4,
   },
   staffRole: {
+    ...TYPOGRAPHY.body,
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.secondary,
   },
   statsGrid: {
     flexDirection: 'row',
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
   },
   statItem: {
     flex: 1,
   },
   statLabel: {
+    ...TYPOGRAPHY.label,
     fontSize: 9,
-    fontWeight: '800',
-    color: COLORS.secondary,
     letterSpacing: 1,
     marginBottom: 4,
   },
   statValue: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   cardActions: {
     flexDirection: 'row',
@@ -446,21 +537,18 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerHigh,
     justifyContent: 'center',
     alignItems: 'center',
   },
   manageBtnText: {
+    ...TYPOGRAPHY.label,
     fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: 0.5,
   },
   reviewsBtn: {
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerHigh,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -468,7 +556,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerHigh,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -483,7 +570,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     ...SHADOWS.md,
@@ -496,8 +582,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: COLORS.error,
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-    fontWeight: '600',
   },
 });

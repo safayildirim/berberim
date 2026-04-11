@@ -7,7 +7,8 @@ import {
   ViewProps,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { SIZES } from '@/src/constants/theme';
 import { Header } from '@/src/components/common/Header';
 
 interface ScreenProps extends ViewProps {
@@ -29,7 +30,7 @@ export const Screen = ({
   children,
   scrollable = false,
   withPadding = true,
-  backgroundColor = COLORS.background,
+  backgroundColor,
   transparentStatusBar = false,
   headerTitle,
   headerSubtitle,
@@ -41,6 +42,9 @@ export const Screen = ({
   style,
   ...props
 }: ScreenProps) => {
+  const { colors, isDark } = useTheme();
+  const finalBackgroundColor = backgroundColor || colors.background;
+
   const content = (
     <View
       style={[
@@ -56,9 +60,11 @@ export const Screen = ({
   );
 
   const container = (
-    <SafeAreaView style={[styles.screen, { backgroundColor }]}>
+    <SafeAreaView
+      style={[styles.screen, { backgroundColor: finalBackgroundColor }]}
+    >
       <StatusBar
-        barStyle="dark-content"
+        barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
         translucent={transparentStatusBar}
       />

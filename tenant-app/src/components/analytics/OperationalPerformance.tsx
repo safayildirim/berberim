@@ -2,7 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface OperationalPerformanceProps {
   staffUtilization: number;
@@ -12,34 +13,35 @@ export const OperationalPerformance = ({
   staffUtilization,
 }: OperationalPerformanceProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const getStatusColor = (val: number) => {
-    if (val > 85) return COLORS.warning; // High/Overworked
-    if (val > 60) return COLORS.success; // Optimal
-    return COLORS.secondary; // Underutilized
+    if (val > 85) return colors.warning;
+    if (val > 60) return colors.success;
+    return colors.secondary;
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>
-        {t('analytics.operationalPerformance.title')}
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        {t('analytics.operationalPerformance.title').toUpperCase()}
       </Text>
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
         <AnimatedCircularProgress
-          size={120}
-          width={12}
+          size={140}
+          width={14}
           fill={staffUtilization}
           tintColor={getStatusColor(staffUtilization)}
-          backgroundColor={getStatusColor(staffUtilization) + '20'}
+          backgroundColor={getStatusColor(staffUtilization) + '15'}
           rotation={0}
           lineCap="round"
         >
           {() => (
-            <Text style={styles.utilizationText}>{staffUtilization}%</Text>
+            <Text style={[styles.utilizationText, { color: colors.primary }]}>{staffUtilization}%</Text>
           )}
         </AnimatedCircularProgress>
         <View style={styles.infoContainer}>
-          <Text style={styles.label}>
+          <Text style={[styles.label, { color: colors.primary }]}>
             {t('analytics.operationalPerformance.staffUtilization')}
           </Text>
         </View>
@@ -56,31 +58,24 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...TYPOGRAPHY.label,
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1.5,
     paddingHorizontal: 4,
   },
   card: {
     alignItems: 'center',
-    backgroundColor: COLORS.white,
     borderRadius: 32,
     padding: 32,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '15',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 32,
-    elevation: 2,
-    gap: 20,
+    ...SHADOWS.sm,
+    gap: 24,
   },
   utilizationText: {
     ...TYPOGRAPHY.h1,
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '900',
-    color: COLORS.primary,
-    lineHeight: 32,
+    lineHeight: 36,
   },
   infoContainer: {
     alignItems: 'center',
@@ -90,8 +85,8 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.h3,
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -0.5,
     textAlign: 'center',
   },
 });
+

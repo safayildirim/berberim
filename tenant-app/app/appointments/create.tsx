@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '@/src/components/common/Screen';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { Calendar, Clock } from 'lucide-react-native';
 import { Button } from '@/src/components/common/Button';
 import { useCustomers } from '@/src/hooks/queries/useCustomers';
@@ -34,10 +34,12 @@ import { AppointmentSummaryCard } from '@/src/components/appointments/create/App
 import { FinalReviewFooter } from '@/src/components/appointments/create/FinalReviewFooter';
 import { useTranslation } from 'react-i18next';
 import { toLocalRFC3339 } from '@/src/utils/datetime';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function CreateAppointmentScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const { user, isAdmin } = useSessionStore();
   const { date: paramDate, time: paramTime } = useLocalSearchParams<{
     date?: string;
@@ -181,10 +183,10 @@ export default function CreateAppointmentScreen() {
     return (
       <View style={styles.stepContainer}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.stepHeading}>
+          <Text style={[styles.stepHeading, { color: colors.primary }]}>
             {t('appointmentCreate.assignProfessional')}
           </Text>
-          <Text style={styles.stepSubheading}>
+          <Text style={[styles.stepSubheading, { color: colors.secondary }]}>
             {t('appointmentCreate.assignProfessionalSub')}
           </Text>
         </View>
@@ -198,7 +200,7 @@ export default function CreateAppointmentScreen() {
 
         <View style={styles.professionalList}>
           {loadingStaff ? (
-            <ActivityIndicator color={COLORS.primary} style={styles.loader} />
+            <ActivityIndicator color={colors.primary} style={styles.loader} />
           ) : (
             filteredStaff.map((s) => (
               <ProfessionalCard
@@ -224,10 +226,10 @@ export default function CreateAppointmentScreen() {
   const renderStep3 = () => (
     <View style={styles.stepContainer}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.stepHeading}>
+        <Text style={[styles.stepHeading, { color: colors.primary }]}>
           {t('appointmentCreate.chooseServices')}
         </Text>
-        <Text style={styles.stepSubheading}>
+        <Text style={[styles.stepSubheading, { color: colors.secondary }]}>
           {t('appointmentCreate.chooseServicesSub')}
         </Text>
       </View>
@@ -245,33 +247,53 @@ export default function CreateAppointmentScreen() {
 
   const renderStep4 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Pick Date & Time</Text>
+      <Text style={[styles.stepTitle, { color: colors.primary }]}>
+        Pick Date & Time
+      </Text>
 
       <View style={styles.fieldGroup}>
         <View style={styles.fieldLabelRow}>
-          <Calendar size={18} color={COLORS.primaryDim} />
-          <Text style={styles.fieldLabel}>Date</Text>
+          <Calendar size={18} color={colors.secondary} />
+          <Text style={[styles.fieldLabel, { color: colors.secondary }]}>
+            Date
+          </Text>
         </View>
         <TextInput
-          style={styles.fieldInput}
+          style={[
+            styles.fieldInput,
+            {
+              backgroundColor: colors.surfaceContainerLow,
+              color: colors.primary,
+              borderColor: colors.border + '40',
+            },
+          ]}
           value={selectedDate}
           onChangeText={setSelectedDate}
           placeholder="YYYY-MM-DD"
-          placeholderTextColor={COLORS.primaryDim}
+          placeholderTextColor={colors.secondary + '80'}
         />
       </View>
 
       <View style={styles.fieldGroup}>
         <View style={styles.fieldLabelRow}>
-          <Clock size={18} color={COLORS.primaryDim} />
-          <Text style={styles.fieldLabel}>Time</Text>
+          <Clock size={18} color={colors.secondary} />
+          <Text style={[styles.fieldLabel, { color: colors.secondary }]}>
+            Time
+          </Text>
         </View>
         <TextInput
-          style={styles.fieldInput}
+          style={[
+            styles.fieldInput,
+            {
+              backgroundColor: colors.surfaceContainerLow,
+              color: colors.primary,
+              borderColor: colors.border + '40',
+            },
+          ]}
           value={selectedTime}
           onChangeText={setSelectedTime}
           placeholder="HH:MM"
-          placeholderTextColor={COLORS.primaryDim}
+          placeholderTextColor={colors.secondary + '80'}
         />
       </View>
 
@@ -293,10 +315,10 @@ export default function CreateAppointmentScreen() {
     return (
       <View style={styles.stepContainer}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.stepHeading}>
+          <Text style={[styles.stepHeading, { color: colors.primary }]}>
             {t('appointmentCreate.reviewAppointment')}
           </Text>
-          <Text style={styles.stepSubheading}>
+          <Text style={[styles.stepSubheading, { color: colors.secondary }]}>
             {t('appointmentCreate.reviewAppointmentSub')}
           </Text>
         </View>
@@ -313,7 +335,10 @@ export default function CreateAppointmentScreen() {
   };
 
   return (
-    <Screen style={styles.container} withPadding={false}>
+    <Screen
+      style={[styles.container, { backgroundColor: colors.background }]}
+      withPadding={false}
+    >
       <AppointmentHeader
         onClose={() => handleBack(router.back)}
         onBack={() => handleBack(router.back)}
@@ -361,7 +386,7 @@ export default function CreateAppointmentScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.background,
+    flex: 1,
   },
   content: {
     padding: SIZES.lg,
@@ -375,13 +400,11 @@ const styles = StyleSheet.create({
   },
   stepHeading: {
     ...TYPOGRAPHY.h1,
-    color: COLORS.primary,
     letterSpacing: -0.5,
     marginBottom: 4,
   },
   stepSubheading: {
     ...TYPOGRAPHY.body,
-    color: COLORS.secondary,
   },
   stepTitle: {
     ...TYPOGRAPHY.h2,
@@ -404,14 +427,11 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     ...TYPOGRAPHY.label,
-    color: COLORS.primaryDim,
     fontWeight: '700',
   },
   fieldInput: {
-    backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
     borderWidth: 1,
-    borderColor: COLORS.surfaceContainerHighest,
     paddingHorizontal: SIZES.md,
     height: 54,
     ...TYPOGRAPHY.body,

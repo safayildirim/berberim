@@ -7,13 +7,14 @@ import {
   UserMinus,
   Banknote,
 } from 'lucide-react-native';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface MetricCardProps {
   label: string;
   value: string | number;
   change?: string;
-  icon: React.ReactNode;
+  icon: (color: string) => React.ReactNode;
   borderLeft?: boolean;
   borderLeftColor?: string;
 }
@@ -25,41 +26,50 @@ const MetricCard = ({
   icon,
   borderLeft,
   borderLeftColor,
-}: MetricCardProps) => (
-  <View
-    style={[
-      styles.card,
-      SHADOWS.sm,
-      borderLeft && {
-        borderLeftWidth: 4,
-        borderLeftColor: borderLeftColor || COLORS.tertiary,
-      },
-      !borderLeft && styles.cardBorder,
-    ]}
-  >
-    <View style={styles.cardHeader}>
-      {icon}
-      {change && (
-        <View
-          style={[styles.badge, change.startsWith('-') && styles.badgeNegative]}
-        >
-          <Text
+}: MetricCardProps) => {
+  const { colors } = useTheme();
+  const isNegative = change?.startsWith('-');
+
+  return (
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: colors.card },
+        SHADOWS.sm,
+        borderLeft && {
+          borderLeftWidth: 4,
+          borderLeftColor: borderLeftColor || colors.primary,
+        },
+        !borderLeft && { borderColor: colors.outlineVariant + '15', borderWidth: 1 },
+      ]}
+    >
+      <View style={styles.cardHeader}>
+        {icon(colors.primary)}
+        {change && (
+          <View
             style={[
-              styles.badgeText,
-              change.startsWith('-') && styles.badgeTextNegative,
+              styles.badge,
+              { backgroundColor: isNegative ? colors.error + '15' : colors.success + '15' }
             ]}
           >
-            {change}
-          </Text>
-        </View>
-      )}
+            <Text
+              style={[
+                styles.badgeText,
+                { color: isNegative ? colors.error : colors.success }
+              ]}
+            >
+              {change}
+            </Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.cardBody}>
+        <Text style={[styles.cardLabel, { color: colors.secondary }]}>{label.toUpperCase()}</Text>
+        <Text style={[styles.cardValue, { color: colors.primary }]}>{value}</Text>
+      </View>
     </View>
-    <View style={styles.cardBody}>
-      <Text style={styles.cardLabel}>{label}</Text>
-      <Text style={styles.cardValue}>{value}</Text>
-    </View>
-  </View>
-);
+  );
+};
 
 interface MetricsGridProps {
   metrics: {
@@ -75,6 +85,7 @@ interface MetricsGridProps {
 
 export const MetricsGrid = ({ metrics }: MetricsGridProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
@@ -82,30 +93,31 @@ export const MetricsGrid = ({ metrics }: MetricsGridProps) => {
         label={t('analytics.metrics.totalAppointments')}
         value={metrics.totalAppointments.toLocaleString()}
         change={metrics.appointmentsChange}
-        icon={
-          <Calendar size={20} color={COLORS.primaryDim} strokeWidth={2.5} />
-        }
+        icon={(color) => (
+          <Calendar size={20} color={color} strokeWidth={2.5} />
+        )}
       />
       <MetricCard
         label={t('analytics.metrics.revenue')}
-        value={`$${Number(metrics.revenue).toLocaleString()}`}
-        icon={
-          <Banknote size={20} color={COLORS.primaryDim} strokeWidth={2.5} />
-        }
+        value={`${Number(metrics.revenue).toLocaleString()} ₺`}
+        icon={(color) => (
+          <Banknote size={20} color={color} strokeWidth={2.5} />
+        )}
       />
       <MetricCard
         label={t('analytics.metrics.noShowRate')}
         value={metrics.noShowRate}
         change={metrics.noShowRateChange}
-        icon={<UserMinus size={20} color={COLORS.tertiary} strokeWidth={2.5} />}
+        borderLeftColor={colors.error}
+        icon={(color) => <UserMinus size={20} color={color} strokeWidth={2.5} />}
         borderLeft
       />
       <MetricCard
         label={t('analytics.metrics.completed')}
         value={metrics.completed.toLocaleString()}
-        icon={
-          <CheckCircle size={20} color={COLORS.primaryDim} strokeWidth={2.5} />
-        }
+        icon={(color) => (
+          <CheckCircle size={20} color={color} strokeWidth={2.5} />
+        )}
       />
     </View>
   );
@@ -124,16 +136,11 @@ const styles = StyleSheet.create({
   },
   card: {
     width: cardWidth,
-    backgroundColor: COLORS.white,
     padding: 16,
     borderRadius: 20,
     gap: 20,
     minHeight: 120,
     justifyContent: 'space-between',
-  },
-  cardBorder: {
-    borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '10',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -141,38 +148,28 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   badge: {
-    backgroundColor: '#ECFDF5', // emerald-50
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
   },
-  badgeNegative: {
-    backgroundColor: '#FEF2F2', // red-50
-  },
   badgeText: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontWeight: '900',
-    color: '#059669', // emerald-600
     fontSize: 10,
-  },
-  badgeTextNegative: {
-    color: '#DC2626', // red-600
   },
   cardBody: {
     gap: 2,
   },
   cardLabel: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontWeight: '800',
-    color: COLORS.onSurfaceVariant,
-    textTransform: 'uppercase',
     letterSpacing: 1,
-    fontSize: 10,
+    fontSize: 9,
   },
   cardValue: {
     ...TYPOGRAPHY.h2,
     fontSize: 24,
     fontWeight: '900',
-    color: COLORS.primary,
   },
 });
+

@@ -3,8 +3,9 @@ import { Award, Clock } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { Service } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   service: Service;
@@ -13,6 +14,7 @@ interface Props {
 export const CatalogServiceCard: React.FC<Props> = ({ service }) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useTheme();
 
   const priceNum = parseFloat(service.base_price) || 0;
 
@@ -20,8 +22,13 @@ export const CatalogServiceCard: React.FC<Props> = ({ service }) => {
     <View
       style={[
         styles.card,
-        service.is_active ? styles.cardActive : styles.cardInactive,
-        !service.is_active && { opacity: 0.8 },
+        {
+          backgroundColor: colors.card,
+          borderLeftColor: service.is_active
+            ? colors.success
+            : colors.secondary,
+        },
+        !service.is_active && { opacity: 0.7 },
       ]}
     >
       <View style={styles.cardHeader}>
@@ -30,68 +37,84 @@ export const CatalogServiceCard: React.FC<Props> = ({ service }) => {
             <Text
               style={[
                 styles.serviceName,
-                !service.is_active && { color: COLORS.secondary },
+                { color: colors.primary },
+                !service.is_active && { color: colors.secondary },
               ]}
+              numberOfLines={1}
             >
               {service.name}
             </Text>
             <View
               style={[
                 styles.statusBadge,
-                service.is_active ? styles.badgeActive : styles.badgeInactive,
+                {
+                  backgroundColor: service.is_active
+                    ? colors.success + '15'
+                    : colors.surfaceContainerHigh,
+                },
               ]}
             >
               <Text
                 style={[
                   styles.badgeText,
-                  service.is_active ? styles.textActive : styles.textInactive,
+                  {
+                    color: service.is_active
+                      ? colors.success
+                      : colors.secondary,
+                  },
                 ]}
               >
                 {service.is_active
-                  ? t('serviceCatalog.active')
-                  : t('serviceCatalog.inactive')}
+                  ? t('serviceCatalog.active').toUpperCase()
+                  : t('serviceCatalog.inactive').toUpperCase()}
               </Text>
             </View>
           </View>
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <Clock size={16} color={COLORS.secondary} />
-              <Text style={styles.metaText}>
+              <Clock size={14} color={colors.secondary} />
+              <Text style={[styles.metaText, { color: colors.secondary }]}>
                 {service.duration_minutes} {t('serviceCatalog.minutes')}
               </Text>
             </View>
             <View style={styles.metaItem}>
-              <Award size={16} color={COLORS.secondary} />
-              <Text style={styles.metaText}>
+              <Award size={14} color={colors.secondary} />
+              <Text style={[styles.metaText, { color: colors.secondary }]}>
                 {service.points_reward} {t('serviceCatalog.points')}
               </Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.priceCol}>
+        <View
+          style={[styles.priceCol, { borderTopColor: colors.border + '10' }]}
+        >
           <View style={styles.priceInfo}>
-            <Text style={styles.priceLabel}>{t('serviceCatalog.price')}</Text>
+            <Text style={[styles.priceLabel, { color: colors.secondary }]}>
+              {t('serviceCatalog.price').toUpperCase()}
+            </Text>
             <Text
               style={[
                 styles.priceValue,
-                !service.is_active && { color: COLORS.secondary },
+                { color: colors.primary },
+                !service.is_active && { color: colors.secondary },
               ]}
             >
-              ${priceNum.toFixed(2)}
+              {priceNum.toFixed(2)} ₺
             </Text>
           </View>
           <TouchableOpacity
             style={[
               styles.manageBtn,
-              !service.is_active && { backgroundColor: '#e0e3e5' },
+              { backgroundColor: colors.surfaceContainerHigh },
             ]}
             onPress={() => router.push(`/services/${service.id}` as any)}
           >
             <Text
               style={[
                 styles.manageText,
-                !service.is_active && { color: COLORS.secondary },
+                { color: colors.primary },
+                !service.is_active && { color: colors.secondary },
               ]}
             >
               {t('serviceCatalog.manage')}
@@ -105,27 +128,19 @@ export const CatalogServiceCard: React.FC<Props> = ({ service }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 24,
-    padding: 20,
+    padding: 24,
     marginBottom: 16,
     marginHorizontal: 24,
     borderLeftWidth: 4,
     ...SHADOWS.sm,
-  },
-  cardActive: {
-    borderLeftColor: '#10b981',
-  },
-  cardInactive: {
-    borderLeftColor: '#94a3b8',
-    backgroundColor: '#f2f4f6',
   },
   cardHeader: {
     flexDirection: 'column',
     gap: 16,
   },
   infoCol: {
-    gap: 8,
+    gap: 12,
   },
   titleRow: {
     flexDirection: 'row',
@@ -133,32 +148,20 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   serviceName: {
+    ...TYPOGRAPHY.h3,
     fontSize: 18,
-    fontWeight: '800',
-    color: COLORS.primary,
     flex: 1,
   },
   statusBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 100,
-  },
-  badgeActive: {
-    backgroundColor: '#dcfce7',
-  },
-  badgeInactive: {
-    backgroundColor: '#e0e3e5',
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   badgeText: {
-    fontSize: 10,
+    ...TYPOGRAPHY.label,
+    fontSize: 9,
     fontWeight: '900',
-    letterSpacing: -0.2,
-  },
-  textActive: {
-    color: '#065f46',
-  },
-  textInactive: {
-    color: COLORS.secondary,
+    letterSpacing: 0.5,
   },
   metaRow: {
     flexDirection: 'row',
@@ -170,9 +173,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   metaText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.secondary,
   },
   priceCol: {
     flexDirection: 'row',
@@ -180,31 +182,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
   },
   priceInfo: {
     alignItems: 'flex-start',
   },
   priceLabel: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.secondary,
-    letterSpacing: 1.5,
+    ...TYPOGRAPHY.label,
+    fontSize: 9,
+    letterSpacing: 1.2,
   },
   priceValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.primary,
+    ...TYPOGRAPHY.h2,
+    fontSize: 22,
+    marginTop: 2,
   },
   manageBtn: {
-    backgroundColor: '#e6e8ea',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
   },
   manageText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
 });

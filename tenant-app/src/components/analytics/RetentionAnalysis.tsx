@@ -1,9 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { RetentionAnalysis, RetentionBucket } from '@/src/types';
 import { RetentionRange } from '@/src/hooks/analytics/useAdvancedAnalytics';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface RetentionAnalysisProps {
   data: RetentionAnalysis | undefined;
@@ -25,84 +26,87 @@ export const RetentionAnalysisSection = ({
   onRangeChange,
 }: RetentionAnalysisProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('analytics.retention.title')}</Text>
-        <View style={styles.rangeRow}>
-          {RANGES.map((r) => (
-            <TouchableOpacity
-              key={r.key}
-              onPress={() => onRangeChange(r.key)}
-              style={[
-                styles.rangeChip,
-                range === r.key && styles.rangeChipActive,
-              ]}
-            >
-              <Text
+        <Text style={[styles.title, { color: colors.primary }]}>{t('analytics.retention.title').toUpperCase()}</Text>
+        <View style={[styles.rangeRow, { backgroundColor: colors.surfaceContainerLow }]}>
+          {RANGES.map((r) => {
+            const isActive = range === r.key;
+            return (
+              <TouchableOpacity
+                key={r.key}
+                onPress={() => onRangeChange(r.key)}
                 style={[
-                  styles.rangeChipText,
-                  range === r.key && styles.rangeChipTextActive,
+                  styles.rangeChip,
+                  { backgroundColor: isActive ? colors.primary : 'transparent' },
                 ]}
               >
-                {r.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.rangeChipText,
+                    { color: isActive ? colors.onPrimary : colors.secondary },
+                  ]}
+                >
+                  {r.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
 
       {isLoading || !data ? (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.emptyText}>{t('common.loading')}</Text>
+        <View style={[styles.loadingContainer, { backgroundColor: colors.card }]}>
+          <Text style={[styles.emptyText, { color: colors.outline }]}>{t('common.loading')}</Text>
         </View>
       ) : (
-        <View style={styles.card}>
-          {/* Summary Row */}
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statLabel}>
+              <Text style={[styles.statLabel, { color: colors.secondary }]}>
                 {t('analytics.retention.totalCustomers')}
               </Text>
-              <Text style={styles.statValue}>
+              <Text style={[styles.statValue, { color: colors.primary }]}>
                 {(data.total_customers / 1000).toFixed(1)}k
               </Text>
             </View>
-            <View style={[styles.statItem, styles.statItemBorder]}>
-              <Text style={styles.statLabel}>
+            <View style={[styles.statItem, styles.statItemBorder, { borderColor: colors.border + '15' }]}>
+              <Text style={[styles.statLabel, { color: colors.secondary }]}>
                 {t('analytics.retention.returnRate')}
               </Text>
-              <Text style={styles.statValue}>
+              <Text style={[styles.statValue, { color: colors.primary }]}>
                 {Math.round(data.overall_return_rate)}%
               </Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statLabel}>
+              <Text style={[styles.statLabel, { color: colors.secondary }]}>
                 {t('analytics.retention.avgDays')}
               </Text>
-              <Text style={styles.statValue}>
+              <Text style={[styles.statValue, { color: colors.primary }]}>
                 {Math.round(data.avg_days_between_visits)}
               </Text>
             </View>
           </View>
 
-          {/* Return Buckets */}
           <View style={styles.bucketsSection}>
             {data.buckets.map((bucket: RetentionBucket) => (
               <View key={bucket.label} style={styles.bucketRow}>
-                <Text style={styles.bucketLabel}>{bucket.label}</Text>
-                <View style={styles.bucketBarTrack}>
+                <Text style={[styles.bucketLabel, { color: colors.secondary }]}>{bucket.label}</Text>
+                <View style={[styles.bucketBarTrack, { backgroundColor: colors.surfaceContainerLow }]}>
                   <View
                     style={[
                       styles.bucketBar,
                       {
+                        backgroundColor: colors.primary,
                         width: `${Math.min(bucket.percentage, 100)}%`,
                       },
                     ]}
                   />
                 </View>
-                <Text style={styles.bucketValue}>{bucket.percentage}%</Text>
+                <Text style={[styles.bucketValue, { color: colors.primary }]}>{bucket.percentage}%</Text>
               </View>
             ))}
           </View>
@@ -126,83 +130,65 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TYPOGRAPHY.label,
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1.5,
   },
   rangeRow: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surfaceContainerHigh,
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 2,
   },
   rangeChip: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  rangeChipActive: {
-    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
   rangeChipText: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 9,
+    ...TYPOGRAPHY.label,
+    fontSize: 10,
     fontWeight: '800',
-    color: COLORS.secondary,
-  },
-  rangeChipTextActive: {
-    color: COLORS.white,
   },
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '15',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 16,
-    elevation: 1,
+    ...SHADOWS.sm,
   },
   loadingContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 40,
     alignItems: 'center',
+    ...SHADOWS.sm,
   },
   emptyText: {
     ...TYPOGRAPHY.body,
-    color: COLORS.muted,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   statItemBorder: {
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: COLORS.surfaceContainer,
   },
   statLabel: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 9,
+    ...TYPOGRAPHY.label,
+    fontSize: 8,
     fontWeight: '800',
-    color: COLORS.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statValue: {
-    ...TYPOGRAPHY.h2,
-    fontSize: 20,
+    ...TYPOGRAPHY.h3,
+    fontSize: 22,
     fontWeight: '900',
-    color: COLORS.primary,
   },
   bucketsSection: {
     gap: 16,
@@ -213,30 +199,27 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   bucketLabel: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 10,
+    ...TYPOGRAPHY.label,
+    fontSize: 11,
     fontWeight: '700',
-    color: COLORS.secondary,
-    width: 65,
+    width: 75,
   },
   bucketBarTrack: {
     flex: 1,
-    height: 12,
-    backgroundColor: COLORS.surfaceContainer,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   bucketBar: {
     height: '100%',
-    backgroundColor: COLORS.primary,
-    borderRadius: 2,
+    borderRadius: 5,
   },
   bucketValue: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.primary,
-    width: 32,
+    ...TYPOGRAPHY.label,
+    fontSize: 12,
+    fontWeight: '900',
+    width: 35,
     textAlign: 'right',
   },
 });
+

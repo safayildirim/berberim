@@ -6,13 +6,14 @@ import { ReviewsFilterSection } from '@/src/components/reviews/ReviewsFilterSect
 import { ReviewListSection } from '@/src/components/reviews/ReviewListSection';
 import { EmptyReviewsState } from '@/src/components/reviews/EmptyReviewsState';
 import { useReviews } from '@/src/hooks/reviews/useReviews';
-import { COLORS } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { useTenantStore } from '@/src/store/useTenantStore';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function ReviewsScreen() {
   const { reviews, isLoading, filter, setFilter, stats } = useReviews();
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const { getBranding } = useTenantStore();
   const branding = getBranding();
@@ -20,7 +21,7 @@ export default function ReviewsScreen() {
   return (
     <Screen
       scrollable
-      backgroundColor={COLORS.background}
+      backgroundColor={colors.background}
       withPadding={false}
       headerTitle={branding.name}
       headerSubtitle={t('nav.reviews')}

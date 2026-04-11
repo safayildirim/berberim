@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text } from 'react-native';
 import { TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface LoyaltyEngagementProps {
   loyalty: {
@@ -15,21 +16,22 @@ interface LoyaltyEngagementProps {
 
 export const LoyaltyEngagement = ({ loyalty }: LoyaltyEngagementProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>
-              {t('analytics.loyaltyEngagement.title')}
+            <Text style={[styles.title, { color: colors.primary }]}>
+              {t('analytics.loyaltyEngagement.title').toUpperCase()}
             </Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.subtitle, { color: colors.secondary }]}>
               {t('analytics.loyaltyEngagement.programTracking')}
             </Text>
           </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
+          <View style={[styles.badge, { backgroundColor: colors.surfaceContainerLow }]}>
+            <Text style={[styles.badgeText, { color: colors.primary }]}>
               {loyalty.progress}% {t('analytics.loyaltyEngagement.ofGoal')}
             </Text>
           </View>
@@ -37,22 +39,22 @@ export const LoyaltyEngagement = ({ loyalty }: LoyaltyEngagementProps) => {
 
         <View style={styles.statsRow}>
           <View style={styles.statsLeft}>
-            <Text style={styles.value}>
+            <Text style={[styles.value, { color: colors.primary }]}>
               {loyalty.rewardsRedeemed.toLocaleString()}
             </Text>
-            <Text style={styles.label}>
+            <Text style={[styles.label, { color: colors.success }]}>
               {t('analytics.loyaltyEngagement.redeemed')}
             </Text>
           </View>
           <View style={styles.trendContainer}>
-            <TrendingUp size={14} color="#059669" />
-            <Text style={styles.trendText}>{loyalty.redeemedChange}</Text>
+            <TrendingUp size={14} color={colors.success} />
+            <Text style={[styles.trendText, { color: colors.success }]}>{loyalty.redeemedChange}</Text>
           </View>
         </View>
 
-        <View style={styles.progressTrack}>
+        <View style={[styles.progressTrack, { backgroundColor: colors.surfaceContainerLow }]}>
           <LinearGradient
-            colors={[COLORS.primary, COLORS.primaryContainer]}
+            colors={[colors.primary, colors.primaryContainer]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={[styles.progressBar, { width: `${loyalty.progress}%` }]}
@@ -69,53 +71,44 @@ const styles = StyleSheet.create({
     paddingHorizontal: SIZES.md,
   },
   card: {
-    backgroundColor: COLORS.surfaceContainerLow,
-    padding: 16,
-    borderRadius: 16,
+    padding: 24,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '26', // ~15% opacity
+    ...SHADOWS.sm,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   title: {
     ...TYPOGRAPHY.label,
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1.5,
   },
   subtitle: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 10,
+    ...TYPOGRAPHY.label,
+    fontSize: 11,
     fontWeight: '600',
-    color: COLORS.secondary,
     marginTop: 2,
   },
   badge: {
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
   badgeText: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.primary,
+    ...TYPOGRAPHY.label,
+    fontSize: 10,
+    fontWeight: '900',
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   statsLeft: {
     flexDirection: 'row',
@@ -124,16 +117,14 @@ const styles = StyleSheet.create({
   },
   value: {
     ...TYPOGRAPHY.h2,
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '900',
-    color: COLORS.primary,
     lineHeight: 28,
   },
   label: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontSize: 10,
     fontWeight: '800',
-    color: '#059669', // emerald-600
     textTransform: 'uppercase',
   },
   trendContainer: {
@@ -142,20 +133,19 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   trendText: {
-    ...TYPOGRAPHY.caption,
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#059669', // emerald-600
+    ...TYPOGRAPHY.label,
+    fontSize: 11,
+    fontWeight: '900',
   },
   progressTrack: {
-    height: 8,
+    height: 12,
     width: '100%',
-    backgroundColor: COLORS.surfaceContainerHighest,
-    borderRadius: 99,
+    borderRadius: 6,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    borderRadius: 99,
+    borderRadius: 6,
   },
 });
+

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
 
-interface ScheduleStatsBannerProps {
+interface LeaveStatsBannerProps {
   stats: {
     total: number;
     totalDays: number;
@@ -12,7 +12,7 @@ interface ScheduleStatsBannerProps {
   };
 }
 
-export const ScheduleStatsBanner = ({ stats }: ScheduleStatsBannerProps) => {
+export const LeaveStatsBanner = ({ stats }: LeaveStatsBannerProps) => {
   const { t } = useTranslation();
 
   return (

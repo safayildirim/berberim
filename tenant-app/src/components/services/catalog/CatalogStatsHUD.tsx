@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   total: number;
@@ -10,21 +11,38 @@ interface Props {
 
 export const CatalogStatsHUD: React.FC<Props> = ({ total, active }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.hudWrapper}>
-      <View style={styles.hudContent}>
+      <View
+        style={[
+          styles.hudContent,
+          {
+            backgroundColor: colors.surfaceContainerLow,
+            borderLeftColor: colors.primary,
+          },
+        ]}
+      >
         <View style={styles.statsRow}>
           <View>
-            <Text style={styles.label}>
-              {t('serviceCatalog.totalServices')}
+            <Text style={[styles.label, { color: colors.secondary }]}>
+              {t('serviceCatalog.totalServices').toUpperCase()}
             </Text>
-            <Text style={styles.value}>{total}</Text>
+            <Text style={[styles.value, { color: colors.primary }]}>
+              {total}
+            </Text>
           </View>
-          <View style={styles.divider} />
+          <View
+            style={[styles.divider, { backgroundColor: colors.border + '15' }]}
+          />
           <View>
-            <Text style={styles.label}>{t('serviceCatalog.active')}</Text>
-            <Text style={styles.value}>{active}</Text>
+            <Text style={[styles.label, { color: colors.secondary }]}>
+              {t('serviceCatalog.active').toUpperCase()}
+            </Text>
+            <Text style={[styles.value, { color: colors.primary }]}>
+              {active}
+            </Text>
           </View>
         </View>
       </View>
@@ -36,39 +54,34 @@ const styles = StyleSheet.create({
   hudWrapper: {
     paddingHorizontal: 24,
     paddingTop: 24,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   hudContent: {
-    backgroundColor: 'rgba(247, 249, 251, 0.8)',
-    borderRadius: 24,
-    padding: 16,
+    borderRadius: 20,
+    padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
     ...SHADOWS.sm,
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 24,
+    gap: 32,
     alignItems: 'center',
   },
   label: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.secondary,
-    letterSpacing: 1.5,
+    ...TYPOGRAPHY.label,
+    fontSize: 9,
+    letterSpacing: 1.2,
     marginBottom: 4,
   },
   value: {
+    ...TYPOGRAPHY.h2,
     fontSize: 24,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   divider: {
     width: 1,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    height: 32,
   },
 });

@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { TimeRange } from '@/src/hooks/analytics/useAnalytics';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface TimeRangeSelectorProps {
   currentRange: TimeRange;
@@ -13,20 +14,28 @@ export const TimeRangeSelector = ({
   onRangeChange,
 }: TimeRangeSelectorProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const options: TimeRange[] = ['daily', 'weekly', 'monthly'];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surfaceContainerLow }]}>
       {options.map((option) => {
         const isActive = currentRange === option;
         return (
           <TouchableOpacity
             key={option}
             onPress={() => onRangeChange(option)}
-            style={[styles.tab, isActive && styles.activeTab, SHADOWS.sm]}
+            style={[
+              styles.tab, 
+              isActive && { backgroundColor: colors.card, ...SHADOWS.sm }
+            ]}
             activeOpacity={0.7}
           >
-            <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+            <Text style={[
+              styles.tabText, 
+              { color: isActive ? colors.primary : colors.secondary },
+              isActive && { fontWeight: '800' }
+            ]}>
               {t(`analytics.timeRanges.${option}`)}
             </Text>
           </TouchableOpacity>
@@ -39,29 +48,21 @@ export const TimeRangeSelector = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surfaceContainer,
-    borderRadius: 14,
-    padding: 4,
+    borderRadius: 16,
+    padding: 6,
     marginHorizontal: SIZES.md,
     marginTop: SIZES.sm,
   },
   tab: {
     flex: 1,
-    paddingVertical: SIZES.sm,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 12,
     justifyContent: 'center',
-  },
-  activeTab: {
-    backgroundColor: COLORS.white,
   },
   tabText: {
     ...TYPOGRAPHY.label,
     fontWeight: '600',
-    color: COLORS.secondary,
-  },
-  activeTabText: {
-    color: COLORS.primary,
-    fontWeight: '800',
   },
 });
+

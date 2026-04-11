@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { CustomerLTV, LTVSegment } from '@/src/types';
 import { LTVSegment as LTVSegmentType } from '@/src/hooks/analytics/useAdvancedAnalytics';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface CustomerLTVProps {
   data: CustomerLTV | undefined;
@@ -31,11 +32,14 @@ export const CustomerLTVSection = ({
   onSegmentChange,
 }: CustomerLTVProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('analytics.ltv.title')}</Text>
+        <Text style={[styles.title, { color: colors.primary }]}>
+          {t('analytics.ltv.title').toUpperCase()}
+        </Text>
       </View>
 
       <ScrollView
@@ -43,58 +47,59 @@ export const CustomerLTVSection = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.segmentRow}
       >
-        {SEGMENTS.map(({ key, labelKey }) => (
-          <TouchableOpacity
-            key={key}
-            onPress={() => onSegmentChange(key)}
-            style={[
-              styles.segmentChip,
-              segmentBy === key && styles.segmentChipActive,
-            ]}
-          >
-            <Text
+        {SEGMENTS.map(({ key, labelKey }) => {
+          const isActive = segmentBy === key;
+          return (
+            <TouchableOpacity
+              key={key}
+              onPress={() => onSegmentChange(key)}
               style={[
-                styles.segmentChipText,
-                segmentBy === key && styles.segmentChipTextActive,
+                styles.segmentChip,
+                { backgroundColor: isActive ? colors.primary : colors.surfaceContainerHigh },
               ]}
             >
-              {t(labelKey)}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.segmentChipText,
+                  { color: isActive ? colors.onPrimary : colors.secondary },
+                ]}
+              >
+                {t(labelKey)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
       {isLoading || !data ? (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.emptyText}>{t('common.loading')}</Text>
+        <View style={[styles.loadingContainer, { backgroundColor: colors.card }]}>
+          <Text style={[styles.emptyText, { color: colors.outline }]}>{t('common.loading')}</Text>
         </View>
       ) : (
-        <View style={styles.card}>
-          {/* Summary Stats */}
-          <View style={styles.summaryRow}>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+          <View style={[styles.summaryRow, { backgroundColor: colors.surfaceContainerLow }]}>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>
-                {t('analytics.ltv.avgLtv')}
+              <Text style={[styles.summaryLabel, { color: colors.secondary }]}>
+                {t('analytics.ltv.avgLtv').toUpperCase()}
               </Text>
-              <Text style={styles.summaryValue}>{data.summary.avg_ltv}</Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>{data.summary.avg_ltv}</Text>
             </View>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>
-                {t('analytics.ltv.medianLtv')}
+              <Text style={[styles.summaryLabel, { color: colors.secondary }]}>
+                {t('analytics.ltv.medianLtv').toUpperCase()}
               </Text>
-              <Text style={styles.summaryValue}>{data.summary.median_ltv}</Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>{data.summary.median_ltv}</Text>
             </View>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>
-                {t('analytics.ltv.avgVisits')}
+              <Text style={[styles.summaryLabel, { color: colors.secondary }]}>
+                {t('analytics.ltv.avgVisits').toUpperCase()}
               </Text>
-              <Text style={styles.summaryValue}>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>
                 {data.summary.avg_visits.toFixed(1)}
               </Text>
             </View>
           </View>
 
-          {/* Segment List */}
           <View style={styles.segmentsList}>
             {data.segments.map((seg: LTVSegment, index) => (
               <View
@@ -105,15 +110,15 @@ export const CustomerLTVSection = ({
                 ]}
               >
                 <View style={styles.segmentInfo}>
-                  <Text style={styles.segmentName}>{seg.segment}</Text>
-                  <Text style={styles.segmentValue}>{seg.avg_ltv}</Text>
+                  <Text style={[styles.segmentName, { color: colors.primary }]}>{seg.segment}</Text>
+                  <Text style={[styles.segmentValue, { color: colors.primary }]}>{seg.avg_ltv}</Text>
                 </View>
                 <View style={styles.segmentSubInfo}>
-                  <Text style={styles.segmentCount}>
+                  <Text style={[styles.segmentCount, { color: colors.secondary }]}>
                     {seg.customer_count} {t('analytics.ltv.customers')}
                   </Text>
-                  {index === 0 && (
-                    <Text style={styles.topTierBadge}>Top Tier</Text>
+                  {index < 3 && (
+                    <Text style={[styles.topTierBadge, { color: colors.success }]}>Top Tier</Text>
                   )}
                 </View>
               </View>
@@ -136,80 +141,65 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TYPOGRAPHY.label,
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1.5,
   },
   segmentRow: {
-    gap: 4,
+    gap: 8,
     paddingHorizontal: 4,
     paddingBottom: 4,
   },
   segmentChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerHigh,
-  },
-  segmentChipActive: {
-    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 100,
   },
   segmentChipText: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontSize: 12,
     fontWeight: '800',
-    color: COLORS.secondary,
-  },
-  segmentChipTextActive: {
-    color: COLORS.white,
   },
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '15',
     overflow: 'hidden',
+    ...SHADOWS.sm,
   },
   summaryRow: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surfaceContainerLow + '80',
-    padding: 20,
+    padding: 24,
     gap: 16,
   },
   summaryItem: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   summaryLabel: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontSize: 9,
     fontWeight: '800',
-    color: COLORS.onSurfaceVariant,
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   summaryValue: {
-    ...TYPOGRAPHY.h2,
+    ...TYPOGRAPHY.h3,
     fontSize: 20,
     fontWeight: '900',
-    color: COLORS.primary,
   },
   loadingContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 40,
     alignItems: 'center',
+    ...SHADOWS.sm,
   },
   emptyText: {
     ...TYPOGRAPHY.body,
-    color: COLORS.muted,
   },
   segmentsList: {
-    padding: 8,
+    padding: 12,
   },
   segmentItem: {
     padding: 12,
-    // borderRadius: 12, // Optional, can match standard layout
   },
   lastSegmentItem: {
     borderBottomWidth: 0,
@@ -218,19 +208,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   segmentName: {
     ...TYPOGRAPHY.label,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
-    color: COLORS.primary,
   },
   segmentValue: {
     ...TYPOGRAPHY.label,
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: '900',
   },
   segmentSubInfo: {
     flexDirection: 'row',
@@ -239,14 +227,13 @@ const styles = StyleSheet.create({
   },
   segmentCount: {
     ...TYPOGRAPHY.caption,
-    fontSize: 11,
-    fontWeight: '500',
-    color: COLORS.secondary,
+    fontSize: 12,
+    fontWeight: '600',
   },
   topTierBadge: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontSize: 10,
-    fontWeight: '800',
-    color: '#059669', // emerald-600
+    fontWeight: '900',
   },
 });
+

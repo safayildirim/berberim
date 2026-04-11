@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text } from 'react-native';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
 import { Staff } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 const AVATAR_COLORS = [
   '#10B981',
@@ -39,15 +40,19 @@ export const ShopStatusBanner = ({
   activeStaff = [],
 }: ShopStatusBannerProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  
   const visibleStaff = activeStaff.slice(0, MAX_VISIBLE);
   const extraCount = activeStaff.length - MAX_VISIBLE;
 
   return (
-    <View style={[styles.container, SHADOWS.md]}>
+    <View style={[styles.container, { backgroundColor: colors.primaryContainer }, SHADOWS.md]}>
       <View style={styles.decorator} />
       <View style={styles.content}>
-        <Text style={styles.label}>{t('analytics.shopStatus.online')}</Text>
-        <Text style={styles.statusText}>
+        <Text style={[styles.label, { color: colors.onPrimaryContainer + 'CC' }]}>
+          {t('analytics.shopStatus.online').toUpperCase()}
+        </Text>
+        <Text style={[styles.statusText, { color: colors.onPrimaryContainer }]}>
           {t('dashboard.chairsActive', { count: chairsActive })}
         </Text>
       </View>
@@ -58,16 +63,28 @@ export const ShopStatusBanner = ({
             key={staff.id}
             style={[
               styles.avatar,
-              { backgroundColor: getStaffColor(staff.id), zIndex: 10 - index },
+              { 
+                backgroundColor: getStaffColor(staff.id), 
+                zIndex: 10 - index,
+                borderColor: colors.primaryContainer
+              },
               index > 0 && { marginLeft: -12 },
             ]}
           >
-            <Text style={styles.avatarText}>{getStaffInitials(staff)}</Text>
+            <Text style={[styles.avatarText, { color: colors.white }]}>{getStaffInitials(staff)}</Text>
           </View>
         ))}
         {extraCount > 0 && (
-          <View style={[styles.avatar, styles.moreAvatar, { marginLeft: -12 }]}>
-            <Text style={styles.avatarText}>+{extraCount}</Text>
+          <View style={[
+            styles.avatar, 
+            styles.moreAvatar, 
+            { 
+              backgroundColor: colors.surfaceContainerHighest,
+              borderColor: colors.primaryContainer,
+              marginLeft: -12 
+            }
+          ]}>
+            <Text style={[styles.avatarText, { color: colors.onSurface }]}>+{extraCount}</Text>
           </View>
         )}
       </View>
@@ -80,41 +97,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.primaryContainer,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
     marginHorizontal: SIZES.md,
     marginTop: SIZES.md,
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
     position: 'relative',
   },
   decorator: {
     position: 'absolute',
-    right: -60,
-    top: -60,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    right: -40,
+    top: -40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   content: {
     gap: 0,
     zIndex: 10,
   },
   label: {
-    ...TYPOGRAPHY.caption,
-    fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.7)',
-    textTransform: 'uppercase',
+    ...TYPOGRAPHY.label,
+    fontWeight: '900',
     letterSpacing: 1,
     fontSize: 10,
   },
   statusText: {
     ...TYPOGRAPHY.h3,
-    fontWeight: '800',
-    color: COLORS.white,
-    fontSize: 20,
+    fontWeight: '900',
+    fontSize: 22,
     marginTop: 2,
   },
   avatarGroup: {
@@ -123,21 +136,20 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 2,
-    borderColor: COLORS.primaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontWeight: '900',
-    color: COLORS.white,
-    fontSize: 10,
+    fontSize: 11,
   },
   moreAvatar: {
-    backgroundColor: '#334155', // slate-700
+    paddingBottom: 1,
   },
 });
+

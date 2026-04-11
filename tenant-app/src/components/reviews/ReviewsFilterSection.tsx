@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { COLORS, TYPOGRAPHY } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface ReviewsFilterSectionProps {
   currentFilter: 'all' | '5' | '4' | 'recent';
@@ -20,6 +21,7 @@ export const ReviewsFilterSection: React.FC<ReviewsFilterSectionProps> = ({
   onFilterChange,
 }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
@@ -28,25 +30,34 @@ export const ReviewsFilterSection: React.FC<ReviewsFilterSectionProps> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {FILTERS.map((filter) => (
-          <Pressable
-            key={filter.id}
-            onPress={() => onFilterChange(filter.id)}
-            style={[
-              styles.filterButton,
-              currentFilter === filter.id && styles.activeButton,
-            ]}
-          >
-            <Text
+        {FILTERS.map((filter) => {
+          const isActive = currentFilter === filter.id;
+          return (
+            <Pressable
+              key={filter.id}
+              onPress={() => onFilterChange(filter.id)}
               style={[
-                styles.filterText,
-                currentFilter === filter.id && styles.activeText,
+                styles.filterButton,
+                {
+                  backgroundColor: isActive
+                    ? colors.primary
+                    : colors.surfaceContainerHigh,
+                },
               ]}
             >
-              {t(`reviews.filters.${filter.id}`, filter.label)}
-            </Text>
-          </Pressable>
-        ))}
+              <Text
+                style={[
+                  styles.filterText,
+                  {
+                    color: isActive ? colors.onPrimary : colors.secondary,
+                  },
+                ]}
+              >
+                {t(`reviews.filters.${filter.id}`, filter.label)}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -54,27 +65,20 @@ export const ReviewsFilterSection: React.FC<ReviewsFilterSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 24,
   },
   scrollContent: {
     paddingHorizontal: 24,
     gap: 8,
   },
   filterButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerHigh,
-  },
-  activeButton: {
-    backgroundColor: COLORS.primary,
+    borderRadius: 100,
   },
   filterText: {
-    ...TYPOGRAPHY.bodyBold,
-    color: COLORS.onSurface,
+    ...TYPOGRAPHY.label,
     fontSize: 12,
-  },
-  activeText: {
-    color: COLORS.onPrimary,
+    fontWeight: '700',
   },
 });

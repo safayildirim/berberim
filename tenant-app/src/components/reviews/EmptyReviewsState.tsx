@@ -1,21 +1,28 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Star } from 'lucide-react-native';
-import { COLORS, TYPOGRAPHY } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export const EmptyReviewsState: React.FC = () => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Star size={40} color={COLORS.outlineVariant} strokeWidth={1.5} />
+      <View
+        style={[
+          styles.iconContainer,
+          { backgroundColor: colors.surfaceContainerLow },
+        ]}
+      >
+        <Star size={40} color={colors.primary + '30'} strokeWidth={1.5} />
       </View>
-      <Text style={styles.title}>
+      <Text style={[styles.title, { color: colors.primary }]}>
         {t('reviews.emptyTitle', 'No reviews yet')}
       </Text>
-      <Text style={styles.description}>
+      <Text style={[styles.description, { color: colors.secondary }]}>
         {t(
           'reviews.emptyDescription',
           'Once customers start leaving feedback, they will appear here in chronological order.',
@@ -27,31 +34,28 @@ export const EmptyReviewsState: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 120,
+    paddingVertical: 100,
     alignItems: 'center',
-    textAlign: 'center',
     paddingHorizontal: 40,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.surfaceContainerLow,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   title: {
     ...TYPOGRAPHY.h2,
-    color: COLORS.onSurface,
-    fontWeight: '800',
-    fontSize: 22,
-    marginBottom: 8,
+    fontSize: 24,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   description: {
     ...TYPOGRAPHY.body,
-    color: COLORS.onSurfaceVariant,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
+    opacity: 0.8,
   },
 });

@@ -16,15 +16,17 @@ import { AppointmentBentoDetails } from '@/src/components/appointments/details/A
 import { AppointmentFinancialNotes } from '@/src/components/appointments/details/AppointmentFinancialNotes';
 import { AppointmentHeader } from '@/src/components/appointments/details/AppointmentHeader';
 import { Screen } from '@/src/components/common/Screen';
-import { COLORS } from '@/src/constants/theme';
 import { useAppointmentActions } from '@/src/hooks/appointments/useAppointmentActions';
 import { useAppointmentDetail } from '@/src/hooks/queries/useAppointments';
+import { useTheme } from '@/src/hooks/useTheme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 
 export default function AppointmentDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const {
     data: appointment,
@@ -41,9 +43,9 @@ export default function AppointmentDetailScreen() {
 
   if (isLoading) {
     return (
-      <Screen style={styles.container}>
+      <Screen style={styles.container} withPadding={false}>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </Screen>
     );
@@ -51,9 +53,9 @@ export default function AppointmentDetailScreen() {
 
   if (isError || !appointment) {
     return (
-      <Screen style={styles.container}>
+      <Screen style={styles.container} withPadding={false}>
         <View style={styles.center}>
-          <Text style={styles.errorText}>
+          <Text style={[styles.errorText, { color: colors.error }]}>
             {t('appointmentDetail.messages.loadError')}
           </Text>
         </View>
@@ -62,30 +64,59 @@ export default function AppointmentDetailScreen() {
   }
 
   return (
-    <Screen style={styles.container} withPadding={false} transparentStatusBar>
-      {/* Top App Bar */}
-      <View style={[styles.topBar, { height: 80 }]}>
+    <Screen
+      style={[styles.container, { backgroundColor: colors.background }]}
+      withPadding={false}
+      transparentStatusBar
+    >
+      {/* Top App Bar (Glass Effect) */}
+      <View
+        style={[
+          styles.topBar,
+          {
+            height: 60 + insets.top,
+            paddingTop: insets.top,
+            backgroundColor: colors.background + 'F2',
+            borderBottomColor: colors.border + '10',
+          },
+        ]}
+      >
         <View style={styles.topBarLeft}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={styles.iconBtn}
+            style={[
+              styles.iconBtn,
+              { backgroundColor: colors.surfaceContainerLow },
+            ]}
           >
-            <ArrowLeft size={24} color={COLORS.primary} />
+            <ArrowLeft size={22} color={colors.primary} />
           </TouchableOpacity>
-          <Text style={styles.topBarTitle}>{t('appointmentDetail.title')}</Text>
+          <Text style={[styles.topBarTitle, { color: colors.primary }]}>
+            {t('appointmentDetail.title')}
+          </Text>
         </View>
         <View style={styles.topBarRight}>
-          <View style={styles.staffSmallAvatar}>
+          <View
+            style={[
+              styles.staffSmallAvatar,
+              { backgroundColor: colors.primary + '15' },
+            ]}
+          >
             {appointment.staff?.first_name ? (
-              <Text style={styles.staffInitial}>
+              <Text style={[styles.staffInitial, { color: colors.primary }]}>
                 {appointment.staff.first_name[0]}
               </Text>
             ) : (
-              <MoreHorizontal size={16} color={COLORS.secondary} />
+              <MoreHorizontal size={14} color={colors.secondary} />
             )}
           </View>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Bell size={24} color={COLORS.primary} />
+          <TouchableOpacity
+            style={[
+              styles.iconBtn,
+              { backgroundColor: colors.surfaceContainerLow },
+            ]}
+          >
+            <Bell size={22} color={colors.primary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -93,7 +124,11 @@ export default function AppointmentDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: isTerminal ? 40 + insets.bottom : 24 },
+          {
+            paddingBottom: isTerminal
+              ? 40 + insets.bottom
+              : 120 + insets.bottom,
+          },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -129,7 +164,7 @@ export default function AppointmentDetailScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f7f9fb',
+    flex: 1,
   },
   center: {
     flex: 1,
@@ -137,18 +172,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: COLORS.error,
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-    fontWeight: '600',
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 24,
-    backgroundColor: 'rgba(248, 250, 252, 0.8)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    zIndex: 10,
   },
   topBarLeft: {
     flexDirection: 'row',
@@ -158,34 +191,32 @@ const styles = StyleSheet.create({
   topBarRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
   },
   topBarTitle: {
+    ...TYPOGRAPHY.h3,
     fontSize: 18,
-    fontWeight: '700',
-    color: '#0f172a',
     letterSpacing: -0.5,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   staffSmallAvatar: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
   staffInitial: {
+    ...TYPOGRAPHY.caption,
+    fontWeight: '900',
     fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.primary,
   },
   scrollContent: {
     paddingTop: 24,

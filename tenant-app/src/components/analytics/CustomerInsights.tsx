@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View, Text } from 'react-native';
-import { COLORS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY, SIZES } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface CustomerInsightsProps {
   insights: {
@@ -13,44 +14,48 @@ interface CustomerInsightsProps {
 
 export const CustomerInsights = ({ insights }: CustomerInsightsProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>
-        {t('analytics.customerInsights.title')}
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        {t('analytics.customerInsights.title').toUpperCase()}
       </Text>
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
         <View style={styles.topRow}>
           <View>
-            <Text style={styles.label}>
+            <Text style={[styles.label, { color: colors.secondary }]}>
               {t('analytics.customerInsights.activeCustomers')}
             </Text>
-            <Text style={styles.value}>{insights.activeCustomers}</Text>
+            <Text style={[styles.value, { color: colors.primary }]}>{insights.activeCustomers}</Text>
           </View>
           <View style={styles.rightAlign}>
-            <Text style={styles.label}>
+            <Text style={[styles.label, { color: colors.secondary }]}>
               {t('analytics.customerInsights.returningRate')}
             </Text>
-            <Text style={styles.value}>{insights.returningRate}%</Text>
+            <Text style={[styles.value, { color: colors.primary }]}>{insights.returningRate}%</Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border + '10' }]} />
 
         <View style={styles.bottomSection}>
-          <Text style={styles.label}>
+          <Text style={[styles.label, { color: colors.secondary }]}>
             {t('analytics.customerInsights.visitFrequency')}
           </Text>
           <View style={styles.progressRow}>
-            <View style={styles.progressTrack}>
+            <View style={[styles.progressTrack, { backgroundColor: colors.surfaceContainerLow }]}>
               <View
                 style={[
                   styles.progressBar,
-                  { width: `${(insights.visitFrequency / 30) * 100}%` }, // scaling assumes 30 day max
+                  { 
+                    backgroundColor: colors.primary,
+                    width: `${Math.min((insights.visitFrequency / 30) * 100, 100)}%` 
+                  },
                 ]}
               />
             </View>
-            <Text style={styles.progressValue}>
+            <Text style={[styles.progressValue, { color: colors.primary }]}>
               {insights.visitFrequency.toFixed(1)} {t('common.days')}
             </Text>
           </View>
@@ -67,18 +72,17 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...TYPOGRAPHY.label,
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 1.5,
     marginBottom: SIZES.sm,
     paddingHorizontal: 4,
   },
   card: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: 16,
+    borderRadius: 24,
     padding: SIZES.md,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '20',
+    ...SHADOWS.sm,
   },
   topRow: {
     flexDirection: 'row',
@@ -87,18 +91,16 @@ const styles = StyleSheet.create({
     marginBottom: SIZES.md,
   },
   label: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.label,
     fontWeight: '800',
-    color: COLORS.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    fontSize: 10,
+    fontSize: 9,
   },
   value: {
     ...TYPOGRAPHY.h3,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '900',
-    color: COLORS.primary,
     marginTop: 2,
   },
   rightAlign: {
@@ -106,11 +108,10 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.surfaceContainer,
     marginBottom: SIZES.md,
   },
   bottomSection: {
-    gap: SIZES.xs,
+    gap: SIZES.sm,
   },
   progressRow: {
     flexDirection: 'row',
@@ -119,20 +120,18 @@ const styles = StyleSheet.create({
   },
   progressTrack: {
     flex: 1,
-    height: 8,
-    backgroundColor: COLORS.surfaceContainer,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: COLORS.primaryContainer,
-    borderRadius: 4,
+    borderRadius: 5,
   },
   progressValue: {
     ...TYPOGRAPHY.label,
-    fontWeight: '800',
-    color: COLORS.primary,
+    fontWeight: '900',
     fontSize: 12,
   },
 });
+

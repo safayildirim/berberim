@@ -2,8 +2,8 @@ import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export const COLORS = {
-  // Brand family colors (restored from customer app)
+export const LIGHT_COLORS = {
+  // Brand family colors
   primary: '#051125',
   primaryContainer: '#1b263b',
   primaryDim: '#545e76',
@@ -23,7 +23,7 @@ export const COLORS = {
   transparent: 'transparent',
   overlay: 'rgba(0, 0, 0, 0.4)',
 
-  // New Design Surfaces & Tokens from HTML
+  // New Design Surfaces & Tokens
   surface: '#f7f9fb',
   surfaceDim: '#d8dadc',
   surfaceBright: '#f7f9fb',
@@ -51,11 +51,11 @@ export const COLORS = {
   onTertiaryFixed: '#410002',
   onTertiaryContainer: '#fc4f45',
 
-  // Secondary family from HTML
+  // Secondary family
   secondaryFixed: '#d5e3fc',
   secondaryFixedDim: '#b9c7df',
 
-  // Primary family from HTML
+  // Primary family
   primaryFixed: '#d7e2ff',
   onPrimaryFixed: '#101b30',
   onPrimaryFixedVariant: '#3c475d',
@@ -69,6 +69,77 @@ export const COLORS = {
   pending: '#FCD34D',
   info: '#6366F1',
 };
+
+export const DARK_COLORS = {
+  // Brand family colors (premium navy/charcoal)
+  primary: '#d7e2ff',
+  primaryContainer: '#1b263b',
+  primaryDim: '#545e76',
+  secondary: '#bfc7d9',
+  secondaryContainer: '#3c475d',
+  tertiary: '#ffb4ab',
+  background: '#051125',
+  card: '#1b263b',
+  text: '#e0e3e5',
+  muted: '#8e9199',
+  border: '#45474d',
+  error: '#ffb4ab',
+  success: '#10B981',
+  warning: '#F59E0B',
+  white: '#ffffff',
+  black: '#000000',
+  transparent: 'transparent',
+  overlay: 'rgba(0, 0, 0, 0.6)',
+
+  // Surface Tokens
+  surface: '#051125',
+  surfaceDim: '#101b30',
+  surfaceBright: '#1b263b',
+  surfaceContainerLowest: '#0d1c2e',
+  surfaceContainerLow: '#101b30',
+  surfaceContainer: '#1b263b',
+  surfaceContainerHigh: '#263148',
+  surfaceContainerHighest: '#333e56',
+  onSurface: '#e0e3e5',
+  onSurfaceVariant: '#c5c6cd',
+  outline: '#8e9199',
+  outlineVariant: '#45474d',
+
+  // Additional Layout Tokens
+  onPrimary: '#002e69',
+  onPrimaryContainer: '#d7e2ff',
+  onSecondary: '#293142',
+  onSecondaryContainer: '#d5e3fc',
+  onSecondaryFixed: '#d5e3fc',
+  onSecondaryFixedVariant: '#3c475d',
+  tertiaryContainer: '#930006',
+  onTertiary: '#690005',
+  tertiaryFixed: '#ffdad6',
+  tertiaryFixedDim: '#ffb4ab',
+  onTertiaryFixed: '#410002',
+  onTertiaryContainer: '#ffdad6',
+
+  // Secondary family
+  secondaryFixed: '#d5e3fc',
+  secondaryFixedDim: '#b9c7df',
+
+  // Primary family
+  primaryFixed: '#d7e2ff',
+  onPrimaryFixed: '#101b30',
+  onPrimaryFixedVariant: '#3c475d',
+
+  // Status colors
+  confirmed: '#10B981',
+  completed: '#6366F1',
+  cancelled: '#EF4444',
+  no_show: '#9CA3AF',
+  rescheduled: '#F59E0B',
+  pending: '#FCD34D',
+  info: '#6366F1',
+};
+
+// Default for backward compatibility
+export const COLORS = LIGHT_COLORS;
 
 export const SIZES = {
   xs: 4,

@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Star, Check } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
+import { TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
 import { Staff } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   staff: Staff;
@@ -13,13 +14,19 @@ interface Props {
 
 export const ProfessionalCard = ({ staff, isSelected, onSelect }: Props) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <TouchableOpacity
       style={[
         styles.container,
-        isSelected && styles.selectedContainer,
-        !isSelected && styles.unselectedContainer,
+        {
+          borderColor: isSelected ? colors.primary : 'transparent',
+          backgroundColor: isSelected
+            ? colors.surfaceContainerLowest
+            : colors.surfaceContainerLow,
+        },
+        isSelected && SHADOWS.sm,
       ]}
       onPress={() => onSelect(staff)}
       activeOpacity={0.8}
@@ -30,35 +37,45 @@ export const ProfessionalCard = ({ staff, isSelected, onSelect }: Props) => {
             {staff.avatar_url ? (
               <Image
                 source={{ uri: staff.avatar_url }}
-                style={[styles.avatar, { grayscale: 1 } as any]} // Simulating grayscale for inactive but we can use real images
+                style={[
+                  styles.avatar,
+                  { backgroundColor: colors.surfaceContainerHigh },
+                ]}
               />
             ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarText}>
+              <View
+                style={[
+                  styles.avatarPlaceholder,
+                  { backgroundColor: colors.surfaceContainerHighest },
+                ]}
+              >
+                <Text style={[styles.avatarText, { color: colors.primary }]}>
                   {staff.first_name[0]}
                   {staff.last_name[0]}
                 </Text>
               </View>
             )}
-            {staff.status === 'active' && <View style={styles.statusDot} />}
+            {staff.status === 'active' && (
+              <View
+                style={[styles.statusDot, { borderColor: colors.background }]}
+              />
+            )}
           </View>
           <View>
-            <Text style={styles.name}>
+            <Text style={[styles.name, { color: colors.primary }]}>
               {staff.first_name} {staff.last_name}
             </Text>
-            <Text style={styles.role}>
+            <Text style={[styles.role, { color: colors.secondary }]}>
               {staff.role === 'admin'
                 ? t('appointmentCreate.masterBarber')
                 : t('appointmentCreate.barberArtisan')}
             </Text>
             <View style={styles.ratingRow}>
-              <Star
-                size={14}
-                color={COLORS.tertiaryContainer}
-                fill={COLORS.tertiaryContainer}
-              />
-              <Text style={styles.rating}>{staff.avg_rating.toFixed(1)}</Text>
-              <Text style={styles.reviews}>
+              <Star size={14} color={colors.warning} fill={colors.warning} />
+              <Text style={[styles.rating, { color: colors.primary }]}>
+                {staff.avg_rating.toFixed(1)}
+              </Text>
+              <Text style={[styles.reviews, { color: colors.outline }]}>
                 {t('appointmentCreate.reviewCount', {
                   count: staff.review_count,
                 })}
@@ -69,11 +86,18 @@ export const ProfessionalCard = ({ staff, isSelected, onSelect }: Props) => {
 
         <View style={styles.selectionIndicator}>
           {isSelected ? (
-            <View style={styles.checkBadge}>
-              <Check size={18} color={COLORS.white} strokeWidth={3} />
+            <View
+              style={[styles.checkBadge, { backgroundColor: colors.primary }]}
+            >
+              <Check size={18} color={colors.onPrimary} strokeWidth={3} />
             </View>
           ) : (
-            <View style={styles.emptyCircle} />
+            <View
+              style={[
+                styles.emptyCircle,
+                { borderColor: colors.outlineVariant },
+              ]}
+            />
           )}
         </View>
       </View>
@@ -87,15 +111,6 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.radius + 12,
     marginBottom: SIZES.md,
     borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedContainer: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.surfaceContainerLowest,
-    ...SHADOWS.sm,
-  },
-  unselectedContainer: {
-    backgroundColor: COLORS.surfaceContainerLow,
   },
   topRow: {
     flexDirection: 'row',
@@ -114,19 +129,16 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: SIZES.radius + 8,
-    backgroundColor: COLORS.surfaceContainerHigh,
   },
   avatarPlaceholder: {
     width: 64,
     height: 64,
     borderRadius: SIZES.radius + 8,
-    backgroundColor: COLORS.surfaceContainerHighest,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     ...TYPOGRAPHY.h3,
-    color: COLORS.onSurfaceVariant,
   },
   statusDot: {
     position: 'absolute',
@@ -136,19 +148,16 @@ const styles = StyleSheet.create({
     height: 20,
     backgroundColor: '#10B981', // emerald-500
     borderWidth: 3,
-    borderColor: COLORS.white,
     borderRadius: 10,
   },
   name: {
     ...TYPOGRAPHY.h3,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -0.5,
   },
   role: {
     ...TYPOGRAPHY.label,
     fontWeight: '600',
-    color: COLORS.secondary,
     marginTop: 2,
   },
   ratingRow: {
@@ -160,11 +169,9 @@ const styles = StyleSheet.create({
   rating: {
     ...TYPOGRAPHY.caption,
     fontWeight: '800',
-    color: COLORS.primary,
   },
   reviews: {
     ...TYPOGRAPHY.caption,
-    color: COLORS.outline,
     fontWeight: '500',
   },
   selectionIndicator: {
@@ -175,7 +182,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -184,6 +190,5 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: COLORS.outlineVariant,
   },
 });

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
-import i18n from 'i18next';
+import i18n, { changeLanguage, use as i18nextUse } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { resources, type AppLanguage } from './resources';
 import { i18nLogger } from '@/src/lib/logger';
@@ -38,8 +38,7 @@ const detector = {
 };
 
 if (!i18n.isInitialized) {
-  i18n
-    .use(detector)
+  i18nextUse(detector)
     .use(initReactI18next)
     .init({
       compatibilityJSON: 'v4',
@@ -51,7 +50,7 @@ if (!i18n.isInitialized) {
 }
 
 export async function setAppLanguage(language: AppLanguage) {
-  await i18n.changeLanguage(language);
+  await changeLanguage(language);
 }
 
 export function getCurrentLanguage(): AppLanguage {

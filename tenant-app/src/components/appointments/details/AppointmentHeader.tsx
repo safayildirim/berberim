@@ -2,8 +2,9 @@ import { Check, Phone } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
 import { Appointment } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
+import { TYPOGRAPHY, SHADOWS } from '@/src/constants/theme';
 
 interface Props {
   appointment: Appointment;
@@ -11,31 +12,84 @@ interface Props {
 
 export const AppointmentHeader: React.FC<Props> = ({ appointment }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+
   const isPaymentReceived =
     appointment.status === 'payment_received' ||
     appointment.status === 'completed' ||
     !!appointment.payment_received_at;
 
+  const getStatusConfig = () => {
+    switch (appointment.status) {
+      case 'confirmed':
+        return {
+          bg: colors.success + '15',
+          dot: colors.success,
+          text: colors.success,
+        };
+      case 'cancelled':
+      case 'no_show':
+        return {
+          bg: colors.error + '15',
+          dot: colors.error,
+          text: colors.error,
+        };
+      case 'completed':
+        return {
+          bg: colors.info + '15',
+          dot: colors.info,
+          text: colors.info,
+        };
+      default:
+        return {
+          bg: colors.secondary + '15',
+          dot: colors.secondary,
+          text: colors.secondary,
+        };
+    }
+  };
+
+  const statusConfig = getStatusConfig();
+  const paymentConfig = isPaymentReceived
+    ? { bg: colors.success + '15', dot: colors.success, text: colors.success }
+    : { bg: colors.error + '15', dot: colors.error, text: colors.error };
+
   return (
     <View style={styles.header}>
       <View style={styles.customerProfile}>
         <View style={styles.avatarWrapper}>
-          <View style={styles.avatarPlaceholder}>
-            <Text style={styles.avatarInitial}>
+          <View
+            style={[
+              styles.avatarPlaceholder,
+              { backgroundColor: colors.primary },
+            ]}
+          >
+            <Text style={[styles.avatarInitial, { color: colors.onPrimary }]}>
               {appointment.customer?.first_name?.[0] || 'C'}
             </Text>
           </View>
-          <View style={styles.verifiedBadge}>
-            <Check size={12} color={COLORS.white} strokeWidth={4} />
+          <View
+            style={[
+              styles.verifiedBadge,
+              {
+                backgroundColor: colors.success,
+                borderColor: colors.background,
+              },
+            ]}
+          >
+            <Check size={10} color={colors.white} strokeWidth={4} />
           </View>
         </View>
-        <View>
-          <Text style={styles.customerName}>
+        <View style={styles.customerInfo}>
+          <Text
+            style={[styles.customerName, { color: colors.primary }]}
+            numberOfLines={1}
+          >
             {appointment.customer?.first_name} {appointment.customer?.last_name}
           </Text>
           <View style={styles.phoneRow}>
-            <Phone size={14} color={COLORS.secondary} />
-            <Text style={styles.phoneText}>
+            <Phone size={14} color={colors.secondary} />
+            <Text style={[styles.phoneText, { color: colors.secondary }]}>
               {appointment.customer?.phone_number || 'N/A'}
             </Text>
           </View>
@@ -45,54 +99,26 @@ export const AppointmentHeader: React.FC<Props> = ({ appointment }) => {
       {/* Status Row */}
       <View style={styles.statusRow}>
         <View
-          style={[
-            styles.statusBadge,
-            appointment.status === 'confirmed'
-              ? styles.badgeConfirmed
-              : styles.badgeDefault,
-          ]}
+          style={[styles.statusBadge, { backgroundColor: statusConfig.bg }]}
         >
           <View
-            style={[
-              styles.statusDot,
-              appointment.status === 'confirmed'
-                ? styles.dotConfirmed
-                : styles.dotDefault,
-            ]}
+            style={[styles.statusDot, { backgroundColor: statusConfig.dot }]}
           />
-          <Text
-            style={[
-              styles.statusBadgeText,
-              appointment.status === 'confirmed'
-                ? styles.textConfirmed
-                : styles.textDefault,
-            ]}
-          >
+          <Text style={[styles.statusBadgeText, { color: statusConfig.text }]}>
             {t(`appointments.status.${appointment.status}`).toUpperCase()}
           </Text>
         </View>
 
         <View
-          style={[
-            styles.statusBadge,
-            !isPaymentReceived ? styles.badgeUnpaid : styles.badgePaid,
-          ]}
+          style={[styles.statusBadge, { backgroundColor: paymentConfig.bg }]}
         >
           <View
-            style={[
-              styles.statusDot,
-              !isPaymentReceived ? styles.dotUnpaid : styles.dotPaid,
-            ]}
+            style={[styles.statusDot, { backgroundColor: paymentConfig.dot }]}
           />
-          <Text
-            style={[
-              styles.statusBadgeText,
-              !isPaymentReceived ? styles.textUnpaid : styles.textPaid,
-            ]}
-          >
+          <Text style={[styles.statusBadgeText, { color: paymentConfig.text }]}>
             {isPaymentReceived
-              ? t('appointmentDetail.status.paid')
-              : t('appointmentDetail.status.unpaid')}
+              ? t('appointmentDetail.status.paid').toUpperCase()
+              : t('appointmentDetail.status.unpaid').toUpperCase()}
           </Text>
         </View>
       </View>
@@ -102,8 +128,8 @@ export const AppointmentHeader: React.FC<Props> = ({ appointment }) => {
 
 const styles = StyleSheet.create({
   header: {
-    gap: 16,
-    marginBottom: 24,
+    gap: 20,
+    marginBottom: 32,
   },
   customerProfile: {
     flexDirection: 'row',
@@ -114,35 +140,34 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   avatarPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: COLORS.primary,
+    width: 72,
+    height: 72,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    ...SHADOWS.sm,
   },
   avatarInitial: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
-    color: COLORS.white,
   },
   verifiedBadge: {
     position: 'absolute',
-    bottom: -4,
-    right: -4,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#10b981',
-    borderWidth: 4,
-    borderColor: '#f7f9fb',
+    bottom: -2,
+    right: -2,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 3,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  customerInfo: {
+    flex: 1,
+  },
   customerName: {
+    ...TYPOGRAPHY.h1,
     fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: -1,
   },
   phoneRow: {
@@ -152,45 +177,30 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   phoneText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.secondary,
   },
   statusRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 100,
-    gap: 8,
+    gap: 6,
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   statusBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...TYPOGRAPHY.caption,
+    fontWeight: '900',
+    fontSize: 10,
     letterSpacing: 1,
   },
-  badgeConfirmed: { backgroundColor: '#ecfdf5' },
-  dotConfirmed: { backgroundColor: '#10b981' },
-  textConfirmed: { color: '#065f46' },
-
-  badgeUnpaid: { backgroundColor: '#fef2f2' },
-  dotUnpaid: { backgroundColor: '#ef4444' },
-  textUnpaid: { color: '#991b1b' },
-
-  badgePaid: { backgroundColor: '#f0f9ff' },
-  dotPaid: { backgroundColor: '#0ea5e9' },
-  textPaid: { color: '#075985' },
-
-  badgeDefault: { backgroundColor: '#f1f5f9' },
-  dotDefault: { backgroundColor: '#64748b' },
-  textDefault: { color: '#334155' },
 });

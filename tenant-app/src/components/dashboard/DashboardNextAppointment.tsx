@@ -5,8 +5,9 @@ import { History, LayoutDashboard } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { Appointment } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   appointment?: Appointment;
@@ -15,22 +16,32 @@ interface Props {
 
 export const DashboardNextAppointment: React.FC<Props> = ({
   appointment,
-  primaryColor = COLORS.primary,
+  primaryColor,
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors, isDark } = useTheme();
+
+  const finalPrimaryColor = primaryColor || colors.primary;
 
   if (!appointment) {
     return (
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('dashboard.noUpcoming')}</Text>
-        <View style={[styles.featuredCard, styles.emptyFeatured]}>
-          <LayoutDashboard
-            size={40}
-            color={COLORS.secondary}
-            strokeWidth={1.5}
-          />
-          <Text style={styles.emptyFeaturedText}>
+        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+          {t('dashboard.noUpcoming')}
+        </Text>
+        <View
+          style={[
+            styles.featuredCard,
+            styles.emptyFeatured,
+            {
+              backgroundColor: colors.surfaceContainerLow,
+              borderColor: colors.border + '15',
+            },
+          ]}
+        >
+          <LayoutDashboard size={40} color={colors.outline} strokeWidth={1.5} />
+          <Text style={[styles.emptyFeaturedText, { color: colors.secondary }]}>
             {t('dashboard.emptyUpcoming')}
           </Text>
         </View>
@@ -45,14 +56,19 @@ export const DashboardNextAppointment: React.FC<Props> = ({
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('dashboard.nextUpcoming')}</Text>
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        {t('dashboard.nextUpcoming')}
+      </Text>
       <TouchableOpacity
         activeOpacity={0.9}
         style={styles.featuredCard}
         onPress={() => router.push(`/appointments/${appointment.id}`)}
       >
         <LinearGradient
-          colors={[primaryColor, COLORS.primaryContainer]}
+          colors={[
+            finalPrimaryColor,
+            isDark ? colors.surfaceContainerHigh : finalPrimaryColor + 'D9',
+          ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.featuredGradient}
@@ -64,16 +80,33 @@ export const DashboardNextAppointment: React.FC<Props> = ({
                   source={{
                     uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB7akU3BWqR8K5f9c_mAHeu53749oHKc4FNbYF_se_Z-_1FIJjQ7d-aVo7BNnPr2kDFZer_VaizcrrpWdYQOYxBVKuHNgzBjbrUZgvye2FMvSqJ7z3XEih1HVysvTsH67IWeRXDh0M-MvDLGSY1tRZyVTblBNsBC1QNyjBfI5dhExxe_H8AqQNnc_O3yyjCBUXe4dfCAipcSp-yomEHa7u_EjcCXqmDvRtE52tLeweiVdyeouv30_YE6YNhsIWfB7uTECr-wc-F2naS',
                   }}
-                  style={styles.avatar}
+                  style={[
+                    styles.avatar,
+                    { borderColor: 'rgba(255,255,255,0.3)' },
+                  ]}
                 />
-                <View style={styles.onlineIndicator} />
+                <View
+                  style={[
+                    styles.onlineIndicator,
+                    {
+                      backgroundColor: colors.success,
+                      borderColor: finalPrimaryColor,
+                    },
+                  ]}
+                />
               </View>
               <View>
-                <Text style={styles.featuredName}>
+                <Text style={[styles.featuredName, { color: colors.white }]}>
                   {appointment.customer?.first_name || 'N/A'}{' '}
                   {appointment.customer?.last_name || ''}
                 </Text>
-                <Text style={styles.featuredService}>
+                <Text
+                  style={[
+                    styles.featuredService,
+                    { color: 'rgba(255,255,255,0.7)' },
+                  ]}
+                  numberOfLines={1}
+                >
                   {appointment.services
                     .map((s) => s.service_name || s.name)
                     .join(' + ')}
@@ -83,23 +116,29 @@ export const DashboardNextAppointment: React.FC<Props> = ({
 
             <View style={styles.featuredTimeBlock}>
               <View style={styles.timeInfo}>
-                <Text style={styles.timeLabel}>{t('dashboard.time')}</Text>
-                <Text style={styles.timeValue}>
+                <Text style={styles.timeLabel}>
+                  {t('dashboard.time').toUpperCase()}
+                </Text>
+                <Text style={[styles.timeValue, { color: colors.white }]}>
                   {format(new Date(appointment.starts_at), 'HH:mm')}
                 </Text>
               </View>
               <View style={styles.divider} />
               <View style={styles.timeInfo}>
-                <Text style={styles.timeLabel}>{t('dashboard.duration')}</Text>
-                <Text style={styles.timeValue}>{duration}m</Text>
+                <Text style={styles.timeLabel}>
+                  {t('dashboard.duration').toUpperCase()}
+                </Text>
+                <Text style={[styles.timeValue, { color: colors.white }]}>
+                  {duration}m
+                </Text>
               </View>
             </View>
           </View>
 
           <View style={styles.featuredFooter}>
             <View style={styles.returningBadge}>
-              <History size={12} color={COLORS.white} />
-              <Text style={styles.returningText}>
+              <History size={12} color={colors.white} />
+              <Text style={[styles.returningText, { color: colors.white }]}>
                 {t('dashboard.returningClient', {
                   count: appointment.customer?.visit_count || 0,
                 })}
@@ -118,9 +157,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: COLORS.primary,
+    ...TYPOGRAPHY.h3,
     marginBottom: 16,
     letterSpacing: -0.5,
   },
@@ -130,11 +167,11 @@ const styles = StyleSheet.create({
     ...SHADOWS.md,
   },
   featuredGradient: {
-    padding: 20,
+    padding: 24,
   },
   featuredHeader: {
     flexDirection: 'column',
-    gap: 12,
+    gap: 16,
     marginBottom: 20,
   },
   featuredCustomer: {
@@ -146,59 +183,57 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 60,
+    height: 60,
+    borderRadius: 18,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
   },
   onlineIndicator: {
     position: 'absolute',
     bottom: -2,
     right: -2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: COLORS.success,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 3,
   },
   featuredName: {
-    fontSize: 18,
+    ...TYPOGRAPHY.h3,
+    fontSize: 20,
     fontWeight: '800',
-    color: COLORS.white,
   },
   featuredService: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
-    fontWeight: '500',
+    ...TYPOGRAPHY.caption,
+    fontWeight: '600',
+    marginTop: 2,
   },
   featuredTimeBlock: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    padding: 12,
-    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 14,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
   timeInfo: {
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
   },
   divider: {
     width: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   timeLabel: {
-    fontSize: 8,
-    color: 'rgba(255,255,255,0.7)',
-    fontWeight: '800',
+    ...TYPOGRAPHY.label,
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.6)',
+    letterSpacing: 0.5,
   },
   timeValue: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.white,
+    ...TYPOGRAPHY.h3,
+    fontSize: 18,
+    marginTop: 4,
   },
   featuredFooter: {
     flexDirection: 'row',
@@ -210,29 +245,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 100,
   },
   returningText: {
-    fontSize: 10,
-    color: COLORS.white,
-    fontWeight: '600',
+    ...TYPOGRAPHY.caption,
+    fontWeight: '800',
   },
   emptyFeatured: {
-    backgroundColor: COLORS.white,
     padding: 40,
     alignItems: 'center',
     justifyContent: 'center',
     borderStyle: 'dashed',
     borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.1)',
   },
   emptyFeaturedText: {
-    fontSize: 14,
-    color: COLORS.secondary,
+    ...TYPOGRAPHY.body,
     textAlign: 'center',
-    marginTop: 12,
-    lineHeight: 20,
+    marginTop: 16,
+    lineHeight: 22,
+    opacity: 0.7,
   },
 });

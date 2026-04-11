@@ -2,8 +2,9 @@ import { Info } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 import { Appointment } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   appointment: Appointment;
@@ -11,59 +12,87 @@ interface Props {
 
 export const AppointmentFinancialNotes: React.FC<Props> = ({ appointment }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.row}>
       {/* Notes Card */}
-      <View style={styles.notesCard}>
+      <View
+        style={[
+          styles.notesCard,
+          { backgroundColor: colors.surfaceContainerLow },
+        ]}
+      >
         <View style={styles.cardHeader}>
-          <Text style={styles.label}>
-            {t('appointmentDetail.internalNotes')}
+          <Text style={[styles.label, { color: colors.secondary }]}>
+            {t('appointmentDetail.internalNotes').toUpperCase()}
           </Text>
           <TouchableOpacity
-            onPress={() => Alert.alert('Edit', 'Note editing coming soon')}
+            onPress={() => Alert.alert('Edit', t('common.comingSoon'))}
           >
-            <Text style={styles.editText}>{t('common.edit')}</Text>
+            <Text style={[styles.editText, { color: colors.primary }]}>
+              {t('common.edit')}
+            </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.notesBox}>
-          <Text style={styles.notesText}>
+        <View
+          style={[
+            styles.notesBox,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
+        >
+          <Text style={[styles.notesText, { color: colors.secondary }]}>
             {appointment.notes_internal ||
-              'No internal notes for this appointment.'}
+              t('appointmentDetail.messages.noNotes')}
           </Text>
         </View>
       </View>
 
       {/* Billing Card */}
-      <View style={styles.billingCard}>
-        <Text style={styles.label}>
-          {t('appointmentDetail.billingSummary')}
+      <View
+        style={[
+          styles.billingCard,
+          { backgroundColor: colors.surfaceContainerLow },
+        ]}
+      >
+        <Text style={[styles.label, { color: colors.secondary }]}>
+          {t('appointmentDetail.billingSummary').toUpperCase()}
         </Text>
         <View style={styles.billingRows}>
           <View style={styles.billingRow}>
-            <Text style={styles.billingLabel}>
+            <Text style={[styles.billingLabel, { color: colors.secondary }]}>
               {t('appointmentDetail.baseService')}
             </Text>
-            <Text style={styles.billingValue}>
-              ${parseFloat(appointment.total_price).toFixed(2)}
+            <Text style={[styles.billingValue, { color: colors.primary }]}>
+              {parseFloat(appointment.total_price).toFixed(2)} ₺
             </Text>
           </View>
-          <View style={styles.billingDivider} />
+          <View
+            style={[
+              styles.billingDivider,
+              { backgroundColor: colors.border + '10' },
+            ]}
+          />
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>
+            <Text style={[styles.totalLabel, { color: colors.primary }]}>
               {t('appointmentDetail.totalAmount')}
             </Text>
-            <Text style={styles.totalValue}>
-              ${parseFloat(appointment.total_price).toFixed(2)}
+            <Text style={[styles.totalValue, { color: colors.primary }]}>
+              {parseFloat(appointment.total_price).toFixed(2)} ₺
             </Text>
           </View>
         </View>
         {appointment.status !== 'payment_received' &&
           appointment.status !== 'completed' && (
-            <View style={styles.balanceDueBox}>
-              <Info size={14} color="#93000b" />
-              <Text style={styles.balanceDueText}>
-                {t('appointmentDetail.balanceDue')}
+            <View
+              style={[
+                styles.balanceDueBox,
+                { backgroundColor: colors.error + '15' },
+              ]}
+            >
+              <Info size={14} color={colors.error} />
+              <Text style={[styles.balanceDueText, { color: colors.error }]}>
+                {t('appointmentDetail.balanceDue').toUpperCase()}
               </Text>
             </View>
           )}
@@ -79,7 +108,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   notesCard: {
-    backgroundColor: '#f2f4f6',
     borderRadius: 24,
     padding: 24,
   },
@@ -90,32 +118,26 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.secondary,
     letterSpacing: 1.5,
   },
   editText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   notesBox: {
-    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
   },
   notesText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#57657a',
+    ...TYPOGRAPHY.body,
+    fontSize: 13,
     fontStyle: 'italic',
     lineHeight: 20,
   },
   billingCard: {
-    backgroundColor: '#f2f4f6',
     borderRadius: 24,
     padding: 24,
   },
@@ -126,20 +148,18 @@ const styles = StyleSheet.create({
   billingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   billingLabel: {
+    ...TYPOGRAPHY.body,
     fontSize: 14,
-    color: COLORS.secondary,
-    fontWeight: '500',
   },
   billingValue: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.primary,
   },
   billingDivider: {
     height: 1,
-    backgroundColor: 'rgba(0,0,0,0.05)',
     marginVertical: 4,
   },
   totalRow: {
@@ -148,29 +168,27 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   totalLabel: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+    ...TYPOGRAPHY.label,
+    fontSize: 12,
+    fontWeight: '900',
   },
   totalValue: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: COLORS.primary,
+    ...TYPOGRAPHY.h2,
+    fontSize: 28,
   },
   balanceDueBox: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#fee2e2',
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    marginTop: 16,
+    marginTop: 20,
   },
   balanceDueText: {
-    fontSize: 10,
+    ...TYPOGRAPHY.caption,
     fontWeight: '900',
-    color: '#93000b',
     letterSpacing: 0.5,
   },
 });

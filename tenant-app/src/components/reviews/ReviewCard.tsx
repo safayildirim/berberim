@@ -4,8 +4,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Star } from 'lucide-react-native';
-import { COLORS, SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { Review } from '@/src/hooks/reviews/useReviews';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface ReviewCardProps {
   review: Review;
@@ -13,6 +14,7 @@ interface ReviewCardProps {
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
   const { t, i18n } = useTranslation();
+  const { colors } = useTheme();
   const dateLocale = i18n.language.startsWith('tr') ? tr : enUS;
   const date = parseISO(review.createdAt);
 
@@ -27,18 +29,32 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.container, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.container,
+        {
+          backgroundColor: colors.surfaceContainerLowest,
+          borderColor: colors.border + '15',
+        },
+        pressed && styles.pressed,
+      ]}
     >
-      <View style={styles.indicator} />
+      <View style={[styles.indicator, { backgroundColor: colors.success }]} />
       <View style={styles.content}>
         <View style={styles.header}>
-          <View>
-            <Text style={[styles.name, review.isAnonymous && styles.anonymous]}>
+          <View style={styles.headerInfo}>
+            <Text
+              style={[
+                styles.name,
+                { color: colors.primary },
+                review.isAnonymous && styles.anonymous,
+              ]}
+              numberOfLines={1}
+            >
               {review.isAnonymous
                 ? t('reviews.anonymous')
                 : review.customerName}
             </Text>
-            <Text style={styles.dateTime}>
+            <Text style={[styles.dateTime, { color: colors.secondary }]}>
               {formattedDate} • {formattedTime}
             </Text>
           </View>
@@ -46,19 +62,19 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
             {[1, 2, 3, 4, 5].map((s) => (
               <Star
                 key={s}
-                size={14}
+                size={12}
                 color={
-                  s <= review.rating
-                    ? '#fc4f45'
-                    : COLORS.surfaceContainerHighest
+                  s <= review.rating ? colors.primary : colors.outline + '40'
                 }
-                fill={s <= review.rating ? '#fc4f45' : 'transparent'}
-                strokeWidth={1.5}
+                fill={s <= review.rating ? colors.primary : 'transparent'}
+                strokeWidth={2}
               />
             ))}
           </View>
         </View>
-        <Text style={styles.comment}>{review.comment}</Text>
+        <Text style={[styles.comment, { color: colors.primary }]}>
+          {review.comment}
+        </Text>
       </View>
     </Pressable>
   );
@@ -66,16 +82,17 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: 16,
+    marginHorizontal: 24,
+    marginBottom: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant + '20',
     overflow: 'hidden',
     position: 'relative',
     ...SHADOWS.sm,
   },
   pressed: {
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.99 }],
+    opacity: 0.9,
   },
   indicator: {
     position: 'absolute',
@@ -83,42 +100,42 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 4,
-    backgroundColor: '#10B981',
   },
   content: {
     padding: 20,
-    paddingLeft: 24,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: 16,
+  },
+  headerInfo: {
+    flex: 1,
+    marginRight: 10,
   },
   name: {
     ...TYPOGRAPHY.bodyBold,
-    color: COLORS.onSurface,
-    fontSize: 15,
+    fontSize: 16,
   },
   anonymous: {
     fontStyle: 'italic',
-    opacity: 0.6,
+    opacity: 0.7,
   },
   dateTime: {
     ...TYPOGRAPHY.caption,
-    color: COLORS.onSecondaryContainer,
-    fontWeight: '600',
-    letterSpacing: -0.5,
+    fontWeight: '700',
     marginTop: 2,
     textTransform: 'uppercase',
   },
   stars: {
     flexDirection: 'row',
-    gap: 2,
+    gap: 1.5,
+    marginTop: 2,
   },
   comment: {
     ...TYPOGRAPHY.body,
-    color: COLORS.onSurfaceVariant,
+    fontSize: 14,
     lineHeight: 22,
   },
 });

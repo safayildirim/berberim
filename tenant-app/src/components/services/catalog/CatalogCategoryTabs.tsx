@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   activeCategory: string;
@@ -21,6 +22,7 @@ export const CatalogCategoryTabs: React.FC<Props> = ({
   onSelect,
 }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const getLabel = (id: string) => {
     switch (id) {
@@ -35,7 +37,6 @@ export const CatalogCategoryTabs: React.FC<Props> = ({
       case 'addons':
         return t('serviceCatalog.categories.addons');
       default:
-        // Capitalize dynamic categories
         return id.charAt(0).toUpperCase() + id.slice(1);
     }
   };
@@ -47,22 +48,32 @@ export const CatalogCategoryTabs: React.FC<Props> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {categories.map((catId) => (
-          <TouchableOpacity
-            key={catId}
-            style={[styles.tab, activeCategory === catId && styles.activeTab]}
-            onPress={() => onSelect(catId)}
-          >
-            <Text
+        {categories.map((catId) => {
+          const isActive = activeCategory === catId;
+          return (
+            <TouchableOpacity
+              key={catId}
               style={[
-                styles.tabText,
-                activeCategory === catId && styles.activeTabText,
+                styles.tab,
+                {
+                  backgroundColor: isActive
+                    ? colors.primary
+                    : colors.surfaceContainerLow,
+                },
               ]}
+              onPress={() => onSelect(catId)}
             >
-              {getLabel(catId)}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: isActive ? colors.onPrimary : colors.secondary },
+                ]}
+              >
+                {getLabel(catId)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -74,24 +85,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    gap: 8,
+    gap: 12,
   },
   tab: {
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 100,
-    backgroundColor: '#eceef0',
-  },
-  activeTab: {
-    backgroundColor: COLORS.primary,
   },
   tabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.secondary,
-  },
-  activeTabText: {
-    color: COLORS.white,
-    fontWeight: '700',
+    ...TYPOGRAPHY.label,
+    fontSize: 13,
   },
 });

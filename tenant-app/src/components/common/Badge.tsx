@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS, SIZES, TYPOGRAPHY } from '@/src/constants/theme';
+import { SIZES, TYPOGRAPHY } from '@/src/constants/theme';
 import { AppointmentStatus } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface BadgeProps {
   label: string;
@@ -20,44 +21,46 @@ export const Badge = ({
   status = 'info',
   variant = 'subtle',
 }: BadgeProps) => {
+  const { colors } = useTheme();
+
   const getColors = () => {
     switch (status) {
       case 'confirmed':
-        return { bg: COLORS.confirmed, onBg: COLORS.white };
+        return { bg: colors.confirmed, onBg: colors.white };
       case 'payment_received':
-        return { bg: COLORS.success, onBg: COLORS.white };
+        return { bg: colors.success, onBg: colors.white };
       case 'completed':
-        return { bg: COLORS.completed, onBg: COLORS.white };
+        return { bg: colors.completed, onBg: colors.white };
       case 'cancelled':
-        return { bg: COLORS.cancelled, onBg: COLORS.white };
+        return { bg: colors.cancelled, onBg: colors.white };
       case 'no_show':
-        return { bg: COLORS.no_show, onBg: COLORS.white };
+        return { bg: colors.no_show, onBg: colors.white };
       case 'rescheduled':
-        return { bg: COLORS.rescheduled, onBg: COLORS.white };
+        return { bg: colors.rescheduled, onBg: colors.white };
       case 'pending':
-        return { bg: COLORS.pending, onBg: COLORS.text };
+        return { bg: colors.pending, onBg: colors.text };
       case 'success':
-        return { bg: COLORS.success, onBg: COLORS.white };
+        return { bg: colors.success, onBg: colors.white };
       case 'error':
-        return { bg: COLORS.error, onBg: COLORS.white };
+        return { bg: colors.error, onBg: colors.white };
       case 'warning':
-        return { bg: COLORS.warning, onBg: COLORS.white };
+        return { bg: colors.warning, onBg: colors.white };
       default:
-        return { bg: COLORS.primary, onBg: COLORS.white };
+        return { bg: colors.primary, onBg: colors.white };
     }
   };
 
-  const colors = getColors();
+  const badgeColors = getColors();
 
   return (
     <View
       style={[
         styles.badge,
         variant === 'solid'
-          ? { backgroundColor: colors.bg }
+          ? { backgroundColor: badgeColors.bg }
           : {
-              backgroundColor: colors.bg + '15',
-              borderColor: colors.bg,
+              backgroundColor: badgeColors.bg + '15',
+              borderColor: badgeColors.bg,
               borderWidth: 0.5,
             },
       ]}
@@ -65,7 +68,7 @@ export const Badge = ({
       <Text
         style={[
           styles.text,
-          { color: variant === 'solid' ? colors.onBg : colors.bg },
+          { color: variant === 'solid' ? badgeColors.onBg : badgeColors.bg },
         ]}
       >
         {label.toUpperCase()}

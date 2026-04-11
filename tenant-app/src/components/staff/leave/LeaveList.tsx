@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
 import { TimeOff } from '@/src/types';
-import { LeaveCard } from '@/src/components/staff/schedule/LeaveCard';
+import { LeaveCard } from '@/src/components/staff/leave/LeaveCard';
 
 interface LeaveListProps {
   entries: TimeOff[];

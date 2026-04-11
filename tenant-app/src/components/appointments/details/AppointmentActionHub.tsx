@@ -9,8 +9,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { Appointment } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   appointment: Appointment;
@@ -39,27 +40,40 @@ export const AppointmentActionHub: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
     <View
-      style={[styles.actionHub, { paddingBottom: Math.max(insets.bottom, 20) }]}
+      style={[
+        styles.actionHub,
+        {
+          paddingBottom: Math.max(insets.bottom, 24),
+          backgroundColor: colors.background + 'F2',
+          borderTopColor: colors.border + '15',
+        },
+      ]}
     >
-      <Text style={styles.label}>{t('appointmentDetail.actionHub')}</Text>
+      <Text style={[styles.label, { color: colors.secondary }]}>
+        {t('appointmentDetail.actionHub').toUpperCase()}
+      </Text>
       <View style={styles.primaryActionRow}>
         <TouchableOpacity
-          style={styles.mainActionBtn}
+          style={[styles.mainActionBtn, { backgroundColor: colors.primary }]}
           onPress={onComplete}
           disabled={isCompleting || appointment.status === 'completed'}
         >
-          <CheckCircle size={20} color={COLORS.white} />
-          <Text style={styles.mainActionText}>
+          <CheckCircle size={20} color={colors.onPrimary} />
+          <Text style={[styles.mainActionText, { color: colors.onPrimary }]}>
             {isCompleting
               ? t('common.loading')
               : t('appointmentDetail.markCompleted')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.secondaryActionBtn}
+          style={[
+            styles.secondaryActionBtn,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
           onPress={onPay}
           disabled={
             isPaying ||
@@ -67,8 +81,8 @@ export const AppointmentActionHub: React.FC<Props> = ({
             appointment.status === 'completed'
           }
         >
-          <CreditCard size={20} color={COLORS.primary} />
-          <Text style={styles.secondaryActionText}>
+          <CreditCard size={20} color={colors.primary} />
+          <Text style={[styles.secondaryActionText, { color: colors.primary }]}>
             {isPaying
               ? t('common.loading')
               : t('appointmentDetail.markPaymentReceived')}
@@ -79,19 +93,28 @@ export const AppointmentActionHub: React.FC<Props> = ({
       {/* Additional Actions */}
       <View style={styles.gridActions}>
         <View style={styles.topActionRow}>
-          <TouchableOpacity style={styles.gridActionBtn} onPress={onReschedule}>
-            <CalendarClock size={20} color={COLORS.secondary} />
-            <Text style={styles.gridActionText}>
+          <TouchableOpacity
+            style={[
+              styles.gridActionBtn,
+              { backgroundColor: colors.surfaceContainerHigh },
+            ]}
+            onPress={onReschedule}
+          >
+            <CalendarClock size={20} color={colors.primary} />
+            <Text style={[styles.gridActionText, { color: colors.primary }]}>
               {t('appointmentDetail.reschedule')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.gridActionBtn}
+            style={[
+              styles.gridActionBtn,
+              { backgroundColor: colors.surfaceContainerHigh },
+            ]}
             onPress={onNoShow}
             disabled={isMarkingNoShow}
           >
-            <UserMinus size={20} color={COLORS.secondary} />
-            <Text style={styles.gridActionText}>
+            <UserMinus size={20} color={colors.primary} />
+            <Text style={[styles.gridActionText, { color: colors.primary }]}>
               {isMarkingNoShow
                 ? t('common.loading')
                 : t('appointmentDetail.markNoShow')}
@@ -99,12 +122,16 @@ export const AppointmentActionHub: React.FC<Props> = ({
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          style={[styles.gridActionBtn, styles.dangerActionBtn]}
+          style={[
+            styles.gridActionBtn,
+            styles.dangerActionBtn,
+            { backgroundColor: colors.error + '10' },
+          ]}
           onPress={onCancel}
           disabled={isCancelling}
         >
-          <XCircle size={20} color="#93000b" />
-          <Text style={[styles.gridActionText, { color: '#93000b' }]}>
+          <XCircle size={20} color={colors.error} />
+          <Text style={[styles.gridActionText, { color: colors.error }]}>
             {isCancelling
               ? t('common.loading')
               : t('appointmentDetail.cancelBooking')}
@@ -117,16 +144,18 @@ export const AppointmentActionHub: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   actionHub: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingTop: 16,
     paddingHorizontal: 24,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    backgroundColor: '#f7f9fb',
+    ...SHADOWS.lg,
   },
   label: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.secondary,
     letterSpacing: 1.5,
     marginBottom: 8,
   },
@@ -136,7 +165,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   mainActionBtn: {
-    backgroundColor: COLORS.primary,
     height: 56,
     borderRadius: 20,
     flexDirection: 'row',
@@ -146,12 +174,10 @@ const styles = StyleSheet.create({
     ...SHADOWS.md,
   },
   mainActionText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.white,
   },
   secondaryActionBtn: {
-    backgroundColor: COLORS.white,
     height: 56,
     borderRadius: 20,
     flexDirection: 'row',
@@ -159,15 +185,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
-    ...SHADOWS.sm,
   },
   secondaryActionText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
     textAlign: 'center',
-    paddingHorizontal: 8,
   },
   gridActions: {
     gap: 12,
@@ -178,22 +200,19 @@ const styles = StyleSheet.create({
   },
   gridActionBtn: {
     flex: 1,
-    minHeight: 80,
-    backgroundColor: COLORS.surfaceContainerHigh,
-    paddingVertical: 16,
+    minHeight: 70,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
   },
   dangerActionBtn: {
-    backgroundColor: '#eceef0',
     flex: 0,
     width: '100%',
+    minHeight: 56,
   },
   gridActionText: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 14,
-    fontWeight: '800',
-    color: '#45474d',
   },
 });

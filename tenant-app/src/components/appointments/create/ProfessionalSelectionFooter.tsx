@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Scissors } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
+import { TYPOGRAPHY, SIZES, SHADOWS } from '@/src/constants/theme';
 import { Staff } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   selectedStaff: Staff | null;
@@ -15,20 +16,34 @@ export const ProfessionalSelectionFooter = ({
   onContinue,
 }: Props) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
-    <View style={[styles.container]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background + 'F2',
+          borderTopColor: colors.border + '20',
+        },
+      ]}
+    >
       {selectedStaff && (
-        <View style={styles.quickBar}>
+        <View
+          style={[
+            styles.quickBar,
+            { backgroundColor: colors.surfaceContainerHigh },
+          ]}
+        >
           <View style={styles.leftInfo}>
-            <Scissors size={14} color={COLORS.secondary} />
-            <Text style={styles.selectedLabel}>
+            <Scissors size={14} color={colors.secondary} />
+            <Text style={[styles.selectedLabel, { color: colors.secondary }]}>
               {t('appointmentCreate.selected', {
                 name: `${selectedStaff.first_name} ${selectedStaff.last_name}`,
               })}
             </Text>
           </View>
-          <Text style={styles.subtext}>
+          <Text style={[styles.subtext, { color: colors.primary }]}>
             {t('appointmentCreate.professionalSelected')}
           </Text>
         </View>
@@ -37,14 +52,19 @@ export const ProfessionalSelectionFooter = ({
       <TouchableOpacity
         style={[
           styles.button,
-          !selectedStaff && styles.disabledButton,
+          {
+            backgroundColor: selectedStaff
+              ? colors.primary
+              : colors.outlineVariant,
+            opacity: selectedStaff ? 1 : 0.6,
+          },
           selectedStaff && SHADOWS.md,
         ]}
         onPress={onContinue}
         disabled={!selectedStaff}
         activeOpacity={0.8}
       >
-        <Text style={styles.buttonText}>
+        <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
           {t('appointmentCreate.continueToSelection')}
         </Text>
       </TouchableOpacity>
@@ -56,15 +76,12 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: SIZES.lg,
     paddingTop: SIZES.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
   quickBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surfaceContainerHigh,
     paddingHorizontal: SIZES.md,
     paddingVertical: SIZES.sm,
     borderRadius: 30, // Full rounded
@@ -78,29 +95,21 @@ const styles = StyleSheet.create({
   selectedLabel: {
     ...TYPOGRAPHY.caption,
     fontWeight: '700',
-    color: COLORS.onSurfaceVariant,
     fontSize: 10,
   },
   subtext: {
     ...TYPOGRAPHY.caption,
     fontWeight: '900',
-    color: COLORS.primary,
     fontSize: 10,
   },
   button: {
-    backgroundColor: COLORS.primary,
     height: 64,
     borderRadius: SIZES.radius + 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  disabledButton: {
-    backgroundColor: COLORS.outlineVariant,
-    opacity: 0.6,
-  },
   buttonText: {
     ...TYPOGRAPHY.h3,
     fontWeight: '800',
-    color: COLORS.white,
   },
 });

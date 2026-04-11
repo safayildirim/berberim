@@ -1,22 +1,30 @@
 import { format, parseISO } from 'date-fns';
+import { enUS, tr } from 'date-fns/locale';
 import { Calendar, Timer } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { Appointment } from '@/src/types';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   appointment: Appointment;
 }
 
 export const AppointmentBentoDetails: React.FC<Props> = ({ appointment }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { colors } = useTheme();
 
+  const locale = i18n.language.startsWith('tr') ? tr : enUS;
   const startDate = parseISO(appointment.starts_at);
-  const formattedDate = format(startDate, 'MMM dd');
-  const formattedDay = format(startDate, 'EEEE');
-  const formattedTime = format(startDate, 'hh:mm a');
+  const formattedDate = format(startDate, 'MMM dd', { locale });
+  const formattedDay = format(startDate, 'EEEE', { locale });
+  const formattedTime = format(
+    startDate,
+    i18n.language.startsWith('tr') ? 'HH:mm' : 'hh:mm a',
+    { locale },
+  );
 
   const totalDuration = appointment.services.reduce(
     (acc, s) => acc + s.duration_minutes,
@@ -26,31 +34,52 @@ export const AppointmentBentoDetails: React.FC<Props> = ({ appointment }) => {
   return (
     <View style={styles.bentoGrid}>
       {/* Main Info Card */}
-      <View style={styles.mainInfoCard}>
+      <View
+        style={[
+          styles.mainInfoCard,
+          { backgroundColor: colors.card, borderColor: colors.border + '15' },
+        ]}
+      >
         <View>
-          <Text style={styles.label}>{t('appointmentDetail.service')}</Text>
-          <Text style={styles.serviceHeadline}>
+          <Text style={[styles.label, { color: colors.secondary }]}>
+            {t('appointmentDetail.service').toUpperCase()}
+          </Text>
+          <Text style={[styles.serviceHeadline, { color: colors.primary }]}>
             {appointment.services.map((s) => s.name).join(' & ')}
           </Text>
           <View style={styles.durationRow}>
-            <Timer size={18} color={COLORS.primary} />
-            <Text style={styles.durationText}>
+            <View
+              style={[
+                styles.iconBox,
+                { backgroundColor: colors.primary + '15' },
+              ]}
+            >
+              <Timer size={14} color={colors.primary} />
+            </View>
+            <Text style={[styles.durationText, { color: colors.primary }]}>
               {totalDuration} {t('appointmentDetail.minutes')}
             </Text>
           </View>
         </View>
 
-        <View style={styles.staffFooter}>
-          <View style={styles.staffAvatar}>
-            <Text style={styles.staffInitial}>
+        <View
+          style={[styles.staffFooter, { borderTopColor: colors.border + '10' }]}
+        >
+          <View
+            style={[
+              styles.staffAvatar,
+              { backgroundColor: colors.primary + '15' },
+            ]}
+          >
+            <Text style={[styles.staffInitial, { color: colors.primary }]}>
               {appointment.staff?.first_name?.[0]}
             </Text>
           </View>
           <View>
-            <Text style={styles.label}>
-              {t('appointmentDetail.assignedBarber')}
+            <Text style={[styles.label, { color: colors.secondary }]}>
+              {t('appointmentDetail.assignedBarber').toUpperCase()}
             </Text>
-            <Text style={styles.staffName}>
+            <Text style={[styles.staffName, { color: colors.primary }]}>
               {appointment.staff?.first_name} {appointment.staff?.last_name}
             </Text>
           </View>
@@ -58,17 +87,23 @@ export const AppointmentBentoDetails: React.FC<Props> = ({ appointment }) => {
       </View>
 
       {/* Date Card */}
-      <View style={styles.dateCard}>
-        <Calendar size={32} color={COLORS.white} strokeWidth={2.5} />
-        <Text style={styles.dateDay}>{formattedDate}</Text>
-        <Text style={styles.dateTime}>
+      <View style={[styles.dateCard, { backgroundColor: colors.primary }]}>
+        <View style={styles.dateIconWrapper}>
+          <Calendar size={28} color={colors.onPrimary} strokeWidth={2.5} />
+        </View>
+        <Text style={[styles.dateDay, { color: colors.onPrimary }]}>
+          {formattedDate}
+        </Text>
+        <Text
+          style={[styles.dateTime, { color: colors.onPrimary, opacity: 0.8 }]}
+        >
           {formattedDay} • {formattedTime}
         </Text>
         <TouchableOpacity
           style={styles.addCalendarBtn}
           onPress={() => Alert.alert('Calendar', 'Added to system calendar')}
         >
-          <Text style={styles.addCalendarText}>
+          <Text style={[styles.addCalendarText, { color: colors.onPrimary }]}>
             {t('appointmentDetail.addToCalendar')}
           </Text>
         </TouchableOpacity>
@@ -80,37 +115,38 @@ export const AppointmentBentoDetails: React.FC<Props> = ({ appointment }) => {
 const styles = StyleSheet.create({
   bentoGrid: {
     flexDirection: 'column',
-    gap: 8,
+    gap: 12,
   },
   mainInfoCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 24,
     padding: 24,
     ...SHADOWS.sm,
+    borderWidth: 1,
   },
   label: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.secondary,
     letterSpacing: 1.5,
     marginBottom: 8,
   },
   serviceHeadline: {
+    ...TYPOGRAPHY.h2,
     fontSize: 24,
-    fontWeight: '800',
-    color: COLORS.primary,
-    lineHeight: 30,
+    lineHeight: 32,
   },
   durationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 12,
+    gap: 10,
+    marginTop: 16,
+  },
+  iconBox: {
+    padding: 6,
+    borderRadius: 8,
   },
   durationText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#57657a',
+    ...TYPOGRAPHY.bodyBold,
+    fontSize: 15,
   },
   staffFooter: {
     flexDirection: 'row',
@@ -119,57 +155,52 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
   },
   staffAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   staffInitial: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.primary,
+    ...TYPOGRAPHY.h3,
+    fontSize: 18,
   },
   staffName: {
+    ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.primary,
   },
   dateCard: {
-    backgroundColor: COLORS.primary,
     borderRadius: 24,
     padding: 24,
     alignItems: 'center',
     justifyContent: 'center',
     ...SHADOWS.md,
   },
+  dateIconWrapper: {
+    marginBottom: 8,
+  },
   dateDay: {
+    ...TYPOGRAPHY.h1,
     fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.white,
-    marginTop: 8,
+    marginTop: 4,
   },
   dateTime: {
-    fontSize: 12,
+    ...TYPOGRAPHY.caption,
     fontWeight: '700',
-    color: 'rgba(255,255,255,0.7)',
     textTransform: 'uppercase',
     textAlign: 'center',
     marginTop: 4,
   },
   addCalendarBtn: {
-    marginTop: 16,
+    marginTop: 20,
     paddingVertical: 8,
   },
   addCalendarText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.white,
+    ...TYPOGRAPHY.caption,
+    fontWeight: '800',
     textDecorationLine: 'underline',
-    opacity: 0.7,
+    opacity: 0.8,
   },
 });

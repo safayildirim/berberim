@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
-import { COLORS, SIZES } from '@/src/constants/theme';
+import { SIZES } from '@/src/constants/theme';
 import { useAnalytics } from '@/src/hooks/analytics/useAnalytics';
 import {
   useCohortAnalysis,
@@ -23,6 +23,7 @@ import { useTenantStore } from '@/src/store/useTenantStore';
 import { useTranslation } from 'react-i18next';
 import { PopularServices } from '@/src/components/analytics/PopularServices';
 import { useStaff } from '@/src/hooks/queries/useStaff';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function AnalyticsScreen() {
   const {
@@ -38,6 +39,7 @@ export default function AnalyticsScreen() {
   const { t } = useTranslation();
   const { getBranding } = useTenantStore();
   const branding = getBranding();
+  const { colors } = useTheme();
 
   const { data: staffList = [] } = useStaff();
   const activeStaff = staffList.filter((s) => s.status === 'active');
@@ -49,7 +51,7 @@ export default function AnalyticsScreen() {
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       scrollable={false}
       withPadding={false}
       headerTitle={branding?.name}
@@ -118,7 +120,6 @@ export default function AnalyticsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   scrollContent: {
     paddingBottom: SIZES.xl,
