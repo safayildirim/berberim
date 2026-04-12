@@ -356,6 +356,58 @@ func (h *Handler) ListServices(ctx context.Context, req *berberimv1.ListServices
 	return &berberimv1.ListServicesResponse{Services: out}, nil
 }
 
+func (h *Handler) ListPublicStaff(ctx context.Context, req *berberimv1.ListPublicStaffRequest) (*berberimv1.ListPublicStaffResponse, error) {
+	tenantID, err := resolveTenantID(ctx, req.TenantId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid or missing tenant_id")
+	}
+	staff, err := h.service.ListPublicStaff(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*berberimv1.PublicStaffMember, 0, len(staff))
+	for i := range staff {
+		out = append(out, h.publicStaffToProto(&staff[i]))
+	}
+	return &berberimv1.ListPublicStaffResponse{Staff: out}, nil
+}
+
+func (h *Handler) GetPublicStaff(ctx context.Context, req *berberimv1.GetPublicStaffRequest) (*berberimv1.GetPublicStaffResponse, error) {
+	tenantID, err := resolveTenantID(ctx, req.TenantId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid or missing tenant_id")
+	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
+	staff, err := h.service.GetPublicStaff(ctx, tenantID, staffID)
+	if err != nil {
+		return nil, err
+	}
+	return &berberimv1.GetPublicStaffResponse{Staff: h.publicStaffToProto(staff)}, nil
+}
+
+func (h *Handler) ListPublicStaffServices(ctx context.Context, req *berberimv1.ListPublicStaffServicesRequest) (*berberimv1.ListPublicStaffServicesResponse, error) {
+	tenantID, err := resolveTenantID(ctx, req.TenantId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid or missing tenant_id")
+	}
+	staffID, err := uuid.Parse(req.StaffId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid staff_id: %v", err)
+	}
+	svcs, err := h.service.ListPublicStaffServices(ctx, tenantID, staffID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*berberimv1.Service, 0, len(svcs))
+	for _, svc := range svcs {
+		out = append(out, catalogServiceToProto(svc))
+	}
+	return &berberimv1.ListPublicStaffServicesResponse{Services: out}, nil
+}
+
 func (h *Handler) CreateService(ctx context.Context, req *berberimv1.CreateServiceRequest) (*berberimv1.CreateServiceResponse, error) {
 	rc, err := identity.FromGRPCMeta(ctx)
 	if err != nil {
@@ -1011,6 +1063,26 @@ func (h *Handler) tenantUserToProto(u *TenantUser) *berberimv1.TenantUser {
 	p.Bio = u.Bio
 	p.AvgRating = u.AvgRating
 	p.ReviewCount = int32(u.ReviewCount)
+	return p
+}
+
+func (h *Handler) publicStaffToProto(u *TenantUser) *berberimv1.PublicStaffMember {
+	p := &berberimv1.PublicStaffMember{
+		Id:          u.ID.String(),
+		FirstName:   u.FirstName,
+		LastName:    u.LastName,
+		AvgRating:   u.AvgRating,
+		ReviewCount: int32(u.ReviewCount),
+	}
+	if u.AvatarKey != nil {
+		p.AvatarUrl = h.avatarCfg.PublicURL(*u.AvatarKey)
+	}
+	if u.Specialty != nil {
+		p.Specialty = *u.Specialty
+	}
+	if u.Bio != nil {
+		p.Bio = *u.Bio
+	}
 	return p
 }
 

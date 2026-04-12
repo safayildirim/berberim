@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 import { apiLogger } from '@/src/lib/logger';
 
 export interface ApiErrorResponse {
+  error?: string;
   code?: string;
   message: string;
   errors?: Record<string, string[]>;
@@ -42,7 +43,7 @@ export const handleError = (error: unknown): never => {
 
     apiLogger.error('API error response', error, {
       status,
-      code: data?.code,
+      code: data?.code || data?.error,
     });
 
     // Mapping some common statuses to friendly messages if backend doesn't provide them
@@ -56,7 +57,7 @@ export const handleError = (error: unknown): never => {
 
     throw new AppError(message, {
       status,
-      code: data?.code,
+      code: data?.code || data?.error,
       validationErrors: data?.errors,
       originalError: error,
     });

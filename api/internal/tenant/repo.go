@@ -189,6 +189,20 @@ func (r *Repo) ListServices(ctx context.Context, tenantID uuid.UUID) ([]CatalogS
 	return svcs, err
 }
 
+func (r *Repo) ListStaffCatalogServices(ctx context.Context, tenantID, staffUserID uuid.UUID) ([]CatalogService, error) {
+	var svcs []CatalogService
+	err := r.dbForCtx(ctx).Raw(`
+		SELECT s.*
+		FROM services s
+		INNER JOIN staff_services ss ON ss.service_id = s.id AND ss.is_active = true
+		WHERE s.tenant_id = ?
+		  AND ss.staff_user_id = ?
+		  AND s.is_active = true
+		ORDER BY s.name
+	`, tenantID, staffUserID).Scan(&svcs).Error
+	return svcs, err
+}
+
 func (r *Repo) CreateService(ctx context.Context, s *CatalogService) error {
 	return r.dbForCtx(ctx).Create(s).Error
 }

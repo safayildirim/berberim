@@ -227,6 +227,18 @@ func (h *Handler) SetStaffServices(ctx context.Context, req *berberimv1.SetStaff
 	return h.tenant.SetStaffServices(ctx, req)
 }
 
+func (h *Handler) ListPublicStaff(ctx context.Context, req *berberimv1.ListPublicStaffRequest) (*berberimv1.ListPublicStaffResponse, error) {
+	return h.tenant.ListPublicStaff(ctx, req)
+}
+
+func (h *Handler) GetPublicStaff(ctx context.Context, req *berberimv1.GetPublicStaffRequest) (*berberimv1.GetPublicStaffResponse, error) {
+	return h.tenant.GetPublicStaff(ctx, req)
+}
+
+func (h *Handler) ListPublicStaffServices(ctx context.Context, req *berberimv1.ListPublicStaffServicesRequest) (*berberimv1.ListPublicStaffServicesResponse, error) {
+	return h.tenant.ListPublicStaffServices(ctx, req)
+}
+
 // ── Schedule Rules RPCs ─────────────────────────────────────────────────────
 
 func (h *Handler) ListScheduleRules(ctx context.Context, req *berberimv1.ListScheduleRulesRequest) (*berberimv1.ListScheduleRulesResponse, error) {

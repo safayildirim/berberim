@@ -451,6 +451,43 @@ func (s *Service) ListServices(ctx context.Context, tenantID uuid.UUID) ([]*Cata
 	return out, nil
 }
 
+func (s *Service) ListPublicStaff(ctx context.Context, tenantID uuid.UUID) ([]TenantUser, error) {
+	staff, _, err := s.repo.ListTenantUsers(ctx, tenantID, "staff", "active", 1, 100)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "list public staff: %v", err)
+	}
+	return staff, nil
+}
+
+func (s *Service) GetPublicStaff(ctx context.Context, tenantID, staffID uuid.UUID) (*TenantUser, error) {
+	staff, err := s.repo.GetTenantUserByID(ctx, tenantID, staffID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "staff member not found")
+		}
+		return nil, status.Errorf(codes.Internal, "get public staff: %v", err)
+	}
+	if staff.Role != "staff" || staff.Status != "active" {
+		return nil, status.Error(codes.NotFound, "staff member not found")
+	}
+	return staff, nil
+}
+
+func (s *Service) ListPublicStaffServices(ctx context.Context, tenantID, staffID uuid.UUID) ([]*CatalogService, error) {
+	if _, err := s.GetPublicStaff(ctx, tenantID, staffID); err != nil {
+		return nil, err
+	}
+	svcs, err := s.repo.ListStaffCatalogServices(ctx, tenantID, staffID)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "list public staff services: %v", err)
+	}
+	out := make([]*CatalogService, len(svcs))
+	for i := range svcs {
+		out[i] = &svcs[i]
+	}
+	return out, nil
+}
+
 func (s *Service) CreateService(ctx context.Context, in CreateServiceInput) (*CatalogService, error) {
 	if in.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name is required")

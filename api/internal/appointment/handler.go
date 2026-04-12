@@ -306,7 +306,11 @@ func (h *Handler) CreateAppointment(ctx context.Context, req *berberimv1.CreateA
 	if err != nil {
 		return nil, mapErr(err)
 	}
-	return &berberimv1.CreateAppointmentResponse{Appointment: h.apptToProto(appt, nil, staff, nil)}, nil
+	svcs, err := h.svc.repo.ListAppointmentServices(ctx, appt.ID)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to load appointment services")
+	}
+	return &berberimv1.CreateAppointmentResponse{Appointment: h.apptToProto(appt, svcs, staff, nil)}, nil
 }
 
 // ── GetAppointment ────────────────────────────────────────────────────────────
@@ -326,7 +330,12 @@ func (h *Handler) GetAppointment(ctx context.Context, req *berberimv1.GetAppoint
 		return nil, status.Error(codes.InvalidArgument, "invalid appointment_id")
 	}
 
-	res, err := h.svc.GetAppointment(ctx, rc.TenantID, appointmentID)
+	var res *GetResult
+	if rc.TokenType == "customer" {
+		res, err = h.svc.GetCustomerAppointment(ctx, rc.TenantID, rc.UserID, appointmentID)
+	} else {
+		res, err = h.svc.GetAppointment(ctx, rc.TenantID, appointmentID)
+	}
 	if err != nil {
 		return nil, mapErr(err)
 	}
@@ -424,6 +433,7 @@ func (h *Handler) CancelAppointment(ctx context.Context, req *berberimv1.CancelA
 
 	if err := h.svc.CancelAppointment(ctx, CancelAppointmentRequest{
 		TenantID:        rc.TenantID,
+		CustomerID:      customerIDForRequest(rc),
 		AppointmentID:   appointmentID,
 		Reason:          req.Reason,
 		CancelledByType: cancelledByType,
@@ -463,6 +473,7 @@ func (h *Handler) RescheduleAppointment(ctx context.Context, req *berberimv1.Res
 
 	newAppt, err := h.svc.RescheduleAppointment(ctx, RescheduleAppointmentRequest{
 		TenantID:       rc.TenantID,
+		CustomerID:     customerIDForRequest(rc),
 		AppointmentID:  appointmentID,
 		NewStartsAt:    newStartsAt,
 		NewStaffUserID: newStaffID,
@@ -472,7 +483,11 @@ func (h *Handler) RescheduleAppointment(ctx context.Context, req *berberimv1.Res
 	}
 	// Fetch staff for the new appointment if possible
 	staff, _ := h.svc.repo.GetStaffMember(ctx, rc.TenantID, newAppt.StaffUserID)
-	return &berberimv1.RescheduleAppointmentResponse{NewAppointment: h.apptToProto(newAppt, nil, staff, nil)}, nil
+	svcs, err := h.svc.repo.ListAppointmentServices(ctx, newAppt.ID)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to load appointment services")
+	}
+	return &berberimv1.RescheduleAppointmentResponse{NewAppointment: h.apptToProto(newAppt, svcs, staff, nil)}, nil
 }
 
 // ── CompleteAppointment ───────────────────────────────────────────────────────
@@ -554,6 +569,13 @@ func resolveTenantID(ctx context.Context, fallback string) (uuid.UUID, error) {
 		return rc.TenantID, nil
 	}
 	return uuid.Parse(fallback)
+}
+
+func customerIDForRequest(rc identity.RequestContext) uuid.UUID {
+	if rc.TokenType == "customer" {
+		return rc.UserID
+	}
+	return uuid.Nil
 }
 
 // mapErr converts domain errors to gRPC status errors.

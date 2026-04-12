@@ -89,6 +89,9 @@ export default function BookingReviewScreen() {
           const isRecoverable =
             code.includes('conflict') ||
             code.includes('availability') ||
+            code.includes('already_exists') ||
+            code.includes('failed_precondition') ||
+            code.includes('rate_limited') ||
             message.includes('available') ||
             message.includes('conflict') ||
             message.includes('advance') ||

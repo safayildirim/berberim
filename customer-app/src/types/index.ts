@@ -60,6 +60,7 @@ export type Service = {
 
 export type Staff = {
   id: string;
+  staff_user_id?: string;
   first_name: string;
   last_name: string;
   role: string;

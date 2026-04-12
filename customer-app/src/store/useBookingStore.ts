@@ -67,23 +67,26 @@ const computeTotals = (services: Service[]) => ({
 
 const toStaff = (staff: Staff | StaffOption | null): Staff | null => {
   if (!staff) return null;
-  if ('id' in staff) return staff;
+  const raw = staff as Staff & Partial<StaffOption>;
+  if (raw.id) return staff as Staff;
   return {
-    id: staff.staff_user_id,
-    first_name: staff.first_name,
-    last_name: staff.last_name,
+    id: raw.staff_user_id || '',
+    staff_user_id: raw.staff_user_id,
+    first_name: raw.first_name,
+    last_name: raw.last_name,
     role: 'staff',
-    avatar: staff.avatar_url,
-    specialty: staff.specialty,
-    bio: staff.bio,
-    avg_rating: staff.avg_rating,
-    review_count: staff.review_count,
+    avatar: raw.avatar_url,
+    specialty: raw.specialty,
+    bio: raw.bio,
+    avg_rating: raw.avg_rating,
+    review_count: raw.review_count,
   };
 };
 
 const getStaffId = (staff: Staff | StaffOption | null): string | null => {
   if (!staff) return null;
-  return 'id' in staff ? staff.id : staff.staff_user_id;
+  const raw = staff as Staff & Partial<StaffOption>;
+  return raw.id || raw.staff_user_id || null;
 };
 
 const initialState = () => ({
@@ -120,7 +123,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       selectedStaffChoice: staffId ? 'specific' : 'any',
       selectedStaffId: staffId,
       selectedStaffSnapshot: staff,
-      selectedStaff: staff,
+      selectedStaff: toStaff(staff),
     });
   },
 

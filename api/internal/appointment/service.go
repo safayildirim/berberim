@@ -138,6 +138,7 @@ type CreateAppointmentRequest struct {
 
 type CancelAppointmentRequest struct {
 	TenantID      uuid.UUID
+	CustomerID    uuid.UUID
 	AppointmentID uuid.UUID
 	Reason        string
 	// "customer" | "staff" | "admin"
@@ -146,6 +147,7 @@ type CancelAppointmentRequest struct {
 
 type RescheduleAppointmentRequest struct {
 	TenantID       uuid.UUID
+	CustomerID     uuid.UUID
 	AppointmentID  uuid.UUID
 	NewStartsAt    time.Time
 	NewStaffUserID uuid.UUID // zero = keep existing
@@ -693,7 +695,7 @@ func (s *Service) validateAppointmentPlacement(ctx context.Context, in appointme
 	if !ok {
 		return nil, ErrOutsideWorkingHours
 	}
-	if in.StartsAt.Before(p.workStart) || in.EndsAt.After(p.workEnd) {
+	if in.StartsAt.Before(p.workStart) || in.BlockedUntil.After(p.workEnd) {
 		return nil, ErrOutsideWorkingHours
 	}
 
@@ -1027,7 +1029,7 @@ func (s *Service) CreateAppointment(ctx context.Context, req CreateAppointmentRe
 
 	// ── Auto-assignment with retry ───────────────────────────────────────
 	if req.StaffUserID == uuid.Nil {
-		candidates, err := s.rankCandidates(ctx, req, svcs, loc)
+		candidates, err := s.rankCandidates(ctx, req, svcs, blockedUntil, loc)
 		if err != nil || len(candidates) == 0 {
 			return nil, nil, ErrSlotUnavailable
 		}
@@ -1162,7 +1164,7 @@ func (s *Service) createWithStaff(ctx context.Context, req CreateAppointmentRequ
 
 // rankCandidates returns qualified and available staff members for auto-assignment,
 // ranked by: preferred staff → least-loaded today → UUID tiebreak.
-func (s *Service) rankCandidates(ctx context.Context, req CreateAppointmentRequest, svcs []*ServiceRecord, loc *time.Location) ([]StaffMember, error) {
+func (s *Service) rankCandidates(ctx context.Context, req CreateAppointmentRequest, svcs []*ServiceRecord, blockedUntil time.Time, loc *time.Location) ([]StaffMember, error) {
 	qualified, err := s.repo.ListStaffByServices(ctx, req.TenantID, req.ServiceIDs)
 	if err != nil {
 		return nil, fmt.Errorf("list staff: %w", err)
@@ -1178,7 +1180,7 @@ func (s *Service) rankCandidates(ctx context.Context, req CreateAppointmentReque
 	var free []StaffMember
 	for _, m := range qualified {
 		// Check time-offs.
-		offs, err := s.repo.ListTimeOffs(ctx, req.TenantID, m.ID, startsAt, endsAt)
+		offs, err := s.repo.ListTimeOffs(ctx, req.TenantID, m.ID, startsAt, blockedUntil)
 		if err != nil {
 			continue
 		}
@@ -1186,7 +1188,7 @@ func (s *Service) rankCandidates(ctx context.Context, req CreateAppointmentReque
 			continue
 		}
 		// Check booked slots.
-		booked, err := s.repo.ListBookedSlots(ctx, req.TenantID, m.ID, startsAt, endsAt)
+		booked, err := s.repo.ListBookedSlots(ctx, req.TenantID, m.ID, startsAt, blockedUntil)
 		if err != nil {
 			continue
 		}
@@ -1204,7 +1206,7 @@ func (s *Service) rankCandidates(ctx context.Context, req CreateAppointmentReque
 		if !ok {
 			continue
 		}
-		if startsAt.Before(p.workStart) || endsAt.After(p.workEnd) {
+		if startsAt.Before(p.workStart) || blockedUntil.After(p.workEnd) {
 			continue
 		}
 		// Check recurring breaks (uses service end time, not blocked_until).
@@ -1297,6 +1299,9 @@ func (s *Service) CancelAppointment(ctx context.Context, req CancelAppointmentRe
 			}
 			return fmt.Errorf("get appointment: %w", err)
 		}
+		if req.CustomerID != uuid.Nil && appt.CustomerID != req.CustomerID {
+			return ErrNotFound
+		}
 		if appt.Status != StatusConfirmed {
 			return fmt.Errorf("%w: cannot cancel a %s appointment", ErrInvalidTransition, appt.Status)
 		}
@@ -1338,6 +1343,9 @@ func (s *Service) RescheduleAppointment(ctx context.Context, req RescheduleAppoi
 				return ErrNotFound
 			}
 			return fmt.Errorf("get appointment: %w", err)
+		}
+		if req.CustomerID != uuid.Nil && old.CustomerID != req.CustomerID {
+			return ErrNotFound
 		}
 		if old.Status != StatusConfirmed {
 			return fmt.Errorf("%w: cannot reschedule a %s appointment", ErrInvalidTransition, old.Status)
@@ -1664,6 +1672,17 @@ func (s *Service) GetAppointment(ctx context.Context, tenantID, appointmentID uu
 		Staff:       staff,
 		Customer:    cust,
 	}, nil
+}
+
+func (s *Service) GetCustomerAppointment(ctx context.Context, tenantID, customerID, appointmentID uuid.UUID) (*GetResult, error) {
+	res, err := s.GetAppointment(ctx, tenantID, appointmentID)
+	if err != nil {
+		return nil, err
+	}
+	if res.Appointment.CustomerID != customerID {
+		return nil, ErrNotFound
+	}
+	return res, nil
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
