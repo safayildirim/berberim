@@ -16,3 +16,7 @@ avatar:
     - "image/jpeg"
     - "image/png"
     - "image/webp"
+sms:
+  account_sid: ""
+  auth_token: ""
+  from_number: ""

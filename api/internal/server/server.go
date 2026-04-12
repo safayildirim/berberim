@@ -80,6 +80,9 @@ func New() *Server {
 	// ── Auth domain ───────────────────────────────────────────────────────────
 	authRepo := auth.NewRepo(db)
 	authSvc := auth.NewService(logger, authRepo, jwtMgr, cfg.JWT.AccessTokenTTL, cfg.JWT.RefreshTokenTTL)
+	if cfg.SMS.AccountSID != "" {
+		authSvc.SetSMSProvider(auth.NewTwilioSMSProvider(cfg.SMS.AccountSID, cfg.SMS.AuthToken, cfg.SMS.FromNumber))
+	}
 	authHandler := auth.NewHandler(logger, authSvc)
 
 	// ── Tenant domain ─────────────────────────────────────────────────────────

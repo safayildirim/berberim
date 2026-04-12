@@ -18,6 +18,13 @@ type Config struct {
 	DB                DBConfig     `mapstructure:"db"`
 	JWT               JWTConfig    `mapstructure:"jwt"`
 	Avatar            AvatarConfig `mapstructure:"avatar"`
+	SMS               SMSConfig    `mapstructure:"sms"`
+}
+
+type SMSConfig struct {
+	AccountSID string `mapstructure:"account_sid"`
+	AuthToken  string `mapstructure:"auth_token"`
+	FromNumber string `mapstructure:"from_number"`
 }
 
 type AvatarConfig struct {
@@ -123,6 +130,17 @@ func Load() *Config {
 	}
 	if u := os.Getenv("AVATAR_BASE_URL"); u != "" {
 		cfg.Avatar.BaseURL = u
+	}
+
+	// SMS (Twilio) env var overrides
+	if v := os.Getenv("TWILIO_ACCOUNT_SID"); v != "" {
+		cfg.SMS.AccountSID = v
+	}
+	if v := os.Getenv("TWILIO_AUTH_TOKEN"); v != "" {
+		cfg.SMS.AuthToken = v
+	}
+	if v := os.Getenv("TWILIO_FROM_NUMBER"); v != "" {
+		cfg.SMS.FromNumber = v
 	}
 
 	// DB pool env var overrides (used in Cloud Run to tune for Neon)

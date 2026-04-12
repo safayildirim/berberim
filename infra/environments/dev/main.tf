@@ -90,7 +90,10 @@ module "cloud_run_api_grpc" {
   }
 
   secret_env_vars = {
-    DB_URL = module.secret_manager.db_url_secret_id
+    DB_URL             = module.secret_manager.db_url_secret_id
+    TWILIO_ACCOUNT_SID = module.secret_manager.twilio_account_sid_secret_id
+    TWILIO_AUTH_TOKEN  = module.secret_manager.twilio_auth_token_secret_id
+    TWILIO_FROM_NUMBER = module.secret_manager.twilio_from_number_secret_id
   }
 
   secret_volumes = [
@@ -135,7 +138,10 @@ module "cloud_run_api_http" {
   }
 
   secret_env_vars = {
-    DB_URL = module.secret_manager.db_url_secret_id
+    DB_URL             = module.secret_manager.db_url_secret_id
+    TWILIO_ACCOUNT_SID = module.secret_manager.twilio_account_sid_secret_id
+    TWILIO_AUTH_TOKEN  = module.secret_manager.twilio_auth_token_secret_id
+    TWILIO_FROM_NUMBER = module.secret_manager.twilio_from_number_secret_id
   }
 
   secret_volumes = [

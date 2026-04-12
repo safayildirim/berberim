@@ -41,6 +41,11 @@ type Service struct {
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
 	socialVerifier  SocialTokenVerifier
+	smsProvider     SMSProvider
+}
+
+func (s *Service) SetSMSProvider(p SMSProvider) {
+	s.smsProvider = p
 }
 
 func NewService(log *zap.Logger, repo *Repo, jwtMgr *jwt.JWTManager, accessTokenTTL, refreshTokenTTL time.Duration) *Service {
@@ -271,7 +276,15 @@ func (s *Service) SendCustomerOTP(ctx context.Context, phoneNumber string) (expi
 		return 0, status.Errorf(codes.Internal, "create otp: %v", err)
 	}
 
-	s.log.Info("OTP code (mock SMS)", zap.String("phone", phoneNumber), zap.String("code", code))
+	if s.smsProvider != nil {
+		msg := fmt.Sprintf("Your Berberim verification code is: %s", code)
+		if err := s.smsProvider.Send(ctx, phoneNumber, msg); err != nil {
+			s.log.Error("failed to send OTP SMS", zap.String("phone", phoneNumber), zap.Error(err))
+			return 0, status.Errorf(codes.Internal, "send otp: %v", err)
+		}
+	} else {
+		s.log.Info("OTP code (mock SMS)", zap.String("phone", phoneNumber), zap.String("code", code))
+	}
 
 	return int32(otpTTL.Seconds()), nil
 }
