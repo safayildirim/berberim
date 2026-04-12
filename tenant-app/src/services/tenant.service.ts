@@ -85,10 +85,9 @@ export const tenantService = {
     data: AvailabilitySettings,
   ): Promise<AvailabilitySettings> => {
     return api
-      .patch<{ settings: AvailabilitySettings }>(
-        '/tenant/settings',
-        { settings: data },
-      )
+      .patch<{
+        settings: AvailabilitySettings;
+      }>('/tenant/settings', { settings: data })
       .then((res: any) => res.settings ?? res);
   },
 

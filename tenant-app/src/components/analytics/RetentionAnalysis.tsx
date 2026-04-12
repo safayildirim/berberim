@@ -31,8 +31,15 @@ export const RetentionAnalysisSection = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.primary }]}>{t('analytics.retention.title').toUpperCase()}</Text>
-        <View style={[styles.rangeRow, { backgroundColor: colors.surfaceContainerLow }]}>
+        <Text style={[styles.title, { color: colors.primary }]}>
+          {t('analytics.retention.title').toUpperCase()}
+        </Text>
+        <View
+          style={[
+            styles.rangeRow,
+            { backgroundColor: colors.surfaceContainerLow },
+          ]}
+        >
           {RANGES.map((r) => {
             const isActive = range === r.key;
             return (
@@ -41,7 +48,9 @@ export const RetentionAnalysisSection = ({
                 onPress={() => onRangeChange(r.key)}
                 style={[
                   styles.rangeChip,
-                  { backgroundColor: isActive ? colors.primary : 'transparent' },
+                  {
+                    backgroundColor: isActive ? colors.primary : 'transparent',
+                  },
                 ]}
               >
                 <Text
@@ -59,11 +68,20 @@ export const RetentionAnalysisSection = ({
       </View>
 
       {isLoading || !data ? (
-        <View style={[styles.loadingContainer, { backgroundColor: colors.card }]}>
-          <Text style={[styles.emptyText, { color: colors.outline }]}>{t('common.loading')}</Text>
+        <View
+          style={[styles.loadingContainer, { backgroundColor: colors.card }]}
+        >
+          <Text style={[styles.emptyText, { color: colors.outline }]}>
+            {t('common.loading')}
+          </Text>
         </View>
       ) : (
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
+        >
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={[styles.statLabel, { color: colors.secondary }]}>
@@ -73,7 +91,13 @@ export const RetentionAnalysisSection = ({
                 {(data.total_customers / 1000).toFixed(1)}k
               </Text>
             </View>
-            <View style={[styles.statItem, styles.statItemBorder, { borderColor: colors.border + '15' }]}>
+            <View
+              style={[
+                styles.statItem,
+                styles.statItemBorder,
+                { borderColor: colors.border + '15' },
+              ]}
+            >
               <Text style={[styles.statLabel, { color: colors.secondary }]}>
                 {t('analytics.retention.returnRate')}
               </Text>
@@ -94,8 +118,15 @@ export const RetentionAnalysisSection = ({
           <View style={styles.bucketsSection}>
             {data.buckets.map((bucket: RetentionBucket) => (
               <View key={bucket.label} style={styles.bucketRow}>
-                <Text style={[styles.bucketLabel, { color: colors.secondary }]}>{bucket.label}</Text>
-                <View style={[styles.bucketBarTrack, { backgroundColor: colors.surfaceContainerLow }]}>
+                <Text style={[styles.bucketLabel, { color: colors.secondary }]}>
+                  {bucket.label}
+                </Text>
+                <View
+                  style={[
+                    styles.bucketBarTrack,
+                    { backgroundColor: colors.surfaceContainerLow },
+                  ]}
+                >
                   <View
                     style={[
                       styles.bucketBar,
@@ -106,7 +137,9 @@ export const RetentionAnalysisSection = ({
                     ]}
                   />
                 </View>
-                <Text style={[styles.bucketValue, { color: colors.primary }]}>{bucket.percentage}%</Text>
+                <Text style={[styles.bucketValue, { color: colors.primary }]}>
+                  {bucket.percentage}%
+                </Text>
               </View>
             ))}
           </View>
@@ -222,4 +255,3 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 });
-

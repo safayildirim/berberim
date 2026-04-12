@@ -41,15 +41,23 @@ export const ShopStatusBanner = ({
 }: ShopStatusBannerProps) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  
+
   const visibleStaff = activeStaff.slice(0, MAX_VISIBLE);
   const extraCount = activeStaff.length - MAX_VISIBLE;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.primaryContainer }, SHADOWS.md]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.primaryContainer },
+        SHADOWS.md,
+      ]}
+    >
       <View style={styles.decorator} />
       <View style={styles.content}>
-        <Text style={[styles.label, { color: colors.onPrimaryContainer + 'CC' }]}>
+        <Text
+          style={[styles.label, { color: colors.onPrimaryContainer + 'CC' }]}
+        >
           {t('analytics.shopStatus.online').toUpperCase()}
         </Text>
         <Text style={[styles.statusText, { color: colors.onPrimaryContainer }]}>
@@ -63,28 +71,34 @@ export const ShopStatusBanner = ({
             key={staff.id}
             style={[
               styles.avatar,
-              { 
-                backgroundColor: getStaffColor(staff.id), 
+              {
+                backgroundColor: getStaffColor(staff.id),
                 zIndex: 10 - index,
-                borderColor: colors.primaryContainer
+                borderColor: colors.primaryContainer,
               },
               index > 0 && { marginLeft: -12 },
             ]}
           >
-            <Text style={[styles.avatarText, { color: colors.white }]}>{getStaffInitials(staff)}</Text>
+            <Text style={[styles.avatarText, { color: colors.white }]}>
+              {getStaffInitials(staff)}
+            </Text>
           </View>
         ))}
         {extraCount > 0 && (
-          <View style={[
-            styles.avatar, 
-            styles.moreAvatar, 
-            { 
-              backgroundColor: colors.surfaceContainerHighest,
-              borderColor: colors.primaryContainer,
-              marginLeft: -12 
-            }
-          ]}>
-            <Text style={[styles.avatarText, { color: colors.onSurface }]}>+{extraCount}</Text>
+          <View
+            style={[
+              styles.avatar,
+              styles.moreAvatar,
+              {
+                backgroundColor: colors.surfaceContainerHighest,
+                borderColor: colors.primaryContainer,
+                marginLeft: -12,
+              },
+            ]}
+          >
+            <Text style={[styles.avatarText, { color: colors.onSurface }]}>
+              +{extraCount}
+            </Text>
           </View>
         )}
       </View>
@@ -152,4 +166,3 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
   },
 });
-

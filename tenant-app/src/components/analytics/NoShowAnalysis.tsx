@@ -18,9 +18,7 @@ interface NoShowAnalysisProps {
   onRangeChange: (range: NoShowRange) => void;
 }
 
-export const NoShowAnalysisSection = ({
-  data,
-}: NoShowAnalysisProps) => {
+export const NoShowAnalysisSection = ({ data }: NoShowAnalysisProps) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
 
@@ -31,21 +29,30 @@ export const NoShowAnalysisSection = ({
       </Text>
       <View style={styles.grid}>
         {/* By Staff */}
-        <View style={[styles.columnCard, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+        <View
+          style={[
+            styles.columnCard,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
+        >
           <Text style={[styles.columnLabel, { color: colors.secondary }]}>
             {t('analytics.noShows.byStaff')}
           </Text>
           <View style={styles.list}>
             {data?.by_staff.slice(0, 2).map((staff: NoShowByStaff) => (
               <View key={staff.staff_user_id} style={styles.listItem}>
-                <Text style={[styles.itemLabel, { color: colors.secondary }]} numberOfLines={1}>
+                <Text
+                  style={[styles.itemLabel, { color: colors.secondary }]}
+                  numberOfLines={1}
+                >
                   {staff.staff_name.split(' ')[0]}
                 </Text>
                 <Text
                   style={[
                     styles.itemValue,
                     {
-                      color: staff.no_show_rate > 5 ? colors.error : colors.success,
+                      color:
+                        staff.no_show_rate > 5 ? colors.error : colors.success,
                     },
                   ]}
                 >
@@ -57,21 +64,30 @@ export const NoShowAnalysisSection = ({
         </View>
 
         {/* By Time Slot */}
-        <View style={[styles.columnCard, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+        <View
+          style={[
+            styles.columnCard,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
+        >
           <Text style={[styles.columnLabel, { color: colors.secondary }]}>
             {t('analytics.noShows.byTimeSlot')}
           </Text>
           <View style={styles.list}>
             {data?.by_time_slot.slice(0, 2).map((slot: NoShowByTimeSlot) => (
               <View key={slot.time_slot} style={styles.listItem}>
-                <Text style={[styles.itemLabel, { color: colors.secondary }]} numberOfLines={1}>
+                <Text
+                  style={[styles.itemLabel, { color: colors.secondary }]}
+                  numberOfLines={1}
+                >
                   {t(`analytics.noShows.${slot.time_slot}`).split(' ')[0]}
                 </Text>
                 <Text
                   style={[
                     styles.itemValue,
                     {
-                      color: slot.no_show_rate > 5 ? colors.error : colors.success,
+                      color:
+                        slot.no_show_rate > 5 ? colors.error : colors.success,
                     },
                   ]}
                 >
@@ -83,19 +99,30 @@ export const NoShowAnalysisSection = ({
         </View>
 
         {/* By Day */}
-        <View style={[styles.columnCard, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
-          <Text style={[styles.columnLabel, { color: colors.secondary }]}>{t('analytics.noShows.byDay')}</Text>
+        <View
+          style={[
+            styles.columnCard,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
+        >
+          <Text style={[styles.columnLabel, { color: colors.secondary }]}>
+            {t('analytics.noShows.byDay')}
+          </Text>
           <View style={styles.list}>
             {data?.by_day_of_week.slice(0, 2).map((day: NoShowByDayOfWeek) => (
               <View key={day.day_of_week} style={styles.listItem}>
-                <Text style={[styles.itemLabel, { color: colors.secondary }]} numberOfLines={1}>
+                <Text
+                  style={[styles.itemLabel, { color: colors.secondary }]}
+                  numberOfLines={1}
+                >
                   {day.day_name.substring(0, 3)}
                 </Text>
                 <Text
                   style={[
                     styles.itemValue,
                     {
-                      color: day.no_show_rate > 5 ? colors.error : colors.success,
+                      color:
+                        day.no_show_rate > 5 ? colors.error : colors.success,
                     },
                   ]}
                 >
@@ -163,4 +190,3 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 });
-

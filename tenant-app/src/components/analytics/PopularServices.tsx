@@ -32,14 +32,28 @@ export const PopularServices = ({ popularServices }: PopularServicesProps) => {
       <Text style={[styles.sectionTitle, { color: colors.primary }]}>
         {t('analytics.popularServices.title').toUpperCase()}
       </Text>
-      <View style={[styles.servicesList, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+      <View
+        style={[
+          styles.servicesList,
+          { backgroundColor: colors.card, borderColor: colors.border + '15' },
+        ]}
+      >
         {popularServices.slice(0, 3).map((service, index) => (
           <View key={index} style={styles.serviceRow}>
             <View style={styles.serviceHeader}>
-              <Text style={[styles.serviceName, { color: colors.primary }]}>{service.name}</Text>
-              <Text style={[styles.serviceCount, { color: colors.primary }]}>{service.count}</Text>
+              <Text style={[styles.serviceName, { color: colors.primary }]}>
+                {service.name}
+              </Text>
+              <Text style={[styles.serviceCount, { color: colors.primary }]}>
+                {service.count}
+              </Text>
             </View>
-            <View style={[styles.serviceProgressTrack, { backgroundColor: colors.surfaceContainerLow }]}>
+            <View
+              style={[
+                styles.serviceProgressTrack,
+                { backgroundColor: colors.surfaceContainerLow },
+              ]}
+            >
               <View
                 style={[
                   styles.serviceProgressBar,
@@ -106,4 +120,3 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
-

@@ -80,13 +80,8 @@ export function useStaffMutations() {
   });
 
   const deleteScheduleBreakMutation = useMutation({
-    mutationFn: ({
-      staffId,
-      breakId,
-    }: {
-      staffId: string;
-      breakId: string;
-    }) => staffService.deleteScheduleBreak(staffId, breakId),
+    mutationFn: ({ staffId, breakId }: { staffId: string; breakId: string }) =>
+      staffService.deleteScheduleBreak(staffId, breakId),
     onSuccess: (_, { staffId }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.staff.scheduleBreaks(staffId),
@@ -97,13 +92,7 @@ export function useStaffMutations() {
   });
 
   const updateScheduleRuleMutation = useMutation({
-    mutationFn: ({
-      staffId,
-      rule,
-    }: {
-      staffId: string;
-      rule: ScheduleRule;
-    }) =>
+    mutationFn: ({ staffId, rule }: { staffId: string; rule: ScheduleRule }) =>
       staffService.updateScheduleRule(staffId, rule.id, {
         start_time: rule.start_time,
         end_time: rule.end_time,

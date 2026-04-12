@@ -1,9 +1,10 @@
 import { CheckCircle2, Scissors, ShieldCheck } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 import { StaffRole } from '@/src/hooks/staff/useAddStaff';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface RoleSelectorProps {
   role: StaffRole;
@@ -12,72 +13,122 @@ interface RoleSelectorProps {
 
 export const RoleSelector = ({ role, setRole }: RoleSelectorProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{t('settings.staff.create.systemRole')}</Text>
+      <Text style={[styles.label, { color: colors.secondary }]}>
+        {t('settings.staff.create.systemRole')}
+      </Text>
       <View style={styles.grid}>
         {/* Staff Role */}
         <TouchableOpacity
-          style={[styles.card, role === 'staff' && styles.cardActive]}
+          style={[
+            styles.card,
+            {
+              backgroundColor:
+                role === 'staff' ? colors.primary : colors.surfaceContainerHigh,
+            },
+          ]}
           onPress={() => setRole('staff')}
           activeOpacity={0.9}
         >
           <View style={styles.cardHeader}>
             <View
-              style={[styles.iconBox, role === 'staff' && styles.iconBoxActive]}
+              style={[
+                styles.iconBox,
+                {
+                  backgroundColor:
+                    role === 'staff'
+                      ? 'rgba(255,255,255,0.1)'
+                      : 'rgba(0,0,0,0.05)',
+                },
+              ]}
             >
               <Scissors
                 size={24}
-                color={role === 'staff' ? COLORS.white : COLORS.primary}
+                color={role === 'staff' ? colors.onPrimary : colors.primary}
               />
             </View>
             <Text
-              style={[styles.roleTitle, role === 'staff' && styles.textWhite]}
+              style={[
+                styles.roleTitle,
+                { color: role === 'staff' ? colors.onPrimary : colors.primary },
+              ]}
             >
               {t('settings.staff.create.roleStaff')}
             </Text>
           </View>
           <Text
-            style={[styles.roleDesc, role === 'staff' && styles.textWhiteDim]}
+            style={[
+              styles.roleDesc,
+              {
+                color: role === 'staff' ? colors.onPrimary : colors.secondary,
+                opacity: role === 'staff' ? 0.8 : 1,
+              },
+            ]}
           >
             {t('settings.staff.create.roleStaffSub')}
           </Text>
           {role === 'staff' && (
             <View style={styles.checkIcon}>
-              <CheckCircle2 size={20} color={COLORS.white} />
+              <CheckCircle2 size={20} color={colors.onPrimary} />
             </View>
           )}
         </TouchableOpacity>
 
         {/* Admin Role */}
         <TouchableOpacity
-          style={[styles.card, role === 'admin' && styles.cardActive]}
+          style={[
+            styles.card,
+            {
+              backgroundColor:
+                role === 'admin' ? colors.primary : colors.surfaceContainerHigh,
+            },
+          ]}
           onPress={() => setRole('admin')}
           activeOpacity={0.9}
         >
           <View style={styles.cardHeader}>
             <View
-              style={[styles.iconBox, role === 'admin' && styles.iconBoxActive]}
+              style={[
+                styles.iconBox,
+                {
+                  backgroundColor:
+                    role === 'admin'
+                      ? 'rgba(255,255,255,0.1)'
+                      : 'rgba(0,0,0,0.05)',
+                },
+              ]}
             >
               <ShieldCheck
                 size={24}
-                color={role === 'admin' ? COLORS.white : COLORS.primary}
+                color={role === 'admin' ? colors.onPrimary : colors.primary}
               />
             </View>
             <Text
-              style={[styles.roleTitle, role === 'admin' && styles.textWhite]}
+              style={[
+                styles.roleTitle,
+                { color: role === 'admin' ? colors.onPrimary : colors.primary },
+              ]}
             >
               {t('settings.staff.create.roleAdmin')}
             </Text>
           </View>
           <Text
-            style={[styles.roleDesc, role === 'admin' && styles.textWhiteDim]}
+            style={[
+              styles.roleDesc,
+              {
+                color: role === 'admin' ? colors.onPrimary : colors.secondary,
+                opacity: role === 'admin' ? 0.8 : 1,
+              },
+            ]}
           >
             {t('settings.staff.create.roleAdminSub')}
           </Text>
           {role === 'admin' && (
             <View style={styles.checkIcon}>
-              <CheckCircle2 size={20} color={COLORS.white} />
+              <CheckCircle2 size={20} color={colors.onPrimary} />
             </View>
           )}
         </TouchableOpacity>
@@ -91,9 +142,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   label: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
     fontWeight: '900',
-    color: COLORS.onSurfaceVariant,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     marginLeft: 4,
@@ -104,14 +155,10 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    backgroundColor: COLORS.surfaceContainerHigh,
     borderRadius: 20,
     padding: 24,
     position: 'relative',
     overflow: 'hidden',
-  },
-  cardActive: {
-    backgroundColor: COLORS.primary,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -122,29 +169,17 @@ const styles = StyleSheet.create({
   iconBox: {
     padding: 10,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  iconBoxActive: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   roleTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.primary,
   },
   roleDesc: {
+    ...TYPOGRAPHY.body,
     fontSize: 11,
-    color: COLORS.secondary,
     lineHeight: 16,
     fontWeight: '500',
     maxWidth: '85%',
-  },
-  textWhite: {
-    color: COLORS.white,
-  },
-  textWhiteDim: {
-    color: COLORS.white,
-    opacity: 0.8,
   },
   checkIcon: {
     position: 'absolute',

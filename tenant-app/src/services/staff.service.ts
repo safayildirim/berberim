@@ -75,16 +75,17 @@ export const staffService = {
     >,
   ): Promise<ScheduleRule> => {
     return api
-      .patch<{ rule: ScheduleRule }>(
-        `/tenant/staff/${staffId}/schedule-rules/${ruleId}`,
-        data,
-      )
+      .patch<{
+        rule: ScheduleRule;
+      }>(`/tenant/staff/${staffId}/schedule-rules/${ruleId}`, data)
       .then((res: any) => res.rule ?? res);
   },
 
   getScheduleBreaks: async (staffId: string): Promise<ScheduleBreak[]> => {
     return api
-      .get<{ breaks: ScheduleBreak[] }>(`/tenant/staff/${staffId}/schedule-breaks`)
+      .get<{
+        breaks: ScheduleBreak[];
+      }>(`/tenant/staff/${staffId}/schedule-breaks`)
       .then((res: any) => res.breaks ?? []);
   },
 
@@ -93,10 +94,9 @@ export const staffService = {
     data: CreateScheduleBreakRequest,
   ): Promise<ScheduleBreak> => {
     return api
-      .post<{ break: ScheduleBreak }>(
-        `/tenant/staff/${staffId}/schedule-breaks`,
-        data,
-      )
+      .post<{
+        break: ScheduleBreak;
+      }>(`/tenant/staff/${staffId}/schedule-breaks`, data)
       .then((res: any) => res.schedule_break ?? res.break ?? res);
   },
 
@@ -106,10 +106,9 @@ export const staffService = {
     data: UpdateScheduleBreakRequest,
   ): Promise<ScheduleBreak> => {
     return api
-      .patch<{ break: ScheduleBreak }>(
-        `/tenant/staff/${staffId}/schedule-breaks/${breakId}`,
-        data,
-      )
+      .patch<{
+        break: ScheduleBreak;
+      }>(`/tenant/staff/${staffId}/schedule-breaks/${breakId}`, data)
       .then((res: any) => res.schedule_break ?? res.break ?? res);
   },
 

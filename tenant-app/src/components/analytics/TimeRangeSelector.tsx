@@ -18,7 +18,12 @@ export const TimeRangeSelector = ({
   const options: TimeRange[] = ['daily', 'weekly', 'monthly'];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surfaceContainerLow }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.surfaceContainerLow },
+      ]}
+    >
       {options.map((option) => {
         const isActive = currentRange === option;
         return (
@@ -26,16 +31,18 @@ export const TimeRangeSelector = ({
             key={option}
             onPress={() => onRangeChange(option)}
             style={[
-              styles.tab, 
-              isActive && { backgroundColor: colors.card, ...SHADOWS.sm }
+              styles.tab,
+              isActive && { backgroundColor: colors.card, ...SHADOWS.sm },
             ]}
             activeOpacity={0.7}
           >
-            <Text style={[
-              styles.tabText, 
-              { color: isActive ? colors.primary : colors.secondary },
-              isActive && { fontWeight: '800' }
-            ]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: isActive ? colors.primary : colors.secondary },
+                isActive && { fontWeight: '800' },
+              ]}
+            >
               {t(`analytics.timeRanges.${option}`)}
             </Text>
           </TouchableOpacity>
@@ -65,4 +72,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

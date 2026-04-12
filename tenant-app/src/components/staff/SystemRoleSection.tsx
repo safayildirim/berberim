@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 import { RoleSelector } from '@/src/components/staff/RoleSelector';
 import { StaffRole } from '@/src/hooks/staff/useAddStaff';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface SystemRoleSectionProps {
   role: StaffRole;
@@ -15,16 +16,23 @@ export const SystemRoleSection = ({
   setRole,
 }: SystemRoleSectionProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <View style={styles.indicator} />
-        <Text style={styles.sectionTitle}>
-          {t('settings.staff.create.accountAccess')}
+        <View style={[styles.indicator, { backgroundColor: colors.primary }]} />
+        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+          {t('settings.staff.create.accountAccess').toUpperCase()}
         </Text>
       </View>
 
-      <View style={styles.formCard}>
+      <View
+        style={[
+          styles.formCard,
+          { backgroundColor: colors.surfaceContainerLow },
+        ]}
+      >
         <RoleSelector role={role} setRole={setRole} />
       </View>
     </View>
@@ -44,18 +52,15 @@ const styles = StyleSheet.create({
   indicator: {
     width: 4,
     height: 24,
-    backgroundColor: COLORS.primary,
     borderRadius: 2,
   },
   sectionTitle: {
+    ...TYPOGRAPHY.label,
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: 1.5,
-    textTransform: 'uppercase',
   },
   formCard: {
-    backgroundColor: COLORS.surfaceContainerLow,
     padding: 24,
     borderRadius: 32,
     gap: 32,

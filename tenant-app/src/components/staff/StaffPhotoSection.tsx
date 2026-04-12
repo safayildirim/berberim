@@ -1,8 +1,9 @@
 import { Camera, UserPlus } from 'lucide-react-native';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 type Props = {
   avatarUri?: string;
@@ -11,6 +12,8 @@ type Props = {
 
 export const StaffPhotoSection = ({ avatarUri, onPickImage }: Props) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+
   return (
     <View style={styles.section}>
       <TouchableOpacity
@@ -19,21 +22,41 @@ export const StaffPhotoSection = ({ avatarUri, onPickImage }: Props) => {
         activeOpacity={0.8}
       >
         {avatarUri ? (
-          <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+          <Image
+            source={{ uri: avatarUri }}
+            style={[
+              styles.avatarImage,
+              { backgroundColor: colors.surfaceContainerHigh },
+            ]}
+          />
         ) : (
-          <View style={styles.avatarPlaceholder}>
-            <UserPlus size={48} color={COLORS.secondary} />
+          <View
+            style={[
+              styles.avatarPlaceholder,
+              {
+                backgroundColor: colors.surfaceContainerHigh,
+                borderColor: colors.border + '40',
+              },
+            ]}
+          >
+            <UserPlus size={48} color={colors.secondary} />
           </View>
         )}
-        <View style={[styles.cameraBtn, SHADOWS.md]}>
-          <Camera size={14} color={COLORS.white} />
+        <View
+          style={[
+            styles.cameraBtn,
+            { backgroundColor: colors.primary },
+            SHADOWS.md,
+          ]}
+        >
+          <Camera size={14} color={colors.onPrimary || '#FFFFFF'} />
         </View>
       </TouchableOpacity>
       <View style={styles.textContent}>
-        <Text style={styles.title}>
+        <Text style={[styles.title, { color: colors.primary }]}>
           {t('settings.staff.create.teamIntegration')}
         </Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: colors.secondary }]}>
           {t('settings.staff.create.teamIntegrationSub')}
         </Text>
       </View>
@@ -55,18 +78,15 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerHigh,
   },
   avatarPlaceholder: {
     width: 120,
     height: 120,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerHigh,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: COLORS.outlineVariant + '40',
   },
   cameraBtn: {
     position: 'absolute',
@@ -75,7 +95,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -83,15 +102,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
+    ...TYPOGRAPHY.h2,
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.primary,
-    fontFamily: 'Manrope',
     letterSpacing: -0.5,
   },
   subtitle: {
+    ...TYPOGRAPHY.body,
     fontSize: 14,
-    color: COLORS.secondary,
     fontWeight: '500',
     marginTop: 4,
     lineHeight: 20,

@@ -55,7 +55,11 @@ export const CustomerLTVSection = ({
               onPress={() => onSegmentChange(key)}
               style={[
                 styles.segmentChip,
-                { backgroundColor: isActive ? colors.primary : colors.surfaceContainerHigh },
+                {
+                  backgroundColor: isActive
+                    ? colors.primary
+                    : colors.surfaceContainerHigh,
+                },
               ]}
             >
               <Text
@@ -72,23 +76,41 @@ export const CustomerLTVSection = ({
       </ScrollView>
 
       {isLoading || !data ? (
-        <View style={[styles.loadingContainer, { backgroundColor: colors.card }]}>
-          <Text style={[styles.emptyText, { color: colors.outline }]}>{t('common.loading')}</Text>
+        <View
+          style={[styles.loadingContainer, { backgroundColor: colors.card }]}
+        >
+          <Text style={[styles.emptyText, { color: colors.outline }]}>
+            {t('common.loading')}
+          </Text>
         </View>
       ) : (
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
-          <View style={[styles.summaryRow, { backgroundColor: colors.surfaceContainerLow }]}>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderColor: colors.border + '15' },
+          ]}
+        >
+          <View
+            style={[
+              styles.summaryRow,
+              { backgroundColor: colors.surfaceContainerLow },
+            ]}
+          >
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.secondary }]}>
                 {t('analytics.ltv.avgLtv').toUpperCase()}
               </Text>
-              <Text style={[styles.summaryValue, { color: colors.primary }]}>{data.summary.avg_ltv}</Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>
+                {data.summary.avg_ltv}
+              </Text>
             </View>
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.secondary }]}>
                 {t('analytics.ltv.medianLtv').toUpperCase()}
               </Text>
-              <Text style={[styles.summaryValue, { color: colors.primary }]}>{data.summary.median_ltv}</Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>
+                {data.summary.median_ltv}
+              </Text>
             </View>
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.secondary }]}>
@@ -110,15 +132,27 @@ export const CustomerLTVSection = ({
                 ]}
               >
                 <View style={styles.segmentInfo}>
-                  <Text style={[styles.segmentName, { color: colors.primary }]}>{seg.segment}</Text>
-                  <Text style={[styles.segmentValue, { color: colors.primary }]}>{seg.avg_ltv}</Text>
+                  <Text style={[styles.segmentName, { color: colors.primary }]}>
+                    {seg.segment}
+                  </Text>
+                  <Text
+                    style={[styles.segmentValue, { color: colors.primary }]}
+                  >
+                    {seg.avg_ltv}
+                  </Text>
                 </View>
                 <View style={styles.segmentSubInfo}>
-                  <Text style={[styles.segmentCount, { color: colors.secondary }]}>
+                  <Text
+                    style={[styles.segmentCount, { color: colors.secondary }]}
+                  >
                     {seg.customer_count} {t('analytics.ltv.customers')}
                   </Text>
                   {index < 3 && (
-                    <Text style={[styles.topTierBadge, { color: colors.success }]}>Top Tier</Text>
+                    <Text
+                      style={[styles.topTierBadge, { color: colors.success }]}
+                    >
+                      Top Tier
+                    </Text>
                   )}
                 </View>
               </View>
@@ -236,4 +270,3 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 });
-

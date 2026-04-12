@@ -21,36 +21,52 @@ export const CustomerInsights = ({ insights }: CustomerInsightsProps) => {
       <Text style={[styles.sectionTitle, { color: colors.primary }]}>
         {t('analytics.customerInsights.title').toUpperCase()}
       </Text>
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.card, borderColor: colors.border + '15' },
+        ]}
+      >
         <View style={styles.topRow}>
           <View>
             <Text style={[styles.label, { color: colors.secondary }]}>
               {t('analytics.customerInsights.activeCustomers')}
             </Text>
-            <Text style={[styles.value, { color: colors.primary }]}>{insights.activeCustomers}</Text>
+            <Text style={[styles.value, { color: colors.primary }]}>
+              {insights.activeCustomers}
+            </Text>
           </View>
           <View style={styles.rightAlign}>
             <Text style={[styles.label, { color: colors.secondary }]}>
               {t('analytics.customerInsights.returningRate')}
             </Text>
-            <Text style={[styles.value, { color: colors.primary }]}>{insights.returningRate}%</Text>
+            <Text style={[styles.value, { color: colors.primary }]}>
+              {insights.returningRate}%
+            </Text>
           </View>
         </View>
 
-        <View style={[styles.divider, { backgroundColor: colors.border + '10' }]} />
+        <View
+          style={[styles.divider, { backgroundColor: colors.border + '10' }]}
+        />
 
         <View style={styles.bottomSection}>
           <Text style={[styles.label, { color: colors.secondary }]}>
             {t('analytics.customerInsights.visitFrequency')}
           </Text>
           <View style={styles.progressRow}>
-            <View style={[styles.progressTrack, { backgroundColor: colors.surfaceContainerLow }]}>
+            <View
+              style={[
+                styles.progressTrack,
+                { backgroundColor: colors.surfaceContainerLow },
+              ]}
+            >
               <View
                 style={[
                   styles.progressBar,
-                  { 
+                  {
                     backgroundColor: colors.primary,
-                    width: `${Math.min((insights.visitFrequency / 30) * 100, 100)}%` 
+                    width: `${Math.min((insights.visitFrequency / 30) * 100, 100)}%`,
                   },
                 ]}
               />
@@ -134,4 +150,3 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-

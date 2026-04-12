@@ -17,16 +17,18 @@ import { Screen } from '@/src/components/common/Screen';
 import { PersonalInfoSection } from '@/src/components/staff/PersonalInfoSection';
 import { StaffPhotoSection } from '@/src/components/staff/StaffPhotoSection';
 import { SystemRoleSection } from '@/src/components/staff/SystemRoleSection';
-import { COLORS, SHADOWS } from '@/src/constants/theme';
+import { SHADOWS, TYPOGRAPHY } from '@/src/constants/theme';
 import { useManageStaff } from '@/src/hooks/staff/useManageStaff';
 import { useSessionStore } from '@/src/store/useSessionStore';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function ManageStaffScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const { isAdmin } = useSessionStore();
   const { form, ui, actions, staff } = useManageStaff(id!);
 
@@ -38,9 +40,12 @@ export default function ManageStaffScreen() {
 
   if (ui.isLoading) {
     return (
-      <Screen style={styles.container} withPadding={false}>
+      <Screen
+        style={[styles.container, { backgroundColor: colors.background }]}
+        withPadding={false}
+      >
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </Screen>
     );
@@ -49,20 +54,22 @@ export default function ManageStaffScreen() {
   if (!staff) {
     return (
       <Screen
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         withPadding={false}
         headerTitle={t('settings.staff.manage.title')}
         showHeaderBack={true}
       >
         <View style={styles.center}>
-          <Text style={styles.errorText}>
+          <Text style={[styles.errorText, { color: colors.error }]}>
             {t('settings.staff.manage.notFound')}
           </Text>
           <TouchableOpacity
-            style={styles.retryBtn}
+            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
             onPress={() => router.back()}
           >
-            <Text style={styles.retryText}>{t('common.back')}</Text>
+            <Text style={[styles.retryText, { color: colors.onPrimary }]}>
+              {t('common.back')}
+            </Text>
           </TouchableOpacity>
         </View>
       </Screen>
@@ -71,7 +78,7 @@ export default function ManageStaffScreen() {
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={t('settings.staff.manage.title')}
@@ -107,7 +114,11 @@ export default function ManageStaffScreen() {
         <View
           style={[
             styles.stickyFooter,
-            { paddingBottom: Math.max(insets.bottom, 20) },
+            {
+              backgroundColor: colors.background,
+              borderTopColor: colors.border + '15',
+              paddingBottom: Math.max(insets.bottom, 20),
+            },
           ]}
         >
           <TouchableOpacity
@@ -117,23 +128,31 @@ export default function ManageStaffScreen() {
             style={styles.submitBtnWrapper}
           >
             <LinearGradient
-              colors={[COLORS.primary, '#1b263b']}
+              colors={[
+                colors.primary,
+                isDark ? '#1b263b' : colors.primary + 'E6',
+              ]}
               style={styles.submitBtn}
             >
               {ui.isSubmitting ? (
-                <ActivityIndicator size="small" color={COLORS.white} />
+                <ActivityIndicator
+                  size="small"
+                  color={colors.onPrimary || '#FFFFFF'}
+                />
               ) : (
                 <View style={styles.submitBtnContent}>
-                  <Text style={styles.submitBtnText}>
+                  <Text
+                    style={[styles.submitBtnText, { color: colors.onPrimary }]}
+                  >
                     {t('settings.staff.manage.update')}
                   </Text>
-                  <Save size={20} color={COLORS.white} strokeWidth={2.5} />
+                  <Save size={20} color={colors.onPrimary} strokeWidth={2.5} />
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
 
-          <Text style={styles.footerHint}>
+          <Text style={[styles.footerHint, { color: colors.secondary }]}>
             {t('settings.staff.manage.updateHint')}
           </Text>
         </View>
@@ -144,7 +163,7 @@ export default function ManageStaffScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.background,
+    flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -154,8 +173,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingHorizontal: 24,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    backgroundColor: COLORS.background,
   },
   submitBtnWrapper: {
     borderRadius: 20,
@@ -173,14 +190,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   submitBtnText: {
+    ...TYPOGRAPHY.h3,
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.white,
-    fontFamily: 'Manrope',
   },
   footerHint: {
+    ...TYPOGRAPHY.caption,
     fontSize: 12,
-    color: COLORS.secondary,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 24,
@@ -192,8 +208,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
+    ...TYPOGRAPHY.body,
     fontSize: 16,
-    color: COLORS.secondary,
     fontWeight: '600',
     marginBottom: 16,
   },
@@ -201,10 +217,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
   },
   retryText: {
-    color: COLORS.white,
     fontWeight: 'bold',
   },
 });

@@ -88,7 +88,9 @@ export const useScheduleManagement = (staffId: string) => {
     breaksByDay,
     stats,
     isLoading:
-      timeOffQuery.isLoading || scheduleQuery.isLoading || breaksQuery.isLoading,
+      timeOffQuery.isLoading ||
+      scheduleQuery.isLoading ||
+      breaksQuery.isLoading,
     actions: {
       refresh: () => {
         timeOffQuery.refetch();

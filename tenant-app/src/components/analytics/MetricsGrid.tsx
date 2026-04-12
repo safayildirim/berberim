@@ -40,7 +40,10 @@ const MetricCard = ({
           borderLeftWidth: 4,
           borderLeftColor: borderLeftColor || colors.primary,
         },
-        !borderLeft && { borderColor: colors.outlineVariant + '15', borderWidth: 1 },
+        !borderLeft && {
+          borderColor: colors.outlineVariant + '15',
+          borderWidth: 1,
+        },
       ]}
     >
       <View style={styles.cardHeader}>
@@ -49,13 +52,17 @@ const MetricCard = ({
           <View
             style={[
               styles.badge,
-              { backgroundColor: isNegative ? colors.error + '15' : colors.success + '15' }
+              {
+                backgroundColor: isNegative
+                  ? colors.error + '15'
+                  : colors.success + '15',
+              },
             ]}
           >
             <Text
               style={[
                 styles.badgeText,
-                { color: isNegative ? colors.error : colors.success }
+                { color: isNegative ? colors.error : colors.success },
               ]}
             >
               {change}
@@ -64,8 +71,12 @@ const MetricCard = ({
         )}
       </View>
       <View style={styles.cardBody}>
-        <Text style={[styles.cardLabel, { color: colors.secondary }]}>{label.toUpperCase()}</Text>
-        <Text style={[styles.cardValue, { color: colors.primary }]}>{value}</Text>
+        <Text style={[styles.cardLabel, { color: colors.secondary }]}>
+          {label.toUpperCase()}
+        </Text>
+        <Text style={[styles.cardValue, { color: colors.primary }]}>
+          {value}
+        </Text>
       </View>
     </View>
   );
@@ -93,23 +104,21 @@ export const MetricsGrid = ({ metrics }: MetricsGridProps) => {
         label={t('analytics.metrics.totalAppointments')}
         value={metrics.totalAppointments.toLocaleString()}
         change={metrics.appointmentsChange}
-        icon={(color) => (
-          <Calendar size={20} color={color} strokeWidth={2.5} />
-        )}
+        icon={(color) => <Calendar size={20} color={color} strokeWidth={2.5} />}
       />
       <MetricCard
         label={t('analytics.metrics.revenue')}
         value={`${Number(metrics.revenue).toLocaleString()} ₺`}
-        icon={(color) => (
-          <Banknote size={20} color={color} strokeWidth={2.5} />
-        )}
+        icon={(color) => <Banknote size={20} color={color} strokeWidth={2.5} />}
       />
       <MetricCard
         label={t('analytics.metrics.noShowRate')}
         value={metrics.noShowRate}
         change={metrics.noShowRateChange}
         borderLeftColor={colors.error}
-        icon={(color) => <UserMinus size={20} color={color} strokeWidth={2.5} />}
+        icon={(color) => (
+          <UserMinus size={20} color={color} strokeWidth={2.5} />
+        )}
         borderLeft
       />
       <MetricCard
@@ -172,4 +181,3 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 });
-

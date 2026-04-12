@@ -12,9 +12,22 @@ export const DashboardTopBar: React.FC<Props> = ({ shopName, logoUrl }) => {
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.topBar, { backgroundColor: colors.background + 'CC', borderBottomColor: colors.border + '15' }]}>
+    <View
+      style={[
+        styles.topBar,
+        {
+          backgroundColor: colors.background + 'CC',
+          borderBottomColor: colors.border + '15',
+        },
+      ]}
+    >
       <View style={styles.shopBranding}>
-        <View style={[styles.logoContainer, { backgroundColor: colors.primaryContainer }]}>
+        <View
+          style={[
+            styles.logoContainer,
+            { backgroundColor: colors.primaryContainer },
+          ]}
+        >
           <Image
             source={{
               uri:
@@ -24,7 +37,9 @@ export const DashboardTopBar: React.FC<Props> = ({ shopName, logoUrl }) => {
             style={styles.logo}
           />
         </View>
-        <Text style={[styles.shopName, { color: colors.primary }]}>{shopName}</Text>
+        <Text style={[styles.shopName, { color: colors.primary }]}>
+          {shopName}
+        </Text>
       </View>
       <TouchableOpacity style={styles.iconButton}>
         <Bell size={24} color={colors.primary} />
@@ -66,4 +81,3 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 });
-

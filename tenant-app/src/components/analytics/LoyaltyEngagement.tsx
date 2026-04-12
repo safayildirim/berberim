@@ -20,7 +20,12 @@ export const LoyaltyEngagement = ({ loyalty }: LoyaltyEngagementProps) => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.card, borderColor: colors.border + '15' },
+        ]}
+      >
         <View style={styles.header}>
           <View>
             <Text style={[styles.title, { color: colors.primary }]}>
@@ -30,7 +35,12 @@ export const LoyaltyEngagement = ({ loyalty }: LoyaltyEngagementProps) => {
               {t('analytics.loyaltyEngagement.programTracking')}
             </Text>
           </View>
-          <View style={[styles.badge, { backgroundColor: colors.surfaceContainerLow }]}>
+          <View
+            style={[
+              styles.badge,
+              { backgroundColor: colors.surfaceContainerLow },
+            ]}
+          >
             <Text style={[styles.badgeText, { color: colors.primary }]}>
               {loyalty.progress}% {t('analytics.loyaltyEngagement.ofGoal')}
             </Text>
@@ -48,11 +58,18 @@ export const LoyaltyEngagement = ({ loyalty }: LoyaltyEngagementProps) => {
           </View>
           <View style={styles.trendContainer}>
             <TrendingUp size={14} color={colors.success} />
-            <Text style={[styles.trendText, { color: colors.success }]}>{loyalty.redeemedChange}</Text>
+            <Text style={[styles.trendText, { color: colors.success }]}>
+              {loyalty.redeemedChange}
+            </Text>
           </View>
         </View>
 
-        <View style={[styles.progressTrack, { backgroundColor: colors.surfaceContainerLow }]}>
+        <View
+          style={[
+            styles.progressTrack,
+            { backgroundColor: colors.surfaceContainerLow },
+          ]}
+        >
           <LinearGradient
             colors={[colors.primary, colors.primaryContainer]}
             start={{ x: 0, y: 0 }}
@@ -148,4 +165,3 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
 });
-

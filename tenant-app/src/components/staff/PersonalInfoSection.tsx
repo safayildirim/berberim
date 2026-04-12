@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { TYPOGRAPHY } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface PersonalInfoSectionProps {
   firstName: string;
@@ -20,37 +21,56 @@ export const PersonalInfoSection = ({
   setEmail,
 }: PersonalInfoSectionProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <View style={styles.indicator} />
-        <Text style={styles.sectionTitle}>
-          {t('settings.staff.create.personalInfo')}
+        <View style={[styles.indicator, { backgroundColor: colors.primary }]} />
+        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+          {t('settings.staff.create.personalInfo').toUpperCase()}
         </Text>
       </View>
 
-      <View style={styles.formCard}>
+      <View
+        style={[
+          styles.formCard,
+          { backgroundColor: colors.surfaceContainerLow },
+        ]}
+      >
         <View style={styles.row}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>
+            <Text style={[styles.label, { color: colors.secondary }]}>
               {t('settings.staff.create.firstName')}
             </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.surfaceContainerHigh,
+                  color: colors.primary,
+                },
+              ]}
               placeholder={t('settings.staff.create.firstNamePh')}
-              placeholderTextColor={COLORS.onSurfaceVariant + '40'}
+              placeholderTextColor={colors.outline + '40'}
               value={firstName}
               onChangeText={setFirstName}
             />
           </View>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>
+            <Text style={[styles.label, { color: colors.secondary }]}>
               {t('settings.staff.create.lastName')}
             </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.surfaceContainerHigh,
+                  color: colors.primary,
+                },
+              ]}
               placeholder={t('settings.staff.create.lastNamePh')}
-              placeholderTextColor={COLORS.onSurfaceVariant + '40'}
+              placeholderTextColor={colors.outline + '40'}
               value={lastName}
               onChangeText={setLastName}
             />
@@ -58,13 +78,19 @@ export const PersonalInfoSection = ({
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>
+          <Text style={[styles.label, { color: colors.secondary }]}>
             {t('settings.staff.create.workEmail')}
           </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.surfaceContainerHigh,
+                color: colors.primary,
+              },
+            ]}
             placeholder={t('settings.staff.create.emailPh')}
-            placeholderTextColor={COLORS.onSurfaceVariant + '40'}
+            placeholderTextColor={colors.outline + '40'}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -89,20 +115,17 @@ const styles = StyleSheet.create({
   indicator: {
     width: 4,
     height: 24,
-    backgroundColor: COLORS.primary,
     borderRadius: 2,
   },
   sectionTitle: {
+    ...TYPOGRAPHY.label,
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.primary,
     letterSpacing: 1.5,
-    textTransform: 'uppercase',
   },
   formCard: {
-    backgroundColor: COLORS.surfaceContainerLow,
     padding: 24,
-    borderRadius: 24,
+    borderRadius: 32,
     gap: 24,
   },
   row: {
@@ -114,21 +137,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
+    ...TYPOGRAPHY.label,
     fontSize: 10,
     fontWeight: '900',
-    color: COLORS.onSurfaceVariant,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     marginLeft: 4,
   },
   input: {
-    backgroundColor: COLORS.surfaceContainerHigh,
     height: 56,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },

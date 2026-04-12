@@ -26,7 +26,12 @@ export const OperationalPerformance = ({
       <Text style={[styles.sectionTitle, { color: colors.primary }]}>
         {t('analytics.operationalPerformance.title').toUpperCase()}
       </Text>
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.card, borderColor: colors.border + '15' },
+        ]}
+      >
         <AnimatedCircularProgress
           size={140}
           width={14}
@@ -37,7 +42,9 @@ export const OperationalPerformance = ({
           lineCap="round"
         >
           {() => (
-            <Text style={[styles.utilizationText, { color: colors.primary }]}>{staffUtilization}%</Text>
+            <Text style={[styles.utilizationText, { color: colors.primary }]}>
+              {staffUtilization}%
+            </Text>
           )}
         </AnimatedCircularProgress>
         <View style={styles.infoContainer}>
@@ -89,4 +96,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

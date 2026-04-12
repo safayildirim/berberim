@@ -20,9 +20,16 @@ export const CohortAnalysisSection = ({
 
   if (isLoading || cohorts.length === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.card, borderColor: colors.border + '15' },
+        ]}
+      >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.primary }]}>{t('analytics.cohorts.title')}</Text>
+          <Text style={[styles.title, { color: colors.primary }]}>
+            {t('analytics.cohorts.title')}
+          </Text>
           <Users size={20} color={colors.primary} />
         </View>
         <Text style={[styles.emptyText, { color: colors.secondary }]}>
@@ -35,11 +42,20 @@ export const CohortAnalysisSection = ({
   const maxPeriods = Math.max(...cohorts.map((c) => c.periods?.length ?? 0), 1);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.card, borderColor: colors.border + '15' }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.card, borderColor: colors.border + '15' },
+      ]}
+    >
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <Text style={[styles.title, { color: colors.primary }]}>{t('analytics.cohorts.title')}</Text>
-          <Text style={[styles.subtitle, { color: colors.secondary }]}>{t('analytics.cohorts.subtitle')}</Text>
+          <Text style={[styles.title, { color: colors.primary }]}>
+            {t('analytics.cohorts.title')}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.secondary }]}>
+            {t('analytics.cohorts.subtitle')}
+          </Text>
         </View>
         <Users size={24} color={colors.primary + '60'} />
       </View>
@@ -52,14 +68,33 @@ export const CohortAnalysisSection = ({
         <View style={styles.tableContainer}>
           {/* Header Row */}
           <View style={styles.tableRow}>
-            <Text style={[styles.headerCell, styles.cohortColumn, { color: colors.secondary }]}>
+            <Text
+              style={[
+                styles.headerCell,
+                styles.cohortColumn,
+                { color: colors.secondary },
+              ]}
+            >
               {t('analytics.cohorts.cohort')}
             </Text>
-            <Text style={[styles.headerCell, styles.sizeColumn, { color: colors.secondary }]}>
+            <Text
+              style={[
+                styles.headerCell,
+                styles.sizeColumn,
+                { color: colors.secondary },
+              ]}
+            >
               {t('analytics.cohorts.size')}
             </Text>
             {Array.from({ length: maxPeriods }, (_, i) => (
-              <Text key={i} style={[styles.headerCell, styles.periodColumn, { color: colors.secondary }]}>
+              <Text
+                key={i}
+                style={[
+                  styles.headerCell,
+                  styles.periodColumn,
+                  { color: colors.secondary },
+                ]}
+              >
                 {t('analytics.cohorts.monthN', { n: i })}
               </Text>
             ))}
@@ -68,10 +103,22 @@ export const CohortAnalysisSection = ({
           {/* Data Rows */}
           {cohorts.map((cohort, index) => (
             <View key={cohort.cohort || index} style={styles.tableRow}>
-              <Text style={[styles.cohortText, styles.cohortColumn, { color: colors.primary }]}>
+              <Text
+                style={[
+                  styles.cohortText,
+                  styles.cohortColumn,
+                  { color: colors.primary },
+                ]}
+              >
                 {cohort.cohort}
               </Text>
-              <Text style={[styles.sizeText, styles.sizeColumn, { color: colors.secondary }]}>
+              <Text
+                style={[
+                  styles.sizeText,
+                  styles.sizeColumn,
+                  { color: colors.secondary },
+                ]}
+              >
                 {cohort.cohort_size}
               </Text>
               {Array.from({ length: maxPeriods }, (_, i) => {
@@ -80,8 +127,21 @@ export const CohortAnalysisSection = ({
                 );
                 if (!period) {
                   return (
-                    <View key={i} style={[styles.periodCell, { backgroundColor: colors.surfaceContainerLow }]}>
-                      <Text style={[styles.emptyCellText, { color: colors.outline + '40' }]}>-</Text>
+                    <View
+                      key={i}
+                      style={[
+                        styles.periodCell,
+                        { backgroundColor: colors.surfaceContainerLow },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.emptyCellText,
+                          { color: colors.outline + '40' },
+                        ]}
+                      >
+                        -
+                      </Text>
                     </View>
                   );
                 }
@@ -91,10 +151,23 @@ export const CohortAnalysisSection = ({
                     key={i}
                     style={[
                       styles.periodCell,
-                      { backgroundColor: getRetentionColor(rate, colors.success, isDark) },
+                      {
+                        backgroundColor: getRetentionColor(
+                          rate,
+                          colors.success,
+                          isDark,
+                        ),
+                      },
                     ]}
                   >
-                    <Text style={[styles.rateText, { color: isDark ? colors.onPrimary : colors.primary }]}>{rate}%</Text>
+                    <Text
+                      style={[
+                        styles.rateText,
+                        { color: isDark ? colors.onPrimary : colors.primary },
+                      ]}
+                    >
+                      {rate}%
+                    </Text>
                   </View>
                 );
               })}
@@ -106,7 +179,11 @@ export const CohortAnalysisSection = ({
   );
 };
 
-function getRetentionColor(rate: number, baseColor: string, isDark: boolean): string {
+function getRetentionColor(
+  rate: number,
+  baseColor: string,
+  isDark: boolean,
+): string {
   if (rate >= 100) return baseColor;
   if (rate >= 80) return baseColor + (isDark ? 'CC' : 'B3');
   if (rate >= 60) return baseColor + (isDark ? '99' : '80');
@@ -208,4 +285,3 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 });
-
