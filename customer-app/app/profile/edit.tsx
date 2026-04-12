@@ -46,6 +46,7 @@ export default function EditProfileScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
           <AvatarSection
             uri={avatar}

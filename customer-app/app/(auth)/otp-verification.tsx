@@ -1,8 +1,10 @@
 import React from 'react';
 import {
   StyleSheet,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
   View,
   StatusBar,
 } from 'react-native';
@@ -46,25 +48,27 @@ export default function OTPVerificationScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboard}
       >
-        <View style={styles.content}>
-          <OTPHeader phone={phone} />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.content}>
+            <OTPHeader phone={phone} />
 
-          <OTPForm
-            code={code}
-            onCodeChange={setCode}
-            onSubmit={handleVerify}
-            isValid={isValid}
-            isPending={isPending}
-            error={(verifyError as any)?.message}
-          />
+            <OTPForm
+              code={code}
+              onCodeChange={setCode}
+              onSubmit={handleVerify}
+              isValid={isValid}
+              isPending={isPending}
+              error={(verifyError as any)?.message}
+            />
 
-          <OTPFooter
-            timer={timer}
-            canResend={canResend}
-            onResend={handleResend}
-            isResending={isResending}
-          />
-        </View>
+            <OTPFooter
+              timer={timer}
+              canResend={canResend}
+              onResend={handleResend}
+              isResending={isResending}
+            />
+          </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Screen>
   );

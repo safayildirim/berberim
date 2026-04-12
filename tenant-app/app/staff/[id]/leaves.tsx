@@ -256,6 +256,7 @@ export default function LeavesScreen() {
           styles.scrollContent,
           { paddingBottom: insets.bottom + 140 },
         ]}
+        keyboardDismissMode="on-drag"
       >
         {isLoading ? (
           <View style={styles.loader}>

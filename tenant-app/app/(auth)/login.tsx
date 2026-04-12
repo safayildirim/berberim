@@ -5,12 +5,14 @@ import { Eye, EyeOff, Lock, Mail, Scissors } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { Screen } from '@/src/components/common/Screen';
@@ -73,112 +75,114 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <View style={styles.scroll}>
-          {/* Branding Header */}
-          <View style={styles.header}>
-            <View
-              style={[
-                styles.iconContainer,
-                { backgroundColor: branding.primaryColor },
-                SHADOWS.md,
-              ]}
-            >
-              <Scissors size={32} color={COLORS.white} strokeWidth={2.5} />
-            </View>
-            <Text style={[styles.title, { color: branding.primaryColor }]}>
-              {branding.name}
-            </Text>
-            <Text style={styles.subtitle}>Digital Concierge Access</Text>
-          </View>
-
-          {/* Login Card */}
-          <View style={[styles.card, SHADOWS.lg]}>
-            <View style={styles.form}>
-              {/* Email Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email</Text>
-                <View style={styles.inputWrapper}>
-                  <Mail
-                    size={20}
-                    color={COLORS.onSurfaceVariant}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="name@atelier.com"
-                    placeholderTextColor={COLORS.outlineVariant}
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </View>
-              </View>
-
-              {/* Password Field */}
-              <View style={styles.inputContainer}>
-                <View style={styles.labelRow}>
-                  <Text style={styles.label}>Password</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.forgot}>Forgot Password?</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.inputWrapper}>
-                  <Lock
-                    size={20}
-                    color={COLORS.onSurfaceVariant}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="••••••••"
-                    placeholderTextColor={COLORS.outlineVariant}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                  />
-                  <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={20} color={COLORS.onSurfaceVariant} />
-                    ) : (
-                      <Eye size={20} color={COLORS.onSurfaceVariant} />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Action Button */}
-              <TouchableOpacity
-                onPress={handleLogin}
-                disabled={isPending}
-                activeOpacity={0.9}
-                style={styles.loginBtnContainer}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.scroll}>
+            {/* Branding Header */}
+            <View style={styles.header}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: branding.primaryColor },
+                  SHADOWS.md,
+                ]}
               >
-                <LinearGradient
-                  colors={[
-                    branding.primaryColor,
-                    branding.secondaryColor || COLORS.primaryContainer,
-                  ]}
-                  style={styles.gradientBtn}
-                >
-                  <Text style={styles.loginBtnText}>
-                    {isPending ? t('common.loading') : t('auth.login')}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                <Scissors size={32} color={COLORS.white} strokeWidth={2.5} />
+              </View>
+              <Text style={[styles.title, { color: branding.primaryColor }]}>
+                {branding.name}
+              </Text>
+              <Text style={styles.subtitle}>Digital Concierge Access</Text>
+            </View>
 
-              {/* Footer Links */}
-              <View style={styles.footer}>
-                <Text style={styles.footerText}>
-                  Not a registered shop?{' '}
-                  <Text style={styles.footerLink}>Apply for Atelier</Text>
-                </Text>
+            {/* Login Card */}
+            <View style={[styles.card, SHADOWS.lg]}>
+              <View style={styles.form}>
+                {/* Email Field */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Email</Text>
+                  <View style={styles.inputWrapper}>
+                    <Mail
+                      size={20}
+                      color={COLORS.onSurfaceVariant}
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="name@atelier.com"
+                      placeholderTextColor={COLORS.outlineVariant}
+                      value={email}
+                      onChangeText={setEmail}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                    />
+                  </View>
+                </View>
+
+                {/* Password Field */}
+                <View style={styles.inputContainer}>
+                  <View style={styles.labelRow}>
+                    <Text style={styles.label}>Password</Text>
+                    <TouchableOpacity>
+                      <Text style={styles.forgot}>Forgot Password?</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.inputWrapper}>
+                    <Lock
+                      size={20}
+                      color={COLORS.onSurfaceVariant}
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="••••••••"
+                      placeholderTextColor={COLORS.outlineVariant}
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry={!showPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={20} color={COLORS.onSurfaceVariant} />
+                      ) : (
+                        <Eye size={20} color={COLORS.onSurfaceVariant} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Action Button */}
+                <TouchableOpacity
+                  onPress={handleLogin}
+                  disabled={isPending}
+                  activeOpacity={0.9}
+                  style={styles.loginBtnContainer}
+                >
+                  <LinearGradient
+                    colors={[
+                      branding.primaryColor,
+                      branding.secondaryColor || COLORS.primaryContainer,
+                    ]}
+                    style={styles.gradientBtn}
+                  >
+                    <Text style={styles.loginBtnText}>
+                      {isPending ? t('common.loading') : t('auth.login')}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                {/* Footer Links */}
+                <View style={styles.footer}>
+                  <Text style={styles.footerText}>
+                    Not a registered shop?{' '}
+                    <Text style={styles.footerLink}>Apply for Atelier</Text>
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Screen>
   );

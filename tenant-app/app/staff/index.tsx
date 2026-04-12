@@ -74,6 +74,7 @@ export default function StaffManagementScreen() {
           { paddingBottom: 100 + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
       >
         {/* Pro HUD (Glass Effect) */}
         <View style={styles.hudContainer}>

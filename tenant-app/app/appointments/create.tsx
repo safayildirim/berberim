@@ -346,7 +346,10 @@ export default function CreateAppointmentScreen() {
         totalSteps={totalSteps}
       />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardDismissMode="on-drag"
+      >
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
         {step === 3 && renderStep3()}

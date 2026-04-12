@@ -177,6 +177,7 @@ export default function CustomersScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CustomerCard item={item} />}
         contentContainerStyle={styles.listContainer}
+        keyboardDismissMode="on-drag"
         refreshControl={
           <RefreshControl
             refreshing={isLoading}

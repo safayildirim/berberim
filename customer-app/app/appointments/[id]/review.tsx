@@ -111,6 +111,7 @@ export default function AddReviewScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          keyboardDismissMode="on-drag"
         >
           <ReviewHeader
             staffName={appointment?.staff?.first_name}

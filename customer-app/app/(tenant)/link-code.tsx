@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import {
+  Keyboard,
+  StyleSheet,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -68,63 +74,65 @@ export default function LinkCodeScreen() {
 
   return (
     <Screen style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Typography variant="h2" align="center">
-            {t('tenant.linkTitle', 'Berber Dükkanına Bağlan')}
-          </Typography>
-          <Typography
-            variant="body"
-            color={COLORS.secondary}
-            align="center"
-            style={styles.subtitle}
-          >
-            {t(
-              'tenant.linkSubtitle',
-              'Berberinizden aldığınız 6 haneli kodu girin.',
-            )}
-          </Typography>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.codeInput}
-            value={code}
-            onChangeText={(text) => {
-              setCode(text.toUpperCase());
-              setError(null);
-            }}
-            placeholder="ABC123"
-            placeholderTextColor={COLORS.border}
-            autoCapitalize="characters"
-            autoCorrect={false}
-            maxLength={CODE_LENGTH}
-            textAlign="center"
-          />
-          {error && (
-            <Typography variant="caption" color={COLORS.error} align="center">
-              {error}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Typography variant="h2" align="center">
+              {t('tenant.linkTitle', 'Berber Dükkanına Bağlan')}
             </Typography>
+            <Typography
+              variant="body"
+              color={COLORS.secondary}
+              align="center"
+              style={styles.subtitle}
+            >
+              {t(
+                'tenant.linkSubtitle',
+                'Berberinizden aldığınız 6 haneli kodu girin.',
+              )}
+            </Typography>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.codeInput}
+              value={code}
+              onChangeText={(text) => {
+                setCode(text.toUpperCase());
+                setError(null);
+              }}
+              placeholder="ABC123"
+              placeholderTextColor={COLORS.border}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              maxLength={CODE_LENGTH}
+              textAlign="center"
+            />
+            {error && (
+              <Typography variant="caption" color={COLORS.error} align="center">
+                {error}
+              </Typography>
+            )}
+          </View>
+
+          <Button
+            title={t('tenant.linkButton', 'Bağlan')}
+            onPress={handleSubmit}
+            disabled={code.trim().length !== CODE_LENGTH}
+            loading={claimMutation.isPending}
+            style={styles.button}
+          />
+
+          {canGoBack && (
+            <Button
+              title={t('common.back', 'Geri')}
+              onPress={() => router.back()}
+              variant="ghost"
+              style={styles.backButton}
+            />
           )}
         </View>
-
-        <Button
-          title={t('tenant.linkButton', 'Bağlan')}
-          onPress={handleSubmit}
-          disabled={code.trim().length !== CODE_LENGTH}
-          loading={claimMutation.isPending}
-          style={styles.button}
-        />
-
-        {canGoBack && (
-          <Button
-            title={t('common.back', 'Geri')}
-            onPress={() => router.back()}
-            variant="ghost"
-            style={styles.backButton}
-          />
-        )}
-      </View>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

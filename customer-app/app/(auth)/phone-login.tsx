@@ -1,8 +1,10 @@
 import React from 'react';
 import {
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   StyleSheet,
+  TouchableWithoutFeedback,
   View,
   StatusBar,
 } from 'react-native';
@@ -39,18 +41,20 @@ export default function PhoneLoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboard}
       >
-        <View style={styles.content}>
-          <LoginHero />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.content}>
+            <LoginHero />
 
-          <LoginForm
-            phoneNumber={formattedPhone}
-            onPhoneNumberChange={handlePhoneChange}
-            onSubmit={handleSendOTP}
-            isPending={isPending}
-            isValid={isValid}
-            hasError={hasError}
-          />
-        </View>
+            <LoginForm
+              phoneNumber={formattedPhone}
+              onPhoneNumberChange={handlePhoneChange}
+              onSubmit={handleSendOTP}
+              isPending={isPending}
+              isValid={isValid}
+              hasError={hasError}
+            />
+          </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Screen>
   );

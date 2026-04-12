@@ -128,6 +128,7 @@ export default function BookingReviewScreen() {
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
+            keyboardDismissMode="on-drag"
           >
             <Typography
               variant="h2"
