@@ -17,25 +17,27 @@ import * as Clipboard from 'expo-clipboard';
 import { Screen } from '@/src/components/common/Screen';
 import { adminService } from '@/src/services/admin.service';
 import { LinkCode } from '@/src/types';
-
-const C = {
-  bg: '#f7f9fb',
-  card: '#ffffff',
-  text: '#1c1b1b',
-  sub: '#6b7280',
-  border: '#e5e7eb',
-  primary: '#2D3142',
-  error: '#ef4444',
-  white: '#ffffff',
-  muted: '#f3f4f6',
-  codeBg: '#eef0ff',
-};
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function LinkCodesScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
+  const { colors, isDark } = useTheme();
   const [newCode, setNewCode] = useState<string | null>(null);
+
+  const C = {
+    bg: colors.background,
+    card: colors.card,
+    text: colors.text,
+    sub: colors.muted,
+    border: colors.border,
+    primary: colors.primary,
+    error: colors.error,
+    white: colors.white,
+    muted: colors.surfaceContainerHigh,
+    codeBg: colors.surfaceContainerLow,
+  };
 
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ['link-codes'],
@@ -94,11 +96,26 @@ export default function LinkCodesScreen() {
     );
 
     return (
-      <View style={[s.card, !active && s.cardDim]}>
+      <View
+        style={[
+          s.card,
+          {
+            backgroundColor: C.card,
+            borderColor: C.border + (isDark ? '30' : '80'),
+          },
+          !active && s.cardDim,
+        ]}
+      >
         <View style={s.cardTop}>
           <View style={s.codeRow}>
             <Link2 size={16} color={active ? C.primary : C.sub} />
-            <Text style={[s.codeText, !active && { color: C.sub }]}>
+            <Text
+              style={[
+                s.codeText,
+                { color: C.text },
+                !active && { color: C.sub },
+              ]}
+            >
               {item.code}
             </Text>
           </View>
@@ -106,23 +123,28 @@ export default function LinkCodesScreen() {
             <View style={s.actions}>
               <TouchableOpacity
                 onPress={() => copyCode(item.code)}
-                style={s.actionBtn}
+                style={[s.actionBtn, { backgroundColor: C.muted }]}
               >
-                <Copy size={18} color={C.primary} />
+                <Copy size={18} color={isDark ? C.text : C.primary} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => confirmRevoke(item.id)}
-                style={s.actionBtn}
+                style={[s.actionBtn, { backgroundColor: C.muted }]}
               >
                 <Trash2 size={18} color={C.error} />
               </TouchableOpacity>
             </View>
           )}
         </View>
-        <View style={s.cardBottom}>
+        <View
+          style={[
+            s.cardBottom,
+            { borderTopColor: C.border + (isDark ? '15' : '30') },
+          ]}
+        >
           <View style={s.metaRow}>
             <Clock size={12} color={C.sub} />
-            <Text style={s.metaText}>
+            <Text style={[s.metaText, { color: C.sub }]}>
               {active
                 ? `${hoursLeft} saat kaldı`
                 : item.revoked_at
@@ -130,7 +152,7 @@ export default function LinkCodesScreen() {
                   : t('linkCodes.expired', 'Süresi doldu')}
             </Text>
           </View>
-          <Text style={s.metaText}>
+          <Text style={[s.metaText, { color: C.sub }]}>
             {item.current_uses}/{item.max_uses} kullanım
           </Text>
         </View>
@@ -140,7 +162,7 @@ export default function LinkCodesScreen() {
 
   return (
     <Screen
-      style={s.container}
+      style={[s.container, { backgroundColor: C.bg }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={t('linkCodes.title', 'Bağlantı Kodları')}
@@ -156,7 +178,7 @@ export default function LinkCodesScreen() {
           !isLoading ? (
             <View style={s.empty}>
               <Link2 size={48} color={C.border} />
-              <Text style={s.emptyText}>
+              <Text style={[s.emptyText, { color: C.sub }]}>
                 {t('linkCodes.empty', 'Henüz bağlantı kodu oluşturulmadı.')}
               </Text>
             </View>
@@ -165,12 +187,18 @@ export default function LinkCodesScreen() {
       />
 
       <TouchableOpacity
-        style={[s.fab, { bottom: 24 + insets.bottom }]}
+        style={[
+          s.fab,
+          {
+            bottom: 24 + insets.bottom,
+            backgroundColor: C.primary,
+          },
+        ]}
         onPress={() => generate.mutate()}
         activeOpacity={0.9}
         disabled={generate.isPending}
       >
-        <Plus size={28} color={C.white} />
+        <Plus size={28} color={isDark ? colors.background : C.white} />
       </TouchableOpacity>
 
       <Modal
@@ -180,13 +208,13 @@ export default function LinkCodesScreen() {
         onRequestClose={() => setNewCode(null)}
       >
         <View style={s.overlay}>
-          <View style={s.modal}>
+          <View style={[s.modal, { backgroundColor: C.card }]}>
             <Link2 size={32} color={C.primary} />
-            <Text style={s.modalTitle}>
+            <Text style={[s.modalTitle, { color: C.text }]}>
               {t('linkCodes.generated', 'Kod Oluşturuldu')}
             </Text>
-            <Text style={s.modalCode}>{newCode}</Text>
-            <Text style={s.modalHint}>
+            <Text style={[s.modalCode, { color: C.primary }]}>{newCode}</Text>
+            <Text style={[s.modalHint, { color: C.sub }]}>
               {t(
                 'linkCodes.generatedHint',
                 'Bu kodu müşterinizle paylaşın. 24 saat geçerlidir.',
@@ -194,25 +222,36 @@ export default function LinkCodesScreen() {
             </Text>
             <View style={s.modalBtns}>
               <TouchableOpacity
-                style={s.modalBtn}
+                style={[s.modalBtn, { backgroundColor: C.primary }]}
                 onPress={() => newCode && copyCode(newCode)}
               >
-                <Copy size={18} color={C.white} />
-                <Text style={s.modalBtnText}>
+                <Copy size={18} color={isDark ? colors.background : C.white} />
+                <Text
+                  style={[
+                    s.modalBtnText,
+                    { color: isDark ? colors.background : C.white },
+                  ]}
+                >
                   {t('linkCodes.copy', 'Kopyala')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[s.modalBtn, s.modalBtnSecondary]}
+                style={[
+                  s.modalBtn,
+                  s.modalBtnSecondary,
+                  { backgroundColor: C.muted },
+                ]}
                 onPress={() => newCode && shareCode(newCode)}
               >
-                <Text style={[s.modalBtnText, { color: C.primary }]}>
+                <Text style={[s.modalBtnText, { color: C.text }]}>
                   {t('linkCodes.share', 'Paylaş')}
                 </Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => setNewCode(null)}>
-              <Text style={s.modalDismiss}>{t('common.close', 'Kapat')}</Text>
+              <Text style={[s.modalDismiss, { color: C.sub }]}>
+                {t('common.close', 'Kapat')}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -222,14 +261,12 @@ export default function LinkCodesScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { backgroundColor: C.bg },
+  container: { flex: 1 },
   list: { padding: 16, gap: 12 },
   card: {
-    backgroundColor: C.card,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: C.border,
   },
   cardDim: { opacity: 0.5 },
   cardTop: {
@@ -242,13 +279,11 @@ const s = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     letterSpacing: 4,
-    color: C.text,
   },
   actions: { flexDirection: 'row', gap: 8 },
   actionBtn: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: C.muted,
   },
   cardBottom: {
     flexDirection: 'row',
@@ -256,24 +291,22 @@ const s = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: C.border,
   },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: 13, color: C.sub },
+  metaText: { fontSize: 13 },
   empty: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 80,
     gap: 16,
   },
-  emptyText: { fontSize: 15, color: C.sub, textAlign: 'center' },
+  emptyText: { fontSize: 15, textAlign: 'center' },
   fab: {
     position: 'absolute',
     right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: C.primary,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 6,
@@ -290,7 +323,6 @@ const s = StyleSheet.create({
     padding: 24,
   },
   modal: {
-    backgroundColor: C.card,
     borderRadius: 20,
     padding: 28,
     alignItems: 'center',
@@ -300,20 +332,17 @@ const s = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: C.text,
     marginTop: 12,
   },
   modalCode: {
     fontSize: 32,
     fontWeight: '800',
     letterSpacing: 6,
-    color: C.primary,
     marginTop: 20,
     marginBottom: 8,
   },
   modalHint: {
     fontSize: 14,
-    color: C.sub,
     textAlign: 'center',
     marginVertical: 16,
     lineHeight: 20,
@@ -324,16 +353,14 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: C.primary,
     borderRadius: 12,
     paddingVertical: 12,
     gap: 6,
   },
-  modalBtnSecondary: { backgroundColor: C.muted },
-  modalBtnText: { fontSize: 15, fontWeight: '600', color: C.white },
+  modalBtnSecondary: {},
+  modalBtnText: { fontSize: 15, fontWeight: '600' },
   modalDismiss: {
     fontSize: 14,
-    color: C.sub,
     marginTop: 16,
     textAlign: 'center',
   },
