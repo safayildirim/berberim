@@ -17,6 +17,7 @@ export interface TenantConfig {
   id: string;
   name: string;
   slug: string;
+  timezone?: string;
   logo_url?: string;
   currency: string;
   branding: {
