@@ -16,8 +16,14 @@ import { useTranslation } from 'react-i18next';
 export default function PhoneLoginScreen() {
   const { isDark } = useTheme();
   const { t } = useTranslation();
-  const { phoneNumber, setPhoneNumber, handleSendOTP, isPending, isValid } =
-    usePhoneLogin();
+  const {
+    formattedPhone,
+    handlePhoneChange,
+    handleSendOTP,
+    isPending,
+    isValid,
+    hasError,
+  } = usePhoneLogin();
 
   return (
     <Screen
@@ -37,11 +43,12 @@ export default function PhoneLoginScreen() {
           <LoginHero />
 
           <LoginForm
-            phoneNumber={phoneNumber}
-            onPhoneNumberChange={setPhoneNumber}
+            phoneNumber={formattedPhone}
+            onPhoneNumberChange={handlePhoneChange}
             onSubmit={handleSendOTP}
             isPending={isPending}
             isValid={isValid}
+            hasError={hasError}
           />
         </View>
       </KeyboardAvoidingView>

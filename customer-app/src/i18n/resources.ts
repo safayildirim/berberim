@@ -60,6 +60,7 @@ export const resources = {
         craftsmanship: 'Ustalık',
         experience: 'Deneyim',
         resendCodeIn: 'Kod {{timer}} içinde tekrar gönderilebilir',
+        invalidPhone: 'Geçerli bir Türkiye cep numarası girin (5XX XXX XXXX)',
       },
       home: {
         welcomeBack: 'Hoş geldin,',
@@ -325,6 +326,7 @@ export const resources = {
         craftsmanship: 'Craftsmanship',
         experience: 'Experience',
         resendCodeIn: 'Resend code in {{timer}}',
+        invalidPhone: 'Enter a valid Turkish mobile number (5XX XXX XXXX)',
       },
       home: {
         welcomeBack: 'Welcome back,',

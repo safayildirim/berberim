@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/berberim/api/internal/auth/jwt"
@@ -245,9 +246,19 @@ func (s *Service) issueTokenPair(ctx context.Context, userType string, userID uu
 	return accessToken, rawRefresh, sessionID, nil
 }
 
+// normalizePhone ensures a phone number is in E.164 format.
+// Numbers without a leading '+' are assumed to be Turkish (+90).
+func normalizePhone(phone string) string {
+	if strings.HasPrefix(phone, "+") {
+		return phone
+	}
+	return "+90" + phone
+}
+
 // ── Auth methods ──────────────────────────────────────────────────────────────
 
 func (s *Service) SendCustomerOTP(ctx context.Context, phoneNumber string) (expiresInSeconds int32, err error) {
+	phoneNumber = normalizePhone(phoneNumber)
 	customer, err := s.repo.GetCustomerByPhone(ctx, phoneNumber)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -290,6 +301,7 @@ func (s *Service) SendCustomerOTP(ctx context.Context, phoneNumber string) (expi
 }
 
 func (s *Service) VerifyCustomerOTP(ctx context.Context, phoneNumber, code string) (AuthTokenResult, error) {
+	phoneNumber = normalizePhone(phoneNumber)
 	customer, err := s.repo.GetCustomerByPhone(ctx, phoneNumber)
 	if err != nil {
 		return AuthTokenResult{}, status.Error(codes.Unauthenticated, "invalid or expired OTP code")

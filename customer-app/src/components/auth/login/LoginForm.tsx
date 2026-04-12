@@ -18,6 +18,7 @@ interface LoginFormProps {
   onSubmit: () => void;
   isPending: boolean;
   isValid: boolean;
+  hasError: boolean;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -26,6 +27,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   isPending,
   isValid,
+  hasError,
 }) => {
   const { isDark } = useTheme();
   const { t } = useTranslation();
@@ -48,9 +50,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               backgroundColor: isDark
                 ? 'rgba(24, 24, 27, 0.6)'
                 : 'rgba(244, 244, 245, 0.8)',
-              borderColor: isDark
-                ? 'rgba(39, 39, 42, 0.8)'
-                : 'rgba(228, 228, 231, 0.8)',
+              borderColor: hasError
+                ? '#ef4444'
+                : isDark
+                  ? 'rgba(39, 39, 42, 0.8)'
+                  : 'rgba(228, 228, 231, 0.8)',
             },
           ]}
         >
@@ -98,6 +102,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             style={[styles.input, { color: isDark ? '#fff' : '#18181b' }]}
           />
         </View>
+        {hasError && (
+          <Typography variant="caption" style={styles.errorText}>
+            {t('auth.invalidPhone')}
+          </Typography>
+        )}
       </View>
 
       {/* Action Button */}
@@ -213,5 +222,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: '500',
     paddingHorizontal: 10,
+  },
+  errorText: {
+    color: '#ef4444',
+    marginLeft: 4,
   },
 });
