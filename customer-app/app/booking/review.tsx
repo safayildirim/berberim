@@ -13,7 +13,10 @@ import { AlertCircle, UserCircle } from 'lucide-react-native';
 import { Typography } from '@/src/components/ui';
 import { useTheme } from '@/src/store/useThemeStore';
 import { useBookingStore } from '@/src/store/useBookingStore';
-import { useCreateAppointment } from '@/src/hooks/mutations/useAppointmentMutations';
+import {
+  useCreateAppointment,
+  useRescheduleAppointment,
+} from '@/src/hooks/mutations/useAppointmentMutations';
 import { useTenantStore } from '@/src/store/useTenantStore';
 import { BookingStickyFooter } from '@/src/components/booking/BookingStickyFooter';
 import { addDays, format, parseISO, startOfDay } from 'date-fns';
@@ -39,12 +42,15 @@ export default function BookingReviewScreen() {
     totalPrice,
     totalDuration,
     isRebookMode,
+    rebookSource,
     idempotencyKey,
     setSlot,
     setNotes,
   } = useBookingStore();
   const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
   const { mutate: createAppointment, isPending } = useCreateAppointment();
+  const { mutate: rescheduleAppointment, isPending: isReschedulePending } =
+    useRescheduleAppointment();
   const dateLocale = i18n.language.startsWith('tr') ? tr : enUS;
   const today = startOfDay(new Date());
   const fromDate = format(today, 'yyyy-MM-dd');
@@ -64,8 +70,53 @@ export default function BookingReviewScreen() {
   const recoverySlots: AvailabilitySlot[] =
     availability?.days.flatMap((day) => day.slots).slice(0, 6) || [];
 
+  const handleError = (error: any) => {
+    const message = String(error?.message || '').toLowerCase();
+    const code = String(error?.code || '').toLowerCase();
+    const isRecoverable =
+      code.includes('conflict') ||
+      code.includes('availability') ||
+      code.includes('already_exists') ||
+      code.includes('failed_precondition') ||
+      code.includes('rate_limited') ||
+      message.includes('available') ||
+      message.includes('conflict') ||
+      message.includes('advance') ||
+      message.includes('same-day') ||
+      message.includes('same day');
+
+    if (isRecoverable) {
+      setRecoveryMessage(error.message || t('booking.bookingFailed'));
+      refetchAvailability();
+      return;
+    }
+
+    setRecoveryMessage(error.message || t('booking.bookingFailed'));
+  };
+
   const handleConfirm = () => {
     if (!selectedSlot || !config?.id) return;
+
+    if (isRebookMode && rebookSource?.appointmentId) {
+      rescheduleAppointment(
+        {
+          id: rebookSource.appointmentId,
+          new_starts_at: selectedSlot.starts_at,
+          new_staff_user_id:
+            selectedStaffChoice === 'specific' ? selectedStaff?.id : undefined,
+        },
+        {
+          onSuccess: (data) => {
+            router.push({
+              pathname: '/booking/success',
+              params: { id: data.id },
+            });
+          },
+          onError: handleError,
+        },
+      );
+      return;
+    }
 
     createAppointment(
       {
@@ -83,29 +134,7 @@ export default function BookingReviewScreen() {
             params: { id: data.id },
           });
         },
-        onError: (error: any) => {
-          const message = String(error?.message || '').toLowerCase();
-          const code = String(error?.code || '').toLowerCase();
-          const isRecoverable =
-            code.includes('conflict') ||
-            code.includes('availability') ||
-            code.includes('already_exists') ||
-            code.includes('failed_precondition') ||
-            code.includes('rate_limited') ||
-            message.includes('available') ||
-            message.includes('conflict') ||
-            message.includes('advance') ||
-            message.includes('same-day') ||
-            message.includes('same day');
-
-          if (isRecoverable) {
-            setRecoveryMessage(error.message || t('booking.bookingFailed'));
-            refetchAvailability();
-            return;
-          }
-
-          setRecoveryMessage(error.message || t('booking.bookingFailed'));
-        },
+        onError: handleError,
       },
     );
   };
@@ -370,10 +399,12 @@ export default function BookingReviewScreen() {
         label={`${t('booking.total')} (${totalDuration} ${t('booking.minutes')})`}
         value={`${totalPrice} TL`}
         buttonText={
-          isPending ? t('common.loading') : t('booking.confirmBookingAction')
+          isPending || isReschedulePending
+            ? t('common.loading')
+            : t('booking.confirmBookingAction')
         }
         onPress={handleConfirm}
-        disabled={isPending}
+        disabled={isPending || isReschedulePending}
       />
     </View>
   );

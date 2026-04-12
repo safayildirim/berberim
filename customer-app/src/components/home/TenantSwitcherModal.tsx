@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   TextInput,
@@ -71,108 +73,119 @@ export const TenantSwitcherModal = ({
       animationType="slide"
       onRequestClose={close}
     >
-      <Pressable style={styles.overlay} onPress={close}>
-        <Pressable style={[styles.sheet, { backgroundColor: colors.card }]}>
-          <View style={styles.handle} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <Pressable style={styles.overlay} onPress={close}>
+          <Pressable style={[styles.sheet, { backgroundColor: colors.card }]}>
+            <View style={styles.handle} />
 
-          <Typography
-            variant="h3"
-            style={[styles.title, { color: colors.text }]}
-          >
-            {t('tenant.selectTitle', 'Dükkan Seç')}
-          </Typography>
+            <Typography
+              variant="h3"
+              style={[styles.title, { color: colors.text }]}
+            >
+              {t('tenant.selectTitle', 'Dükkan Seç')}
+            </Typography>
 
-          <View
-            style={[
-              styles.searchBox,
-              {
-                backgroundColor: colors.surfaceContainer,
-                borderColor: colors.outlineVariant,
-              },
-            ]}
-          >
-            <Search size={16} color={colors.onSurfaceVariant} />
-            <TextInput
-              style={[styles.searchInput, { color: colors.text }]}
-              placeholder={t('tenant.searchPlaceholder', 'Dükkan ara...')}
-              placeholderTextColor={colors.onSurfaceVariant}
-              value={search}
-              onChangeText={setSearch}
-              autoCorrect={false}
-            />
-          </View>
+            <View
+              style={[
+                styles.searchBox,
+                {
+                  backgroundColor: colors.surfaceContainer,
+                  borderColor: colors.outlineVariant,
+                },
+              ]}
+            >
+              <Search size={16} color={colors.onSurfaceVariant} />
+              <TextInput
+                style={[styles.searchInput, { color: colors.text }]}
+                placeholder={t('tenant.searchPlaceholder', 'Dükkan ara...')}
+                placeholderTextColor={colors.onSurfaceVariant}
+                value={search}
+                onChangeText={setSearch}
+                autoCorrect={false}
+              />
+            </View>
 
-          <View style={styles.list}>
-            {filteredTenants.map((membership) => {
-              const isActive = membership.tenant_id === activeTenantId;
-              return (
-                <TouchableOpacity
-                  key={membership.tenant_id}
-                  style={[
-                    styles.row,
-                    {
-                      backgroundColor: isActive
-                        ? colors.surfaceContainer
-                        : 'transparent',
-                      borderColor: isActive
-                        ? colors.outline
-                        : colors.outlineVariant,
-                    },
-                  ]}
-                  onPress={() => handleSelectTenant(membership)}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.rowInfo}>
-                    <Typography variant="label" style={{ color: colors.text }}>
-                      {membership.name}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      style={{ color: colors.onSurfaceVariant }}
-                    >
-                      {membership.slug}
-                    </Typography>
-                  </View>
-                  {isActive && (
-                    <View style={styles.badge}>
+            <View style={styles.list}>
+              {filteredTenants.map((membership) => {
+                const isActive = membership.tenant_id === activeTenantId;
+                return (
+                  <TouchableOpacity
+                    key={membership.tenant_id}
+                    style={[
+                      styles.row,
+                      {
+                        backgroundColor: isActive
+                          ? colors.surfaceContainer
+                          : 'transparent',
+                        borderColor: isActive
+                          ? colors.outline
+                          : colors.outlineVariant,
+                      },
+                    ]}
+                    onPress={() => handleSelectTenant(membership)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.rowInfo}>
+                      <Typography
+                        variant="label"
+                        style={{ color: colors.text }}
+                      >
+                        {membership.name}
+                      </Typography>
                       <Typography
                         variant="caption"
-                        style={{ color: '#fff', fontWeight: '600' }}
+                        style={{ color: colors.onSurfaceVariant }}
                       >
-                        {t('tenant.active', 'Aktif')}
+                        {membership.slug}
                       </Typography>
                     </View>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    {isActive && (
+                      <View style={styles.badge}>
+                        <Typography
+                          variant="caption"
+                          style={{ color: '#fff', fontWeight: '600' }}
+                        >
+                          {t('tenant.active', 'Aktif')}
+                        </Typography>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              {
-                borderColor: colors.outlineVariant,
-                backgroundColor: colors.surfaceContainerLow,
-              },
-            ]}
-            onPress={handleAddShop}
-          >
-            <Plus size={18} color={colors.onSurfaceVariant} />
-            <Typography
-              variant="label"
-              style={{ color: colors.onSurfaceVariant }}
+            <TouchableOpacity
+              style={[
+                styles.addButton,
+                {
+                  borderColor: colors.outlineVariant,
+                  backgroundColor: colors.surfaceContainerLow,
+                },
+              ]}
+              onPress={handleAddShop}
             >
-              {t('tenant.addAnother', 'Yeni Dükkan Ekle')}
-            </Typography>
-          </TouchableOpacity>
+              <Plus size={18} color={colors.onSurfaceVariant} />
+              <Typography
+                variant="label"
+                style={{ color: colors.onSurfaceVariant }}
+              >
+                {t('tenant.addAnother', 'Yeni Dükkan Ekle')}
+              </Typography>
+            </TouchableOpacity>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardView: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',

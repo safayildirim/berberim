@@ -12,12 +12,15 @@ import { useTenantStore } from '@/src/store/useTenantStore';
 import { Staff } from '@/src/types';
 
 export interface UpcomingAppointment {
+  appointmentId: string;
   shopName: string;
   barberName: string;
   service: string;
   date: string;
   price: string;
   shopImage: string;
+  address: string;
+  coordinates: { latitude: number; longitude: number } | null;
 }
 
 export interface PastBooking {
@@ -68,6 +71,7 @@ export const useHomeData = () => {
     if (!nextAppointment) return null;
     const d = parseISO(nextAppointment.starts_at);
     return {
+      appointmentId: nextAppointment.id,
       shopName: config?.name || t('common.barberShop'),
       barberName:
         `${nextAppointment.staff?.first_name || ''} ${nextAppointment.staff?.last_name || ''}`.trim(),
@@ -78,6 +82,8 @@ export const useHomeData = () => {
       shopImage:
         branding.logoUrl ||
         'https://images.unsplash.com/photo-1618077360395-f3068be8e001?auto=format&fit=crop&w=150&q=80',
+      address: config?.address || '',
+      coordinates: config?.coordinates ?? null,
     };
   }, [nextAppointment, t, config, branding, locale]);
 

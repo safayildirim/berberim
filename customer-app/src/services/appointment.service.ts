@@ -57,10 +57,20 @@ export const appointmentService = {
       .then((res) => res.appointment);
   },
 
-  reschedule: async (id: string, starts_at: string): Promise<Appointment> => {
-    return api.post(`/customer/appointments/${id}/reschedule`, {
-      new_starts_at: starts_at,
-    });
+  reschedule: async (
+    id: string,
+    starts_at: string,
+    staff_user_id?: string,
+  ): Promise<Appointment> => {
+    return api
+      .post<{ new_appointment: Appointment }>(
+        `/customer/appointments/${id}/reschedule`,
+        {
+          new_starts_at: starts_at,
+          ...(staff_user_id ? { new_staff_user_id: staff_user_id } : {}),
+        },
+      )
+      .then((res) => res.new_appointment);
   },
 
   searchAvailability: async (

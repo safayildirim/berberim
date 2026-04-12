@@ -1,11 +1,20 @@
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Linking,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Clock, Navigation, CalendarClock } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/store/useThemeStore';
 import { Typography } from '@/src/components/ui';
 import { SIZES } from '@/src/constants/theme';
 import { UpcomingAppointment as AppointmentType } from '@/src/hooks/useHomeData';
+import { useRebookAppointment } from '@/src/hooks/mutations/useAppointmentMutations';
 
 interface UpcomingAppointmentProps {
   appointment: AppointmentType;
@@ -16,6 +25,38 @@ export const UpcomingAppointment = ({
 }: UpcomingAppointmentProps) => {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
+  const { mutateAsync: rebook, isPending: isRebooking } =
+    useRebookAppointment();
+
+  const handleReschedule = async () => {
+    await rebook(appointment.appointmentId);
+    router.push('/booking/slots');
+  };
+
+  const openDirections = () => {
+    const { coordinates, address, shopName } = appointment;
+    let url: string;
+    if (coordinates) {
+      const { latitude, longitude } = coordinates;
+      const label = encodeURIComponent(shopName);
+      url =
+        Platform.OS === 'ios'
+          ? `maps://?q=${label}&ll=${latitude},${longitude}`
+          : `geo:${latitude},${longitude}?q=${latitude},${longitude}(${label})`;
+    } else {
+      const query = encodeURIComponent(address || shopName);
+      url = Platform.OS === 'ios' ? `maps://?q=${query}` : `geo:0,0?q=${query}`;
+    }
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        const fallback = `https://maps.google.com/?q=${encodeURIComponent(address || shopName)}`;
+        Linking.openURL(fallback);
+      }
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -106,12 +147,17 @@ export const UpcomingAppointment = ({
                 borderColor: colors.outlineVariant,
               },
             ]}
+            onPress={handleReschedule}
+            disabled={isRebooking}
           >
             <Typography style={[styles.buttonText, { color: colors.text }]}>
               {t('appointments.reschedule')}
             </Typography>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.directionsButton}>
+          <TouchableOpacity
+            style={styles.directionsButton}
+            onPress={openDirections}
+          >
             <Navigation size={16} color="#000" />
             <Typography style={styles.directionsText}>
               {t('appointments.directions')}

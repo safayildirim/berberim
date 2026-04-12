@@ -6,6 +6,12 @@ import {
 import { queryKeys } from '@/src/lib/query/keys';
 import { useBookingStore } from '@/src/store/useBookingStore';
 
+export interface RescheduleAppointmentRequest {
+  id: string;
+  new_starts_at: string;
+  new_staff_user_id?: string;
+}
+
 export const useCreateAppointment = () => {
   const queryClient = useQueryClient();
   const resetBooking = useBookingStore((state) => state.reset); // Local booking state reset
@@ -46,11 +52,17 @@ export const useCancelAppointment = () => {
 
 export const useRescheduleAppointment = () => {
   const queryClient = useQueryClient();
+  const resetBooking = useBookingStore((state) => state.reset);
 
   return useMutation({
-    mutationFn: ({ id, starts_at }: { id: string; starts_at: string }) =>
-      appointmentService.reschedule(id, starts_at),
+    mutationFn: ({
+      id,
+      new_starts_at,
+      new_staff_user_id,
+    }: RescheduleAppointmentRequest) =>
+      appointmentService.reschedule(id, new_starts_at, new_staff_user_id),
     onSuccess: (_, { id }) => {
+      resetBooking();
       queryClient.invalidateQueries({ queryKey: queryKeys.appointments.all });
       queryClient.invalidateQueries({
         queryKey: queryKeys.appointments.detail(id),
