@@ -138,7 +138,6 @@ export const resources = {
       },
       settings: {
         editProfile: 'Profili Düzenle',
-        publicPage: 'Mağazayı Gör',
         sections: {
           account: 'Hesap',
           business: 'İşletme Yönetimi',
@@ -162,6 +161,15 @@ export const resources = {
           privacy: 'Gizlilik Politikası',
         },
         logout: 'Çıkış Yap',
+        profile: {
+          title: 'Profil Bilgileri',
+          subtitle:
+            'Görsel kimliğiniz ve iletişim bilgileriniz müşteriler tarafından görülebilir',
+          update: 'Güncelle',
+          updateHint: 'Değişiklikleri kaydetmek için dokunun',
+          successUpdate: 'Profil başarıyla güncellendi',
+          errorUpdate: 'Profil güncellenemedi',
+        },
         adminExclusive: 'YÖNETİCİYE ÖZEL',
         staff: {
           totalStaff: 'TOPLAM PERSONEL',
@@ -596,7 +604,6 @@ export const resources = {
       },
       settings: {
         editProfile: 'Edit Profile',
-        publicPage: 'View Public Page',
         sections: {
           account: 'Account',
           business: 'Business Management',
@@ -619,7 +626,16 @@ export const resources = {
           terms: 'Terms of Service',
           privacy: 'Privacy Policy',
         },
-        logout: 'Logout',
+        logout: 'Log Out',
+        profile: {
+          title: 'Profile Identity',
+          subtitle:
+            'Your visual identity and contact details are visible to customers',
+          update: 'Update',
+          updateHint: 'Tap to save changes',
+          successUpdate: 'Profile updated successfully',
+          errorUpdate: 'Could not update profile',
+        },
         adminExclusive: 'ADMIN EXCLUSIVE',
         staff: {
           totalStaff: 'TOTAL STAFF',

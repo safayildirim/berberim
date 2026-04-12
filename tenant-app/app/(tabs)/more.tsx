@@ -349,39 +349,6 @@ export default function MoreScreen() {
                 {tenant?.name || 'The Master Barber Atelier'}
               </Text>
             </View>
-
-            <View style={styles.profileActions}>
-              <TouchableOpacity
-                style={[
-                  styles.primaryAction,
-                  { backgroundColor: colors.primary },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.primaryActionText,
-                    { color: colors.onPrimary },
-                  ]}
-                >
-                  {t('settings.editProfile')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.secondaryAction,
-                  { backgroundColor: colors.surfaceContainerHigh },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.secondaryActionText,
-                    { color: colors.primary },
-                  ]}
-                >
-                  {t('settings.publicPage')}
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
 
@@ -392,7 +359,7 @@ export default function MoreScreen() {
             <BentoItem
               icon={UserCircle}
               title={t('settings.items.personal')}
-              onPress={() => {}}
+              onPress={() => router.push('/profile/edit')}
             />
             <BentoItem
               icon={CalendarOff}
@@ -603,34 +570,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 24,
   },
   shopName: {
     ...TYPOGRAPHY.bodyBold,
     fontSize: 16,
-  },
-  profileActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  primaryAction: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 14,
-    ...SHADOWS.sm,
-  },
-  primaryActionText: {
-    ...TYPOGRAPHY.bodyBold,
-    fontSize: 14,
-  },
-  secondaryAction: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 14,
-  },
-  secondaryActionText: {
-    ...TYPOGRAPHY.bodyBold,
-    fontSize: 14,
   },
   bentoGrid: {
     paddingHorizontal: 24,

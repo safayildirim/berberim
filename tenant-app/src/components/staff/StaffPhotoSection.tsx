@@ -8,9 +8,16 @@ import { useTheme } from '@/src/hooks/useTheme';
 type Props = {
   avatarUri?: string;
   onPickImage?: () => void;
+  title?: string;
+  subtitle?: string;
 };
 
-export const StaffPhotoSection = ({ avatarUri, onPickImage }: Props) => {
+export const StaffPhotoSection = ({
+  avatarUri,
+  onPickImage,
+  title,
+  subtitle,
+}: Props) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
 
@@ -54,10 +61,10 @@ export const StaffPhotoSection = ({ avatarUri, onPickImage }: Props) => {
       </TouchableOpacity>
       <View style={styles.textContent}>
         <Text style={[styles.title, { color: colors.primary }]}>
-          {t('settings.staff.create.teamIntegration')}
+          {title || t('settings.staff.create.teamIntegration')}
         </Text>
         <Text style={[styles.subtitle, { color: colors.secondary }]}>
-          {t('settings.staff.create.teamIntegrationSub')}
+          {subtitle || t('settings.staff.create.teamIntegrationSub')}
         </Text>
       </View>
     </View>

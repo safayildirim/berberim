@@ -7,16 +7,18 @@ import { ServiceFormGeneralSection } from '@/src/components/services/form/Servic
 import { ServiceFormPricingSection } from '@/src/components/services/form/ServiceFormPricingSection';
 import { ServiceFormStatusSection } from '@/src/components/services/form/ServiceFormStatusSection';
 import { useServiceForm } from '@/src/hooks/services/useServiceForm';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function CreateServiceScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const { formData, updateField, handleSubmit, isSubmitting } =
     useServiceForm();
 
   return (
     <Screen
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       withPadding={false}
       transparentStatusBar
       headerTitle={t('settings.items.createService')}
@@ -53,7 +55,12 @@ export default function CreateServiceScreen() {
             }}
             style={styles.visualImage}
           />
-          <View style={styles.visualOverlay}>
+          <View
+            style={[
+              styles.visualOverlay,
+              { backgroundColor: 'rgba(27, 38, 59, 0.8)' },
+            ]}
+          >
             <Text style={styles.visualText}>{t('serviceForm.adminHint')}</Text>
           </View>
         </View>
@@ -66,10 +73,10 @@ export default function CreateServiceScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f7f9fb',
+    flex: 1,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingVertical: 24,
   },
   visualContainer: {
     height: 100,
@@ -84,7 +91,6 @@ const styles = StyleSheet.create({
   },
   visualOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(27, 38, 59, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,

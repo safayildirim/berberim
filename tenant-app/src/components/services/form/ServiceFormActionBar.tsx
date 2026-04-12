@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SHADOWS } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Props {
   onSave: () => void;
@@ -22,27 +24,45 @@ export const ServiceFormActionBar: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
 
   return (
     <View
-      style={[styles.actionBar, { paddingBottom: Math.max(insets.bottom, 20) }]}
+      style={[
+        styles.actionBar,
+        {
+          paddingBottom: Math.max(insets.bottom, 20),
+          backgroundColor: colors.background,
+          borderTopColor: colors.border + '15',
+        },
+      ]}
     >
       <TouchableOpacity
-        style={styles.saveBtn}
         onPress={onSave}
         disabled={isSubmitting}
         activeOpacity={0.9}
+        style={styles.saveBtnWrapper}
       >
-        {isSubmitting ? (
-          <ActivityIndicator color="#ffffff" />
-        ) : (
-          <View style={styles.btnContent}>
-            <Save size={18} color="#ffffff" />
-            <Text style={styles.saveBtnText}>
-              {t('serviceForm.saveService')}
-            </Text>
-          </View>
-        )}
+        <LinearGradient
+          colors={[colors.primary, isDark ? '#1b263b' : colors.primary + 'E6']}
+          style={styles.saveBtn}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color={colors.onPrimary || '#ffffff'} />
+          ) : (
+            <View style={styles.btnContent}>
+              <Save size={18} color={colors.onPrimary || '#ffffff'} />
+              <Text
+                style={[
+                  styles.saveBtnText,
+                  { color: colors.onPrimary || '#ffffff' },
+                ]}
+              >
+                {t('serviceForm.saveService')}
+              </Text>
+            </View>
+          )}
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -53,16 +73,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    backgroundColor: '#f7f9fb',
+  },
+  saveBtnWrapper: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    ...SHADOWS.md,
   },
   saveBtn: {
-    backgroundColor: '#051125',
     height: 56,
-    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    ...SHADOWS.md,
   },
   btnContent: {
     flexDirection: 'row',
@@ -70,7 +90,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   saveBtnText: {
-    color: '#ffffff',
     fontSize: 14,
     fontWeight: '800',
     textTransform: 'uppercase',

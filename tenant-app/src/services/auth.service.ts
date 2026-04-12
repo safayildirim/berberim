@@ -47,6 +47,12 @@ export const authService = {
       .then((res: any) => res.profile);
   },
 
+  updateMe: async (data: Partial<User>): Promise<User> => {
+    return api
+      .patch<{ profile: User }>('/tenant/me', data)
+      .then((res: any) => res.profile);
+  },
+
   registerPushDevice: async (
     data: RegisterPushDeviceRequest,
   ): Promise<{ device_id: string }> => {

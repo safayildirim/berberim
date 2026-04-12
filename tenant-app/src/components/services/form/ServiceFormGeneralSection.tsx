@@ -2,7 +2,7 @@ import { ChevronDown, FileText } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   name: string;
@@ -18,52 +18,85 @@ export const ServiceFormGeneralSection: React.FC<Props> = ({
   onUpdate,
 }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.section}>
+    <View
+      style={[styles.section, { backgroundColor: colors.surfaceContainerLow }]}
+    >
       <View style={styles.sectionLabelRow}>
-        <FileText size={14} color={COLORS.secondary} />
-        <Text style={styles.sectionLabel}>{t('serviceForm.generalInfo')}</Text>
+        <FileText size={14} color={colors.secondary} />
+        <Text style={[styles.sectionLabel, { color: colors.secondary }]}>
+          {t('serviceForm.generalInfo')}
+        </Text>
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{t('serviceForm.serviceName')}</Text>
+        <Text style={[styles.inputLabel, { color: colors.secondary }]}>
+          {t('serviceForm.serviceName')}
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.surfaceContainerHigh,
+              color: colors.primary,
+            },
+          ]}
           placeholder={t('serviceForm.placeholders.name')}
           value={name}
           onChangeText={(v) => onUpdate('name', v)}
-          placeholderTextColor="#c5c6cd"
+          placeholderTextColor={colors.outline + '80'}
+          selectionColor={colors.primary}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{t('serviceForm.category')}</Text>
+        <Text style={[styles.inputLabel, { color: colors.secondary }]}>
+          {t('serviceForm.category')}
+        </Text>
         <View style={styles.pickerWrapper}>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.surfaceContainerHigh,
+                color: colors.primary,
+              },
+            ]}
             value={category}
             onChangeText={(v) => onUpdate('category', v)}
-            placeholderTextColor="#c5c6cd"
+            placeholderTextColor={colors.outline + '80'}
+            selectionColor={colors.primary}
           />
           <ChevronDown
             size={20}
-            color={COLORS.secondary}
+            color={colors.secondary}
             style={styles.pickerIcon}
           />
         </View>
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{t('serviceForm.description')}</Text>
+        <Text style={[styles.inputLabel, { color: colors.secondary }]}>
+          {t('serviceForm.description')}
+        </Text>
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[
+            styles.input,
+            styles.textArea,
+            {
+              backgroundColor: colors.surfaceContainerHigh,
+              color: colors.primary,
+            },
+          ]}
           placeholder={t('serviceForm.placeholders.description')}
           multiline
           numberOfLines={3}
           value={description}
           onChangeText={(v) => onUpdate('description', v)}
-          placeholderTextColor="#c5c6cd"
+          placeholderTextColor={colors.outline + '80'}
+          selectionColor={colors.primary}
         />
       </View>
     </View>
@@ -72,7 +105,6 @@ export const ServiceFormGeneralSection: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   section: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -93,7 +125,6 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '800',
-    color: COLORS.secondary,
     letterSpacing: 1.5,
   },
   inputGroup: {
@@ -102,18 +133,15 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 11,
     fontWeight: '800',
-    color: COLORS.secondary,
     letterSpacing: 1,
     marginLeft: 4,
   },
   input: {
-    backgroundColor: '#eceef0',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 14,
     fontWeight: '600',
-    color: '#051125',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(197, 198, 205, 0.15)',
   },

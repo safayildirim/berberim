@@ -2,7 +2,7 @@ import { DollarSign, Star } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { COLORS } from '@/src/constants/theme';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface Props {
   basePrice: string;
@@ -18,44 +18,70 @@ export const ServiceFormPricingSection: React.FC<Props> = ({
   onUpdate,
 }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.section}>
+    <View
+      style={[styles.section, { backgroundColor: colors.surfaceContainerLow }]}
+    >
       <View style={styles.sectionLabelRow}>
-        <DollarSign size={14} color={COLORS.secondary} />
-        <Text style={styles.sectionLabel}>
+        <DollarSign size={14} color={colors.secondary} />
+        <Text style={[styles.sectionLabel, { color: colors.secondary }]}>
           {t('serviceForm.pricingLogistics')}
         </Text>
       </View>
 
       <View style={styles.gridRow}>
         <View style={styles.gridCol}>
-          <Text style={styles.inputLabel}>{t('serviceForm.basePrice')}</Text>
-          <View style={styles.inputWithAdornment}>
-            <Text style={styles.adornmentText}>$</Text>
+          <Text style={[styles.inputLabel, { color: colors.secondary }]}>
+            {t('serviceForm.basePrice')}
+          </Text>
+          <View
+            style={[
+              styles.inputWithAdornment,
+              { backgroundColor: colors.surfaceContainerHigh },
+            ]}
+          >
+            <Text style={[styles.adornmentText, { color: colors.primary }]}>
+              $
+            </Text>
             <TextInput
-              style={styles.gridInput}
+              style={[styles.gridInput, { color: colors.primary }]}
               placeholder="0.00"
               keyboardType="numeric"
               value={basePrice}
               onChangeText={(v) => onUpdate('basePrice', v)}
-              placeholderTextColor="#c5c6cd"
+              placeholderTextColor={colors.outline + '80'}
+              selectionColor={colors.primary}
             />
           </View>
         </View>
 
         <View style={styles.gridCol}>
-          <Text style={styles.inputLabel}>{t('serviceForm.duration')}</Text>
-          <View style={styles.inputWithAdornment}>
+          <Text style={[styles.inputLabel, { color: colors.secondary }]}>
+            {t('serviceForm.duration')}
+          </Text>
+          <View
+            style={[
+              styles.inputWithAdornment,
+              { backgroundColor: colors.surfaceContainerHigh },
+            ]}
+          >
             <TextInput
-              style={[styles.gridInput, { textAlign: 'right' }]}
+              style={[
+                styles.gridInput,
+                { textAlign: 'right', color: colors.primary },
+              ]}
               placeholder="45"
               keyboardType="numeric"
               value={durationMinutes}
               onChangeText={(v) => onUpdate('durationMinutes', v)}
-              placeholderTextColor="#c5c6cd"
+              placeholderTextColor={colors.outline + '80'}
+              selectionColor={colors.primary}
             />
-            <Text style={styles.adornmentTextLabel}>
+            <Text
+              style={[styles.adornmentTextLabel, { color: colors.secondary }]}
+            >
               {t('serviceCatalog.minutes')}
             </Text>
           </View>
@@ -63,21 +89,29 @@ export const ServiceFormPricingSection: React.FC<Props> = ({
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{t('serviceForm.loyaltyPoints')}</Text>
-        <View style={styles.inputWithAdornment}>
+        <Text style={[styles.inputLabel, { color: colors.secondary }]}>
+          {t('serviceForm.loyaltyPoints')}
+        </Text>
+        <View
+          style={[
+            styles.inputWithAdornment,
+            { backgroundColor: colors.surfaceContainerHigh },
+          ]}
+        >
           <Star
             size={14}
-            color={COLORS.secondary}
+            color={colors.secondary}
             style={styles.adornmentIcon}
-            fill={COLORS.secondary}
+            fill={colors.secondary}
           />
           <TextInput
-            style={styles.gridInput}
+            style={[styles.gridInput, { color: colors.primary }]}
             placeholder="50"
             keyboardType="numeric"
             value={pointsReward}
             onChangeText={(v) => onUpdate('pointsReward', v)}
-            placeholderTextColor="#c5c6cd"
+            placeholderTextColor={colors.outline + '80'}
+            selectionColor={colors.primary}
           />
         </View>
       </View>
@@ -87,7 +121,6 @@ export const ServiceFormPricingSection: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   section: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -108,7 +141,6 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '800',
-    color: COLORS.secondary,
     letterSpacing: 1.5,
   },
   gridRow: {
@@ -123,7 +155,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#051125',
     paddingVertical: 14,
   },
   inputGroup: {
@@ -132,14 +163,12 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 11,
     fontWeight: '800',
-    color: COLORS.secondary,
     letterSpacing: 1,
     marginLeft: 4,
   },
   inputWithAdornment: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#eceef0',
     borderRadius: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
@@ -148,13 +177,11 @@ const styles = StyleSheet.create({
   adornmentText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#051125',
     marginRight: 4,
   },
   adornmentTextLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: COLORS.secondary,
     marginLeft: 4,
     textTransform: 'uppercase',
   },
